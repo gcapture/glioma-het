@@ -1,3 +1,0 @@
-# Figure S6 Legend {.unnumbered}
-
-**Fig. S6. Statistical selection of RA cells for the different iterations of RA NMF metaprograms.** Permutation testing selection method based on the enrichment scores for the three different RA metaprograms retrieved including ribosomal genes (*OD_RA*), excluding them (*N_RA*) and also excluding the sample with the highest proportion of RA cells, *IDH_ACB_AD_540* (*N2_RA*) is used in the tumor cells of oligodendrogliomas (**A**) and astrocytomas (**B**). Jaccard similarities between the selected cells for each of the NMF metaprograms is shown (bottom left). Enrichment scores are shown in the top and the selected cells at the bottom.

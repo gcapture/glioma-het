@@ -1,3 +1,0 @@
-# Figure S3 Legend {.unnumbered}
-
-**Fig. S3.** (**A** and **B**) Dot plot showing three key marker genes for the microglia clusters in oligodendrogliomas (**A-top**) and astrocytomas (**A-bottom**); and primary (**B-top**) and recurrent (**B-bottom**) tumors. (**C**) Heatmap showing the number of interactions identified using CellPhoneDB between astro-like, OPC-like tumor clusters and the microglia subclusters. AS, astrocytoma; OD, oligodendroglioma. (**D**) Dot plot depicting the expression levels of T Cell marker genes on astrocytoma (bottom) and oligodendroglioma (top).

@@ -1,3 +1,0 @@
-# Figure S11 Legend {.unnumbered}
-
-Fig. S11. Reference mapping using Azimuth. Tumor subsets for primary oligodendrogliomas and primary astrocytomas are mapped onto two reference datasets: *fetus reference* from Azimuth (A - oligodendrogliomas, B - astrocytomas) and *GBmap* (C - oligodendroglimas, D- astrocytomas). For each variation, original UMAP embedding is shown on the top-left, cells mapped onto the reference umap on the top-right, cells re-labelled based on the reference mapping on the bottom left and a bar plot of the proportions of the new annotation per each original tumor entity on the bottom-right.

@@ -1,3 +1,0 @@
-# Figure S9 Legend {.unnumbered}
-
-Fig. S9. Diffusion analysis with extended stemness markers. Diffusion map visualization of oligodendrogliomas and astrocytomas computed based on the genes reported for the Astrocyte-like, Oligo-like and Stemness programs in *Venteicher, et al.*  and stemness-related marker sets from *PanglaoDB* database, encompassing OPC, NPC, pluripotent stem cells, embrionic stem cells and radial glia. Right:Scaled and centered enrichment scores for the three programs. Cells are ordered based on their position along diffusion component 2 (DC_2). Gradient cells are excluded for better visualization. RA cells locate at one end of DC_2, where the enrichment for Stemness program is highest, suggesting stemness-like properties of RA cells.
