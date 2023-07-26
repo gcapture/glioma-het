@@ -13,3 +13,4 @@ to_recycle/*
 /.quarto/
 datasets/*
 figs/*
+site_libs/*
