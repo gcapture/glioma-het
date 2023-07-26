@@ -11,7 +11,7 @@
     "href": "index.html#book-contents",
     "title": "Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas",
     "section": "Book contents",
-    "text": "Book contents\nIn the present book, we have compiled all the code used in the analysis and to generate the figures. A couple of notes worth mentioning:\n\nAbsolute paths are displayed, which will not work on another user’s end.\nObjects are loaded based on such pathways. Another user will have to regenerate such objects based on the available data.\nMetadata columns may vary between the code and the available metadata. However, this should be a name change.\nDevelopment version of SCpubr was used (equivalent to v2.X.X, when published) for the figures."
+    "text": "Book contents\nIn the present book, we have compiled all the code used in the analysis and to generate the figures. A couple of notes worth mentioning:\n\nAbsolute paths are displayed, which will not work on another user’s end.\nObjects are loaded based on such pathways. Another user will have to regenerate such objects based on the available data.\nMetadata columns may vary between the code and the available metadata. However, this should be a name change.\nSome figures might slightly vary from the final version on the paper, due to modifications with Affinity Designer.\nDevelopment version of SCpubr was used (equivalent to v2.X.X, when published) for the figures."
   },
   {
     "objectID": "index.html#contact",

@@ -14,3 +14,6 @@ to_recycle/*
 datasets/*
 figs/*
 site_libs/*
+viz/removed/*
+vim/*.html
+analysis/*.html

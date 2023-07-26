@@ -6,6 +6,12 @@ In addition, IDH mutant gliomas have distinct activation states of tumor-associa
 
 Here, we performed high-throughput single-nucleus RNA and ATAC sequencing (snRNA- and snATAC-seq) on primary IDH mutant gliomas and snRNA-seq on a cohort of primary and recurrent astrocytoma pairs to create a resource to comprehensively resolve tumor diversity and TAM states. Our results confirm the previously described differentiation hierarchies and reveal a novel group of epigenetically and transcriptionally distinct ribosomal enriched non-cycling stem-like tumor cells in IDH mutant gliomas. We identify significant transcriptional differences in TAM states between oligodendrogliomas and astrocytomas, and receptor-ligand interaction mapping between tumor subpopulations and TAM states reveals a notable interaction between inflammatory TAMs and astrocytic tumor subpopulations in astrocytomas confirmed by immunohistochemical analyses of validation cohorts. These results suggest that TAM-tumor interactions may contribute to the clinical course of oligodendrogliomas and astrocytomas.
 
+## Repository contents
+
+- **analysis**: Contains the code used for analysis.
+- **viz**:  Contains the code for the figures.
+- **docs**: Documents used to generate GitHub pages.
+- **Rest**: Documents that support the GitHub pages.
 
 ## Contact
 

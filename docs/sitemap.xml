@@ -2,354 +2,354 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/index.html</loc>
-    <lastmod>2023-07-26T12:42:25.571Z</lastmod>
+    <lastmod>2023-07-26T13:11:43.432Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_001_count_matrices.html</loc>
-    <lastmod>2023-07-26T12:29:31.466Z</lastmod>
+    <lastmod>2023-07-26T12:59:50.170Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_002_doublets.html</loc>
-    <lastmod>2023-07-26T12:29:38.202Z</lastmod>
+    <lastmod>2023-07-26T12:59:56.042Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_003_merge_samples.html</loc>
-    <lastmod>2023-07-26T12:29:42.616Z</lastmod>
+    <lastmod>2023-07-26T12:59:59.552Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_004_normalization.html</loc>
-    <lastmod>2023-07-26T12:29:51.040Z</lastmod>
+    <lastmod>2023-07-26T13:00:06.835Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_005_dimensional_reduction.html</loc>
-    <lastmod>2023-07-26T12:29:59.550Z</lastmod>
+    <lastmod>2023-07-26T13:00:14.173Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_006_cluster_labelling.html</loc>
-    <lastmod>2023-07-26T12:30:03.026Z</lastmod>
+    <lastmod>2023-07-26T13:00:17.071Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_007_CNV.html</loc>
-    <lastmod>2023-07-26T12:30:23.438Z</lastmod>
+    <lastmod>2023-07-26T13:00:34.285Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_008_NMF.html</loc>
-    <lastmod>2023-07-26T12:30:36.972Z</lastmod>
+    <lastmod>2023-07-26T13:00:46.286Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_009_permutation_testing.html</loc>
-    <lastmod>2023-07-26T12:30:48.204Z</lastmod>
+    <lastmod>2023-07-26T13:00:57.025Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_010_progeny.html</loc>
-    <lastmod>2023-07-26T12:30:54.032Z</lastmod>
+    <lastmod>2023-07-26T13:01:01.926Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_012_diffusion.html</loc>
-    <lastmod>2023-07-26T12:31:12.698Z</lastmod>
+    <lastmod>2023-07-26T13:01:17.711Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_ligand_receptor.html</loc>
-    <lastmod>2023-07-26T12:31:37.301Z</lastmod>
+    <lastmod>2023-07-26T13:01:38.748Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_013_ATAC_QC.html</loc>
-    <lastmod>2023-07-26T12:31:53.161Z</lastmod>
+    <lastmod>2023-07-26T13:01:53.593Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_014_ATAC.html</loc>
-    <lastmod>2023-07-26T12:32:20.043Z</lastmod>
+    <lastmod>2023-07-26T13:02:17.327Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_deconvolution_oligo.html</loc>
-    <lastmod>2023-07-26T12:32:38.972Z</lastmod>
+    <lastmod>2023-07-26T13:02:35.077Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_deconvolution_astro.html</loc>
-    <lastmod>2023-07-26T12:32:57.668Z</lastmod>
+    <lastmod>2023-07-26T13:02:53.134Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/analysis/analysis_microglia_deconvolution.html</loc>
-    <lastmod>2023-07-26T12:33:27.275Z</lastmod>
+    <lastmod>2023-07-26T13:03:23.120Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1A.html</loc>
-    <lastmod>2023-07-26T12:33:33.356Z</lastmod>
+    <lastmod>2023-07-26T13:03:28.735Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1B.html</loc>
-    <lastmod>2023-07-26T12:33:37.462Z</lastmod>
+    <lastmod>2023-07-26T13:03:32.485Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1C.html</loc>
-    <lastmod>2023-07-26T12:33:41.827Z</lastmod>
+    <lastmod>2023-07-26T13:03:36.571Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1D.html</loc>
-    <lastmod>2023-07-26T12:33:48.915Z</lastmod>
+    <lastmod>2023-07-26T13:03:42.917Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1E.html</loc>
-    <lastmod>2023-07-26T12:33:55.286Z</lastmod>
+    <lastmod>2023-07-26T13:03:48.665Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1F.html</loc>
-    <lastmod>2023-07-26T12:34:00.930Z</lastmod>
+    <lastmod>2023-07-26T13:03:53.646Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1G.html</loc>
-    <lastmod>2023-07-26T12:34:05.050Z</lastmod>
+    <lastmod>2023-07-26T13:03:57.508Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1H.html</loc>
-    <lastmod>2023-07-26T12:34:13.813Z</lastmod>
+    <lastmod>2023-07-26T13:04:06.160Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1I.html</loc>
-    <lastmod>2023-07-26T12:34:19.228Z</lastmod>
+    <lastmod>2023-07-26T13:04:10.842Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_1L.html</loc>
-    <lastmod>2023-07-26T12:34:24.974Z</lastmod>
+    <lastmod>2023-07-26T13:04:16.107Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2A.html</loc>
-    <lastmod>2023-07-26T12:34:33.720Z</lastmod>
+    <lastmod>2023-07-26T13:04:24.658Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2B.html</loc>
-    <lastmod>2023-07-26T12:34:38.825Z</lastmod>
+    <lastmod>2023-07-26T13:04:29.089Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2C.html</loc>
-    <lastmod>2023-07-26T12:34:43.828Z</lastmod>
+    <lastmod>2023-07-26T13:04:33.438Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2D.html</loc>
-    <lastmod>2023-07-26T12:34:47.943Z</lastmod>
+    <lastmod>2023-07-26T13:04:37.097Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2E.html</loc>
-    <lastmod>2023-07-26T12:34:52.087Z</lastmod>
+    <lastmod>2023-07-26T13:04:40.829Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2F.html</loc>
-    <lastmod>2023-07-26T12:35:01.556Z</lastmod>
+    <lastmod>2023-07-26T13:04:49.413Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2G.html</loc>
-    <lastmod>2023-07-26T12:35:10.509Z</lastmod>
+    <lastmod>2023-07-26T13:04:58.376Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2H.html</loc>
-    <lastmod>2023-07-26T12:35:20.605Z</lastmod>
+    <lastmod>2023-07-26T13:05:07.677Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_2I.html</loc>
-    <lastmod>2023-07-26T12:35:29.434Z</lastmod>
+    <lastmod>2023-07-26T13:05:16.781Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_3A.html</loc>
-    <lastmod>2023-07-26T12:35:33.916Z</lastmod>
+    <lastmod>2023-07-26T13:05:20.717Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_3B.html</loc>
-    <lastmod>2023-07-26T12:35:39.296Z</lastmod>
+    <lastmod>2023-07-26T13:05:25.508Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_3C.html</loc>
-    <lastmod>2023-07-26T12:35:45.027Z</lastmod>
+    <lastmod>2023-07-26T13:05:31.357Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_3F.html</loc>
-    <lastmod>2023-07-26T12:35:50.686Z</lastmod>
+    <lastmod>2023-07-26T13:05:36.589Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_3G.html</loc>
-    <lastmod>2023-07-26T12:35:56.212Z</lastmod>
+    <lastmod>2023-07-26T13:05:41.447Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_4A.html</loc>
-    <lastmod>2023-07-26T12:36:02.855Z</lastmod>
+    <lastmod>2023-07-26T13:05:46.563Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_4B.html</loc>
-    <lastmod>2023-07-26T12:36:11.918Z</lastmod>
+    <lastmod>2023-07-26T13:05:54.700Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_4C.html</loc>
-    <lastmod>2023-07-26T12:36:21.748Z</lastmod>
+    <lastmod>2023-07-26T13:06:03.968Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_4E.html</loc>
-    <lastmod>2023-07-26T12:36:26.463Z</lastmod>
+    <lastmod>2023-07-26T13:06:08.664Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_4F.html</loc>
-    <lastmod>2023-07-26T12:36:30.595Z</lastmod>
+    <lastmod>2023-07-26T13:06:12.525Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_4G.html</loc>
-    <lastmod>2023-07-26T12:36:36.118Z</lastmod>
+    <lastmod>2023-07-26T13:06:17.660Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_4H.html</loc>
-    <lastmod>2023-07-26T12:36:42.414Z</lastmod>
+    <lastmod>2023-07-26T13:06:24.078Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S1A.html</loc>
-    <lastmod>2023-07-26T12:36:48.149Z</lastmod>
+    <lastmod>2023-07-26T13:06:27.791Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S1B.html</loc>
-    <lastmod>2023-07-26T12:36:52.494Z</lastmod>
+    <lastmod>2023-07-26T13:06:31.855Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S1E.html</loc>
-    <lastmod>2023-07-26T12:36:56.815Z</lastmod>
+    <lastmod>2023-07-26T13:06:35.663Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S1F.html</loc>
-    <lastmod>2023-07-26T12:37:01.076Z</lastmod>
+    <lastmod>2023-07-26T13:06:39.652Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S1G.html</loc>
-    <lastmod>2023-07-26T12:37:06.091Z</lastmod>
+    <lastmod>2023-07-26T13:06:44.100Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S1H.html</loc>
-    <lastmod>2023-07-26T12:37:10.437Z</lastmod>
+    <lastmod>2023-07-26T13:06:47.967Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S1I.html</loc>
-    <lastmod>2023-07-26T12:37:15.612Z</lastmod>
+    <lastmod>2023-07-26T13:06:52.399Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S2A.html</loc>
-    <lastmod>2023-07-26T12:37:20.774Z</lastmod>
+    <lastmod>2023-07-26T13:06:57.026Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S2B.html</loc>
-    <lastmod>2023-07-26T12:37:30.301Z</lastmod>
+    <lastmod>2023-07-26T13:07:06.192Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S2C.html</loc>
-    <lastmod>2023-07-26T12:37:39.612Z</lastmod>
+    <lastmod>2023-07-26T13:07:15.048Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S2D.html</loc>
-    <lastmod>2023-07-26T12:37:48.670Z</lastmod>
+    <lastmod>2023-07-26T13:07:24.210Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S2E.html</loc>
-    <lastmod>2023-07-26T12:37:57.486Z</lastmod>
+    <lastmod>2023-07-26T13:07:32.673Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S2F.html</loc>
-    <lastmod>2023-07-26T12:38:06.891Z</lastmod>
+    <lastmod>2023-07-26T13:07:41.085Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S2G.html</loc>
-    <lastmod>2023-07-26T12:38:16.340Z</lastmod>
+    <lastmod>2023-07-26T13:07:49.269Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3A.html</loc>
-    <lastmod>2023-07-26T12:38:20.913Z</lastmod>
+    <lastmod>2023-07-26T13:07:53.349Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3B.html</loc>
-    <lastmod>2023-07-26T12:38:25.326Z</lastmod>
+    <lastmod>2023-07-26T13:07:57.466Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3C.html</loc>
-    <lastmod>2023-07-26T12:38:30.288Z</lastmod>
+    <lastmod>2023-07-26T13:08:02.393Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3D.html</loc>
-    <lastmod>2023-07-26T12:38:35.327Z</lastmod>
+    <lastmod>2023-07-26T13:08:07.101Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3E.html</loc>
-    <lastmod>2023-07-26T12:38:40.712Z</lastmod>
+    <lastmod>2023-07-26T13:08:12.341Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3F.html</loc>
-    <lastmod>2023-07-26T12:38:46.411Z</lastmod>
+    <lastmod>2023-07-26T13:08:17.516Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3G.html</loc>
-    <lastmod>2023-07-26T12:38:51.863Z</lastmod>
+    <lastmod>2023-07-26T13:08:22.404Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S3H.html</loc>
-    <lastmod>2023-07-26T12:38:57.086Z</lastmod>
+    <lastmod>2023-07-26T13:08:27.392Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S4A.html</loc>
-    <lastmod>2023-07-26T12:39:05.506Z</lastmod>
+    <lastmod>2023-07-26T13:08:34.962Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S4B.html</loc>
-    <lastmod>2023-07-26T12:39:13.491Z</lastmod>
+    <lastmod>2023-07-26T13:08:41.843Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S4C.html</loc>
-    <lastmod>2023-07-26T12:39:18.664Z</lastmod>
+    <lastmod>2023-07-26T13:08:46.521Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S4D.html</loc>
-    <lastmod>2023-07-26T12:39:24.788Z</lastmod>
+    <lastmod>2023-07-26T13:08:51.474Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S5A.html</loc>
-    <lastmod>2023-07-26T12:39:57.096Z</lastmod>
+    <lastmod>2023-07-26T13:09:20.691Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S5B.html</loc>
-    <lastmod>2023-07-26T12:40:27.610Z</lastmod>
+    <lastmod>2023-07-26T13:09:50.171Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S5C.html</loc>
-    <lastmod>2023-07-26T12:40:58.959Z</lastmod>
+    <lastmod>2023-07-26T13:10:21.749Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S5D.html</loc>
-    <lastmod>2023-07-26T12:41:27.414Z</lastmod>
+    <lastmod>2023-07-26T13:10:51.188Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S6A.html</loc>
-    <lastmod>2023-07-26T12:41:32.709Z</lastmod>
+    <lastmod>2023-07-26T13:10:55.982Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S6B.html</loc>
-    <lastmod>2023-07-26T12:41:37.917Z</lastmod>
+    <lastmod>2023-07-26T13:11:00.707Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S7A.html</loc>
-    <lastmod>2023-07-26T12:41:42.918Z</lastmod>
+    <lastmod>2023-07-26T13:11:05.429Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S7B.html</loc>
-    <lastmod>2023-07-26T12:41:48.020Z</lastmod>
+    <lastmod>2023-07-26T13:11:10.224Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S7C.html</loc>
-    <lastmod>2023-07-26T12:41:53.181Z</lastmod>
+    <lastmod>2023-07-26T13:11:14.914Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S7D.html</loc>
-    <lastmod>2023-07-26T12:41:58.595Z</lastmod>
+    <lastmod>2023-07-26T13:11:19.850Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S7E.html</loc>
-    <lastmod>2023-07-26T12:42:03.737Z</lastmod>
+    <lastmod>2023-07-26T13:11:24.401Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S9A.html</loc>
-    <lastmod>2023-07-26T12:42:08.306Z</lastmod>
+    <lastmod>2023-07-26T13:11:28.515Z</lastmod>
   </url>
   <url>
     <loc>https://enblacar.github.io/IDH_gliomas_book/viz/figures_figure_S9B.html</loc>
-    <lastmod>2023-07-26T12:42:17.157Z</lastmod>
+    <lastmod>2023-07-26T13:11:36.752Z</lastmod>
   </url>
 </urlset>
