@@ -1,0 +1,575 @@
+# Deconvoulution AS Pseudobulk + TCGA + CGGA {.unnumbered}
+
+```{r}
+#| eval: false 
+# Inma Hernandez Lopez
+# inmaculada.hernandez-lopez@ukr.de
+# LIT -  Leibniz-Institute für Immunotherapie
+
+# Marc Elosua Bayés
+# marc.elosua@cnag.crg.eu
+# CNAG - CRG
+
+# PSEUDOBULK
+library(Seurat)
+library(tidyverse)
+library(devtools)
+# install_github("https://github.com/MarcElosua/SPOTlight", ref = "bioc_rcpp")
+library(SPOTlight)
+library(SingleCellExperiment)
+library(here)
+library(glue)
+
+source(here("paths.R"))
+
+astr <- "{sc_data}/OE0145-IDH_integrated_astrocytoma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+# Remove SCT since we don't need it anymore
+hvg <- VariableFeatures(astr)
+DefaultAssay(astr) <- "RNA"
+astr[["SCT"]] <- NULL
+
+labs_ls <- "{sc_data}/labels.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+    
+lab_astr <- labs_ls$AS %>%
+    data.frame() %>%
+    tibble::rownames_to_column("bc") %>%
+    dplyr::rename("new_annot" = ".")
+
+# Add them to the object
+astr@meta.data <- astr@meta.data %>%
+    tibble::rownames_to_column("bc") %>%
+    left_join(lab_astr, by = "bc") %>%
+    tibble::column_to_rownames("bc")
+
+DimPlot(
+    astr,
+    group.by = c("new_annot", "Subclusters", "NMF_labelling"),
+    raster = FALSE,
+    ncol = 2)
+
+with(astr@meta.data, table(new_annot, Subclusters))
+
+# subcluster & new_annot are the same annotation column
+
+# Remove excluded cells
+astr <- astr[, astr$new_annot != "Excluded"]
+
+# DefaultAssay(astr) <- "RNA"
+pseudo_ls <- lapply(unique(astr$orig.ident), function(i) {
+    tmp <- astr[, astr$orig.ident == i]@assays$RNA@counts
+    as.matrix(rowSums(tmp))
+})
+
+astr_pseudobulk <- Reduce(cbind, pseudo_ls)
+# Remove all genes that are 0
+astr_pseudobulk <- astr_pseudobulk[rowSums(astr_pseudobulk) > 0, ]
+colnames(astr_pseudobulk) <- unique(astr$orig.ident)
+
+ct_proportion <- astr@meta.data %>%
+    dplyr::count(orig.ident, new_annot) %>%
+    dplyr::group_by(orig.ident) %>%
+    dplyr::mutate(freq = n / sum(n)) %>%
+    data.frame()
+
+table(astr$Subclusters)
+
+table(astr$NMF_labelling)
+
+table(astr$Subclusters, astr$NMF_labelling)
+
+# Load marker genes from MuSiC_inma_astr_pseudobulk
+mgs <- "{sc_data}/mgs_astr.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS(file = )
+
+mgenes <- unique(mgs$gene)
+
+feats <- union(hvg, mgenes)
+gc()
+
+sp_deconv <- SPOTlight(
+    x = astr,
+    y = astr_pseudobulk,
+    groups = as.character(astr$new_annot),
+    mgs = mgs,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "avg_log2FC",
+    hvg = hvg
+)
+
+"{sc_data}/spotlight_deconv_astr_pseudobulk.rds" %>%
+    glue() %>%
+    here() %>%
+    saveRDS(
+      object = sp_deconv,
+      file = .)
+
+library(colorBlindness)
+sp_pred <- sp_deconv[["mat"]]
+sp_pred_long <- sp_pred %>%
+    data.frame(check.names = FALSE) %>%
+    tibble::rownames_to_column("ID") %>%
+    pivot_longer(
+        cols = -ID,
+        names_to = "cell_type",
+        values_to = "proportion")
+
+# Color palette for these cell types
+cpalette <- colorBlindness::paletteMartin[1:ncol(sp_pred)]
+names(cpalette) <- colnames(sp_pred)
+
+# Visualization of proportions
+sp_pred_long %>%
+    ggplot() +
+    geom_col(
+        aes(x = ID, y = proportion, fill = cell_type),
+        position = "fill") +
+    scale_fill_manual(
+        values = cpalette) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+sp_pred_long %>%
+    filter(cell_type == "RA") %>%
+    ggplot() +
+    geom_col(
+        aes(x = forcats::fct_reorder(ID, -proportion), y = proportion, fill = cell_type)) +
+    scale_fill_manual(values = cpalette) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# ct_proportion$new_annot <- str_replace(ct_proportion$new_annot, "-", ".")
+df <- sp_pred_long %>%
+    left_join(ct_proportion, by = c("ID" = "orig.ident", "cell_type" = "new_annot")) %>%
+    mutate(freq = if_else(is.na(freq), 0, freq))
+
+"{sc_data}/spotlight_deconv_astr_pseudobulk_long.rds" %>%
+    glue() %>%
+    here() %>%
+    saveRDS(
+        object = df,
+        file = .)
+
+ggplot(df) +
+    geom_point(aes(x = freq, y = proportion, color = ID)) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
+    facet_wrap( ~ cell_type, scales = "free") +
+    labs(x = "Ground-Truth Proportions", y = "Predicted Proportions") +
+    scale_color_brewer(palette = "Dark2") +
+    theme_minimal()
+
+# TCGA
+library(Seurat)
+library(tidyverse)
+library(devtools)
+# install_github("https://github.com/MarcElosua/SPOTlight", ref = "bioc_rcpp")
+library(SPOTlight)
+library(SingleCellExperiment)
+library(here)
+library(glue)
+
+source(here("paths.R"))
+
+astr <- "{sc_data}/OE0145-IDH_integrated_astrocytoma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+hvg <- VariableFeatures(astr)
+# Remove SCT since we don't need it anymore
+DefaultAssay(astr) <- "RNA"
+astr[["SCT"]] <- NULL
+
+# lab_astro <- readRDS("~/Downloads/labels_astro_primary.rds")
+labs_ls <- "{sc_data}/labels.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+    
+lab_astr <- labs_ls$AS %>%
+    data.frame() %>%
+    tibble::rownames_to_column("bc") %>%
+    dplyr::rename("new_annot" = ".")
+
+# Add them to the object
+astr@meta.data <- astr@meta.data %>%
+    tibble::rownames_to_column("bc") %>%
+    left_join(lab_astr, by = "bc") %>%
+    tibble::column_to_rownames("bc")
+
+DimPlot(
+    astr,
+    group.by = c("new_annot", "Subclusters", "NMF_labelling"),
+    raster = FALSE,
+    ncol = 2)
+
+with(astr@meta.data, table(new_annot, Subclusters))
+
+# Remove excluded cells
+astr <- astr[, astr$new_annot != "Excluded"]
+
+table(astr$Subclusters)
+
+table(astr$NMF_labelling)
+
+table(astr$Subclusters, astr$NMF_labelling)
+
+# Load marker genes from MuSiC_inma_astr_pseudobulk
+mgs <- "{sc_data}/mgs_astr.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS(file = )
+
+mgenes <- unique(mgs$gene)
+
+feats <- union(hvg, mgenes)
+gc()
+
+library(SummarizedExperiment)
+astr_bulk <- "{tcga_data}/primary/Astrocytoma_bulkRNA_TCGA.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS(file = )
+
+cdata <- "{tcga_data}/TCGA_metadata.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS(file = )
+
+# Subset to Astro
+cdata <- cdata %>%
+    filter(file_name %in% colnames(astr_bulk)) %>%
+    tibble::rownames_to_column("TCGA_id") %>%
+    tibble::column_to_rownames("file_name") %>%
+    DataFrame()
+
+se <- SummarizedExperiment(
+    assays = list("counts" = as.matrix(astr_bulk)),
+    colData = cdata[colnames(astr_bulk), ])
+
+
+# quickly check the millions of fragments that could be mapped by Salmon to the genes
+se[["depth_M"]] <- round( colSums(astr_bulk) / 1e6, 1 )
+
+colData(se) %>%
+    data.frame() %>%
+    ggplot() +
+    geom_col(aes(x = forcats::fct_reorder(TCGA_id, -depth_M), y = depth_M, fill = tumor_type)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90))
+
+library(org.Hs.eg.db)
+
+# Using the org.Hs.eg.db we set up mapping info - if you look at the documentation you
+# can also obtain other keytypes
+ens_genes <- str_split(string = rownames(astr_bulk), pattern = "\\.", simplify = TRUE)[, 1]
+annots <- select(
+    org.Hs.eg.db,
+    keys = ens_genes,
+    columns = "SYMBOL",
+    keytype = "ENSEMBL")
+
+# Check which Symbols are mapping to multiple ensemble IDs
+symb_dup <- annots %>%
+    dplyr::count(SYMBOL) %>%
+    filter(n > 1 & ! is.na(SYMBOL)) %>%
+    pull("SYMBOL")
+sym_to_ens_dup <- annots %>% dplyr::filter(SYMBOL %in% symb_dup) %>% pull(ENSEMBL)
+
+## 
+ens_to_symb_dup <- annots %>%
+    dplyr::count(ENSEMBL) %>%
+    filter(n > 1) %>%
+    pull("ENSEMBL")
+
+# Check which ensemble IDs don't map to any symbol
+ens_na <- annots %>% dplyr::filter(is.na(SYMBOL)) %>% pull(ENSEMBL)
+
+ens_rm <- Reduce(union, list(sym_to_ens_dup, ens_to_symb_dup, ens_na))
+
+astr_bulk <- astr_bulk[which(!ens_genes %in% ens_rm), ]
+
+symb <- str_split(string = rownames(astr_bulk), pattern = "\\.", simplify = TRUE)[, 1] %>%
+    data.frame("ENSEMBL" = .) %>%
+    left_join(annots, by = "ENSEMBL") %>%
+    pull(SYMBOL)
+
+# replace ensemble ID with symbol
+# ens_check <- symb %>% dplyr::count(ENSEMBL) %>% dplyr::filter(n > 1) %>% pull("ENSEMBL")
+
+rownames(astr_bulk) <- symb
+# Remove uninformative genes
+astr_bulk <- astr_bulk[rowSums(astr_bulk) > 0, ]
+
+sp_deconv <- SPOTlight(
+    x = astr,
+    y = as.matrix(astr_bulk),
+    groups = as.character(astr$new_annot),
+    mgs = mgs,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "avg_log2FC",
+    hvg = hvg
+)
+
+"{sc_data}/spotlight_deconv_astr_TCGA.rds" %>%
+    glue() %>%
+    here() %>%
+    saveRDS(
+      object = sp_deconv,
+      file = .)
+
+library(colorBlindness)
+
+cdata$ID <- rownames(cdata)
+sp_pred <- sp_deconv[["mat"]]
+sp_pred_long <- sp_pred %>%
+    data.frame(check.names = FALSE) %>%
+    tibble::rownames_to_column("ID") %>%
+    pivot_longer(
+        cols = -ID,
+        names_to = "cell_type",
+        values_to = "proportion") %>%
+    left_join(data.frame(cdata), by = "ID")
+
+# Color palette for these cell types
+cpalette <- colorBlindness::paletteMartin[1:ncol(sp_pred)]
+names(cpalette) <- colnames(sp_pred)
+
+# Visualization of proportions
+sp_pred_long %>%
+    ggplot() +
+    geom_col(
+        aes(x = TCGA_id, y = proportion, fill = cell_type),
+        position = "fill") +
+    scale_fill_manual(
+        values = cpalette) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+x_ord <- sp_pred_long %>%
+    dplyr::filter(cell_type == "RA") %>%
+    arrange(desc(proportion)) %>%
+    pull(TCGA_id)
+    
+
+sp_pred_long %>%
+    ggplot() +
+    geom_col(
+        aes(x = TCGA_id, y = proportion, fill = cell_type),
+        position = "fill") +
+    scale_fill_manual(values = cpalette) +
+    scale_x_discrete(limits = x_ord) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+sp_pred_long %>%
+    filter(cell_type == "RA") %>%
+    ggplot() +
+    geom_col(
+        aes(x = forcats::fct_reorder(TCGA_id, -proportion), y = proportion, fill = cell_type)) +
+    scale_fill_manual(values = cpalette) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+"{sc_data}/spotlight_deconv_astr_TCGA_RA_proportion.rds" %>%
+    glue() %>%
+    here() %>%
+    saveRDS(
+      object = sp_pred_long,
+      file = .)
+
+
+# CGGA
+
+library(Seurat)
+library(tidyverse)
+library(devtools)
+# install_github("https://github.com/MarcElosua/SPOTlight", ref = "bioc_rcpp")
+library(SPOTlight)
+library(SingleCellExperiment)
+library(here)
+library(glue)
+
+source(here("paths.R"))
+
+astr <- "{sc_data}/OE0145-IDH_integrated_astrocytoma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+hvg <- VariableFeatures(astr)
+# Remove SCT since we don't need it anymore
+DefaultAssay(astr) <- "RNA"
+astr[["SCT"]] <- NULL
+
+# lab_astro <- readRDS("~/Downloads/labels_astro_primary.rds")
+labs_ls <- "{sc_data}/labels.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+    
+lab_astr <- labs_ls$AS %>%
+    data.frame() %>%
+    tibble::rownames_to_column("bc") %>%
+    dplyr::rename("new_annot" = ".")
+
+# Add them to the object
+astr@meta.data <- astr@meta.data %>%
+    tibble::rownames_to_column("bc") %>%
+    left_join(lab_astr, by = "bc") %>%
+    tibble::column_to_rownames("bc")
+
+DimPlot(
+    astr,
+    group.by = c("new_annot", "Subclusters", "NMF_labelling"),
+    raster = FALSE,
+    ncol = 2)
+
+with(astr@meta.data, table(new_annot, Subclusters))
+
+# Remove excluded cells
+astr <- astr[, astr$new_annot != "Excluded"]
+
+table(astr$Subclusters)
+
+table(astr$NMF_labelling)
+
+table(astr$Subclusters, astr$NMF_labelling)
+
+# Load marker genes from MuSiC_inma_astr_pseudobulk
+mgs <- "{sc_data}/mgs_astr.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS(file = )
+
+mgenes <- unique(mgs$gene)
+
+feats <- union(hvg, mgenes)
+gc()
+
+library(SummarizedExperiment)
+astr_bulk <- "{cgga_data}/primary/Astrocytoma_primary_bulkRNA_CGGA.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS(file = )
+
+cdata <- "{cgga_data}/metadata_CGGA.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS(file = )
+
+# Subset to Astro
+cdata <- cdata %>%
+    filter(CGGA_ID %in% colnames(astr_bulk)) %>%
+    tibble::rownames_to_column("CGGA_id") %>%
+    tibble::column_to_rownames("CGGA_ID") %>%
+    DataFrame()
+cdata$ID <- rownames(cdata)
+cdata$CGGA_id <- NULL
+
+se <- SummarizedExperiment(
+    assays = list("counts" = as.matrix(astr_bulk)),
+    colData = cdata[colnames(astr_bulk), ])
+
+# quickly check the millions of fragments that could be mapped by Salmon to the genes
+se[["depth_M"]] <- round( colSums(astr_bulk) / 1e6, 1 )
+
+colData(se) %>%
+    data.frame() %>%
+    ggplot() +
+    geom_col(aes(x = forcats::fct_reorder(ID, -depth_M), y = depth_M, fill = PRS_type)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90))
+
+# Remove uninformative genes
+astr_bulk <- astr_bulk[rowSums(astr_bulk) > 0, ]
+
+sp_deconv <- SPOTlight(
+    x = astr,
+    y = as.matrix(astr_bulk),
+    groups = as.character(astr$new_annot),
+    mgs = mgs,
+    gene_id = "gene",
+    group_id = "cluster",
+    weight_id = "avg_log2FC",
+    hvg = hvg
+)
+
+"{sc_data}/spotlight_deconv_astr_CGGA.rds" %>%
+    glue() %>%
+    here() %>%
+    saveRDS(
+      object = sp_deconv,
+      file = .)
+
+library(colorBlindness)
+
+cdata$ID <- rownames(cdata)
+sp_pred <- sp_deconv[["mat"]]
+sp_pred_long <- sp_pred %>%
+    data.frame(check.names = FALSE) %>%
+    tibble::rownames_to_column("ID") %>%
+    pivot_longer(
+        cols = -ID,
+        names_to = "cell_type",
+        values_to = "proportion") %>%
+    left_join(data.frame(cdata), by = "ID")
+
+# Color palette for these cell types
+cpalette <- colorBlindness::paletteMartin[1:ncol(sp_pred)]
+names(cpalette) <- colnames(sp_pred)
+
+# Visualization of proportions
+sp_pred_long %>%
+    ggplot() +
+    geom_col(
+        aes(x = ID, y = proportion, fill = cell_type),
+        position = "fill") +
+    scale_fill_manual(
+        values = cpalette) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+x_ord <- sp_pred_long %>%
+    dplyr::filter(cell_type == "RA") %>%
+    arrange(desc(proportion)) %>%
+    pull(ID)
+    
+
+sp_pred_long %>%
+    ggplot() +
+    geom_col(
+        aes(x = ID, y = proportion, fill = cell_type),
+        position = "fill") +
+    scale_fill_manual(values = cpalette) +
+    scale_x_discrete(limits = x_ord) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+sp_pred_long %>%
+    filter(cell_type == "RA") %>%
+    ggplot() +
+    geom_col(
+        aes(x = forcats::fct_reorder(ID, -proportion), y = proportion, fill = cell_type)) +
+    scale_fill_manual(values = cpalette) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+"{sc_data}/spotlight_deconv_astr_CGGA_RA_proportion.rds" %>%
+    glue() %>%
+    here() %>%
+    saveRDS(
+      object = sp_pred_long,
+      file = .)
+```
+

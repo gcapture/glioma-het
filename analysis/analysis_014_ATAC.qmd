@@ -1,0 +1,397 @@
+# Downstream analyses {.unnumbered}
+
+```{r}
+#| eval: false
+
+## Inmaculada Hernandez Lopez
+## inmaculada.hernandez-lopez@ukr.de
+## LIT -  Leibniz-Institute für Immunotherapie
+
+## Paula Soler 
+## paula.soler@cnag.crg.eu
+## CNAG-CRG Barcelona
+
+## Tutorial: https://satijalab.org/signac/articles/pbmc_vignette.html#integrating-with-scrna-seq-data-1
+
+################################################################################################################
+
+## Steps:
+    #A. Oligodendroglioma
+      #A1. Integrating with scRNA-seq data: label transfer
+      #A2. Motif Analysis
+
+      
+    #B. Astrocytoma
+      #B1. Re-RUN ATAC integrated object astrocytes with less dimensions to avoid microglia split in astrocytoma
+      #B2. Integrating with scRNA-seq data: label transfer
+      #B3. Motif Analysis
+      
+
+################################################################################################################
+
+rm(list = ls())
+
+library(Seurat)
+library(Signac)
+library(chromVARmotifs)
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(ggpubr)
+library(ggplot2)
+library(TFBSTools)
+library(patchwork)
+library(chromVAR)
+library(motifmatchr)
+library(data.table)
+library(chromVARmotifs)
+library(dplyr)
+library(purrr)
+library(readxl)
+library(openxlsx)
+library(tidyr)
+library(pheatmap)
+library(factoextra)
+library(corrplot)
+library(plyr)
+library(SCpubr)
+library(chromVAR)
+library(tidyverse)
+
+
+#-------------------------------------------------------------------------------
+#A. Oligodendroglioma
+      #A1. Integrating with scRNA-seq data: label transfer
+#-------------------------------------------------------------------------------
+
+seurat <- readRDS("OE0145-IDH_integrated_oligodendroglioma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds")
+label <- readRDS("labels.rds")
+label <- label$OD
+
+seurat$transferred_labels <- label
+table(seurat$transferred_labels)
+Idents(seurat) <- "transferred_labels"
+seurat <- subset(seurat, idents = c("Gradient","Excluded"), invert = TRUE)
+
+seurat@active.assay <- "SCT"
+seurat@assays$RNA <- NULL
+
+Idents(seurat) <- "transferred_labels"
+
+peaks <- readRDS("OE0145-IDH_integrated_oligodendroglioma_peaks_activity_chromvar?dl=0")
+
+peaks@active.assay <- "ACTIVITY"
+peaks@assays$ATAC <- NULL
+peaks@assays$RNA <- NULL
+peaks@assays$chromvar <- NULL
+
+transfer.anchors <- FindTransferAnchors(
+  reference = seurat,
+  query = peaks,
+  normalization.method = "SCT",
+  reduction = 'cca',
+  recompute.residuals = FALSE
+)
+
+saveRDS(transfer.anchors, file = "new_transfer.anchors_oligodendroglioma.rds")
+
+
+predicted.labels <- TransferData(
+  anchorset = transfer.anchors,
+  refdata = seurat$transferred_labels,
+  weight.reduction = peaks[['lsi']],
+  dims = 2:30
+)
+
+
+peaks <- AddMetaData(object = peaks, metadata = predicted.labels)
+
+peaks[["Cells"]] <- Cells(peaks)
+annotation_ATAC_oligo <- as.vector(peaks@meta.data[,c("predicted.id")])
+names(annotation_ATAC_oligo) <- peaks$Cells
+saveRDS(annotation_ATAC_oligo, file = "new_annotation_ATAC_oligo_primary.rds")
+
+
+#-------------------------------------------------------------------------------
+#A. Oligodendroglioma
+      #A2. Motif Analysis
+#-------------------------------------------------------------------------------
+
+
+seurat <- readRDS("OE0145-IDH_integrated_oligodendroglioma_peaks_activity_chromvar?dl=0")
+label <- readRDS("new_annotation_ATAC_oligo_primary.rds")
+seurat$predicted.id <- label
+
+data("human_pwms_v1")
+length(human_pwms_v1)
+
+seurat <- AddMotifs(
+  object = seurat,
+  genome = BSgenome.Hsapiens.UCSC.hg38,
+  pfm = human_pwms_v1
+)
+
+seurat <- RunChromVAR(
+  object = seurat,
+  genome = BSgenome.Hsapiens.UCSC.hg38
+)
+
+saveRDS(seurat, "new_OE0145-IDH_integrated_oligodendroglioma_peaks_activity_chromvar_IHL.rds")
+
+
+  path_to_object <- ""
+  tumor <- "oligodendroglioma"
+  
+  # Paths
+  path_to_obj <- paste0(
+    here::here(path_to_object),"new_OE0145-IDH_integrated_",
+    tumor,"_peaks_activity_chromvar_IHL.rds",
+    sep = ""
+  )
+  
+  color_palette <-  c("#fed439","#709ae1","#4caf50","#d2af81",
+                      "#d5e4a2","#9c27b0","#f05c3b","#46732e",
+                      "#71d0f5","#370335","#075149","#c80813",
+                      "#91331f","#1a9993","#fd8cc1")
+  
+  path_to_save <- paste0(here::here(path_to_object),"new_OE0145-IDH_integrated_",
+                         tumor,"_motifs_ChromVar_FC0_adjpvalue0.1.xls",
+                         sep = "")
+  
+  
+  seurat <- readRDS(path_to_obj)
+  DefaultAssay(seurat) <- 'chromvar'
+  Idents(seurat) <- seurat$predicted.id
+  seurat <- subset(seurat, idents = c("Astro-like", "OPC-like","Gradient","RA"))
+  
+  da_regions <- FindAllMarkers(
+    object = seurat,
+    only.pos = TRUE,
+    min.pct = 0.1,
+  )
+  
+  
+  da_regions_selected <- (da_regions[da_regions$p_val_adj < 0.05 & da_regions$avg_log2FC > 0, ])
+
+  
+  motif_name_entire <- da_regions_selected %>% separate(gene, 
+                                                        c("Part1", "Part2","Part3",
+                                                          "Part4","Part5"), sep="-")
+  
+  da_regions_selected$motif_name <- motif_name_entire$Part3
+  
+  da_regions_selected_sorted <- da_regions_selected[with(da_regions_selected,
+                                                         order(cluster, -avg_log2FC)), ]
+  
+  da_regions_selected_sorted$rank <- ave(da_regions_selected_sorted$avg_log2FC,
+                                         da_regions_selected_sorted$cluster, FUN = seq_along)
+  
+  da_regions_selected_sorted_prepared <- da_regions_selected_sorted %>% 
+    group_by(cluster) %>% 
+    top_n(20,-rank)
+  
+  output <- split(da_regions_selected_sorted, da_regions_selected_sorted$cluster)
+  wb <- createWorkbook()
+  
+  for (i in 1:length(output)) {
+    addWorksheet(wb, sheetName=names(output[i]))
+    writeData(wb, sheet=names(output[i]), x=output[[i]]) # Note [[]]
+  }
+  
+  saveWorkbook(wb, file=path_to_save,  overwrite = TRUE)
+  
+#-------------------------------------------------------------------------------
+  #B. Astrocytoma
+#-------------------------------------------------------------------------------
+rm(list = ls())
+
+library(Seurat)
+library(Signac)
+library(chromVARmotifs)
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(ggpubr)
+library(ggplot2)
+library(TFBSTools)
+library(patchwork)
+library(chromVAR)
+library(motifmatchr)
+library(ggpubr)
+library(data.table)
+library(chromVARmotifs)
+library(dplyr)
+library(purrr)
+library(readxl)
+library(openxlsx)
+library(tidyr)
+library(pheatmap)
+library(factoextra)
+library(corrplot)
+library(plyr)
+
+#-------------------------------------------------------------------------------
+##B. Astrocytoma
+    ##B1. Re-RUN ATAC integrated object astrocytes with less dimensions to avoid 
+    ##microglia split in astrocytoma
+#-------------------------------------------------------------------------------
+peaks <- readRDS("OE0145-IDH_integrated_astrocytoma_peaks_activity_chromvar.rds")
+peaks@active.assay <- "ATAC"
+peaks@assays$chromvar <- NULL
+
+peaks <- Seurat::RunUMAP(object = peaks,
+                         reduction = "harmony",
+                         dims = 2:10)
+
+# Find neighbors.
+print("Compute clusters.")
+peaks <- Seurat::FindNeighbors(object = peaks,
+                               reduction = "harmony",
+                               dims = 2:10)
+
+
+
+# Find clusters. Using algorithm = 3 (SLM algorithm) according to Signac's vignette.
+peaks <- Seurat::FindClusters(object = peaks,
+                              verbose = FALSE,
+                              algorithm = 3)
+
+Idents(peaks) <- "predicted.id"
+saveRDS(peaks,"OE0145-IDH_integrated_astrocytoma_peaks_activity_newIHL.rds")
+
+#-------------------------------------------------------------------------------
+##B. Astrocytoma
+        ##B2. Integrating with scRNA-seq data: label transfer
+#-------------------------------------------------------------------------------
+seurat <- readRDS("OE0145-IDH_integrated_oligodendroglioma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds")
+label <- readRDS("labels.rds")
+label <- label$OD
+
+
+seurat$transferred_labels <- label
+table(seurat$transferred_labels)
+Idents(seurat) <- "transferred_labels"
+seurat <- subset(seurat, idents = c("Gradient","Excluded"), invert = TRUE)
+
+seurat@active.assay <- "SCT"
+seurat@assays$RNA <- NULL
+
+Idents(seurat) <- "transferred_labels"
+
+peaks <- readRDS("OE0145-IDH_integrated_astrocytoma_peaks_activity_newIHL.rds")
+
+peaks@active.assay <- "ACTIVITY"
+peaks@assays$ATAC <- NULL
+peaks@assays$RNA <- NULL
+peaks@assays$chromvar <- NULL
+
+transfer.anchors <- FindTransferAnchors(
+  reference = seurat,
+  query = peaks,
+  normalization.method = "SCT",
+  #k.filter = 200,
+  #dims = 2:30,
+  reduction = 'cca',
+  recompute.residuals = FALSE
+)
+
+saveRDS(transfer.anchors, file = "new_transfer.anchors_astrocytoma.rds")
+
+
+predicted.labels <- TransferData(
+  anchorset = transfer.anchors,
+  refdata = seurat$transferred_labels,
+  weight.reduction = peaks[['lsi']],
+  dims = 2:30
+)
+
+
+peaks <- AddMetaData(object = peaks, metadata = predicted.labels)
+
+peaks[["Cells"]] <- Cells(peaks)
+annotation_ATAC_astro <- as.vector(peaks@meta.data[,c("predicted.id")])
+names(annotation_ATAC_astro) <- peaks$Cells
+saveRDS(annotation_ATAC_astro, file = "new_annotation_ATAC_astro_primary.rds")
+
+#-------------------------------------------------------------------------------
+#B. Astrocytoma
+     #B3. Motif Analysis
+#------------------------------------------------------------------------------
+
+seurat <- readRDS("OE0145-IDH_integrated_astrocytoma_peaks_activity_newIHL.rds")
+
+label <- readRDS("new_annotation_ATAC_astro_primary.rds")
+
+seurat$predicted.id <- label
+
+data("human_pwms_v1")
+length(human_pwms_v1)
+
+seurat <- AddMotifs(
+  object = seurat,
+  genome = BSgenome.Hsapiens.UCSC.hg38,
+  pfm = human_pwms_v1
+)
+
+seurat <- RunChromVAR(
+  object = seurat,
+  genome = BSgenome.Hsapiens.UCSC.hg38
+)
+
+saveRDS(seurat, "new_OE0145-IDH_integrated_astrocytoma_peaks_activity_chromvar_IHL.rds")
+
+
+path_to_object <- ""
+tumor <- "astrocytoma"
+
+# Paths
+path_to_obj <- paste0(
+  here::here(path_to_object),"OE0145-IDH_integrated_",
+  tumor,"_peaks_activity_chromvar_IHL.rds",
+  sep = ""
+)
+
+path_to_save <- paste0(here::here(path_to_object),"new_OE0145-IDH_integrated_",
+                       tumor,"_motifs_ChromVar_FC0_adjpvalue0.1.xls",
+                       sep = "")
+
+
+seurat <- readRDS(path_to_obj)
+seurat = DietSeurat(seurat, assays = "chromvar")
+Idents(seurat) <- seurat$predicted.id
+seurat <- subset(seurat, idents = c("Astro-like", "OPC-like","RA"))
+seurat$predicted.id <- factor(x = seurat$predicted.id, levels =  c("Astro-like", "OPC-like","RA"))
+
+da_regions <- FindAllMarkers(
+  object = seurat,
+  only.pos = TRUE,
+  min.pct = 0.1
+)
+
+
+da_regions_selected <- (da_regions[da_regions$p_val_adj < 0.05 & da_regions$avg_log2FC > 0, ])
+
+
+motif_name_entire <- da_regions_selected %>% separate(gene, 
+                                                      c("Part1", "Part2","Part3",
+                                                        "Part4","Part5"), sep="-")
+
+da_regions_selected$motif_name <- motif_name_entire$Part3
+
+da_regions_selected_sorted <- da_regions_selected[with(da_regions_selected,
+                                                       order(cluster, -avg_log2FC)), ]
+
+da_regions_selected_sorted$rank <- ave(da_regions_selected_sorted$avg_log2FC,
+                                       da_regions_selected_sorted$cluster, FUN = seq_along)
+
+da_regions_selected_sorted_prepared <- da_regions_selected_sorted %>% 
+  group_by(cluster) %>% 
+  top_n(20,-rank)
+
+output <- split(da_regions_selected_sorted, da_regions_selected_sorted$cluster)
+wb <- createWorkbook()
+
+for (i in 1:length(output)) {
+  addWorksheet(wb, sheetName=names(output[i]))
+  writeData(wb, sheet=names(output[i]), x=output[[i]]) # Note [[]]
+}
+
+saveWorkbook(wb, file=path_to_save,  overwrite = TRUE)
+
+```

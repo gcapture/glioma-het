@@ -1,0 +1,15 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+SCpubr-book.Rproj
+SCPubr_reference_guide.html.rds
+render*
+_bookdown_files
+omnipathr-log/*
+images/*
+old_book/*
+to_recycle/*
+/.quarto/
+datasets/*
+figs/*

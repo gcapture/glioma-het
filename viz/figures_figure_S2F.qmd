@@ -1,0 +1,89 @@
+# Figure S2F {.unnumbered}
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
+
+cluster_cols <- c("RE" = "#ECA809",
+                  "OPC-like" = "#043362",                    
+                  "T Cell" = "#009FF5",                   
+                  "Oligodendrocytes" = "#BC5210",            
+                  "Astrocytes" = "#279185",                  
+                  "Microglia" = "#7EB356",                   
+                  "Pericytes" = "#AC70FF",                  
+                  "Mixed" = "#8d5d3f",                   
+                  "Gradient" = "#D6D6D6",                    
+                  "Neurons" = "#544B81",                   
+                  "Endothelial" = "#da627d",                 
+                  "Astro-like" = "#9A031E",                 
+                  "Cycling" = "#5F0F40")
+
+sample$relabelling[sample$relabelling == "RA"] <- "RE"
+Seurat::Idents(sample) <- sample$relabelling
+```
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_BoxPlot(sample = sample, 
+                         feature = "nCount_RNA", 
+                         group.by = "relabelling", 
+                         order = TRUE, 
+                         colors.use = cluster_cols,
+                         boxplot.linewidth = 0.5,
+                         font.size = 10) + 
+       ggplot2::labs(x = "Cell Identities",
+                     y = "Number of UMIs/cell")
+
+p2 <- SCpubr::do_BoxPlot(sample = sample, 
+                         feature = "nFeature_RNA", 
+                         group.by = "relabelling", 
+                         order = TRUE, 
+                         colors.use = cluster_cols,
+                         boxplot.linewidth = 0.5,
+                         font.size = 10) + 
+       ggplot2::labs(x = "Cell Identities",
+                     y = "Number of genes/cell")
+
+p3 <- SCpubr::do_BoxPlot(sample = sample, 
+                         feature = "percent.mt", 
+                         group.by = "relabelling", 
+                         order = TRUE, 
+                         colors.use = cluster_cols,
+                         boxplot.linewidth = 0.5,
+                         font.size = 10) + 
+       ggplot2::labs(x = "Cell Identities",
+                     y = "Pct. Mitochondrial RNA/cell")
+
+p <- p1 / p2 / p3
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S2F",
+                  file_name = "Figure_S2F",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 8,
+                  height = 6.75)
+```
+
+<img src="../figs/Figure_S2F/Figure_S2F.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

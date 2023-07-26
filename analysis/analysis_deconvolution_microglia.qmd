@@ -1,0 +1,1062 @@
+# Deconvoulution Microglia + TCGA + CGGA {.unnumbered}
+
+```{r}
+#| eval: false 
+# Juan Nieto Sachica
+# juan.nieto@cnag.crg.eu
+# CNAG - CRG
+
+# Marc Elosua Bayés
+# marc.elosua@cnag.crg.eu
+# CNAG - CRG
+
+####################################################
+### Deconvolution TCGA-LGG with 'microglia' data ###
+####################################################
+set.seed(1838) 
+
+# Installation SPOTlight
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("SPOTlight")
+
+
+library(reshape2)
+library(ggplot2)
+library(SPOTlight)
+library(SingleCellExperiment)
+library(SpatialExperiment)
+library(scater)
+library(scran)
+
+library(Seurat)
+library(dplyr)
+library(DESeq2)
+library(tidyr)
+library(harmony)
+library(cowplot)
+
+
+dir <- "/Users/an/Documents/JC_projects/microglia/"  # PATH to the folder with the files
+dir_results <- "/Users/an/Documents/JC_projects/microglia/260523/"  # PATH to the folder to save the results 
+
+
+## 1- SINCLE CELL DATA ##
+
+# single cell RNA counts
+microglia_combined_to_use <- readRDS(paste0(dir,"microglia_150523.rds"))
+
+levels(microglia_combined_to_use@meta.data$labelling)
+list_levels <- c("Mg homeostatic","Mg resident-like TAMs", "Mg Activated", "Mg phagocytic", "Mg stressed TAMs",
+                 "Mg IFNg TAMs","Mg inflammatory TAMs","Mg Inflammatory ICAM+","BMD anti-inflammatory TAMs", "BAMs")
+
+microglia_combined_to_use@meta.data$labelling <- as.character(microglia_combined_to_use@meta.data$labelling)
+microglia_combined_to_use@meta.data[which(microglia_combined_to_use@meta.data$labelling=="BMD anti−inflammatory TAMs"),"labelling"] <- "BMD anti-inflammatory TAMs"
+microglia_combined_to_use@meta.data[which(microglia_combined_to_use@meta.data$labelling=="Mg resident−like TAMs"),"labelling"] <- "Mg resident-like TAMs"
+microglia_combined_to_use@meta.data$labelling <- factor(microglia_combined_to_use@meta.data$labelling,levels=list_levels)
+
+# marker genes
+mgs <- readRDS(paste0(dir,"markers_microglia_150223_FC.25_pct.5.rds"))
+
+unique(mgs$cluster)
+mgs$cluster <- as.character(mgs$cluster)
+mgs[which(mgs$cluster=="BMD anti−inflammatory TAMs"),"cluster"] <- "BMD anti-inflammatory TAMs"
+mgs[which(mgs$cluster=="Mg resident−like TAMs"),"cluster"] <- "Mg resident-like TAMs"
+mgs$cluster <- factor(mgs$cluster, levels=list_levels)
+
+# compute HVG excluding Ribosomal and mitochondrial
+mtx <- microglia_combined_to_use@assays$RNA@counts
+# remove ribosomal and mitochondrial genes
+mtx <- mtx[stringr::str_detect(rownames(mtx), "^RP[L|S]|^MT-", negate = TRUE), ]
+
+sc <- CreateSeuratObject(counts = mtx, meta.data = microglia_combined_to_use@meta.data)
+sc <- Seurat::NormalizeData(sc, verbose = FALSE) %>%
+  Seurat::FindVariableFeatures(selection.method = "vst", nfeatures = 3000)
+
+# hvg top 3000
+hvg <- VariableFeatures(sc)
+save(hvg, file=paste0(dir_results,"hvg_microglia.RData"))
+
+
+### Subset SC object so all the cells from the same cell type to come from the same batch
+
+# subset most representative sample(s)
+microglia_combined_to_use@meta.data$cell_id <- rownames(microglia_combined_to_use@meta.data)
+
+ns <- with(microglia_combined_to_use@meta.data, table(cell_id, labelling)) 
+ns <- as.matrix(unclass(ns))
+m <- 100 # Max cells per cell type
+# Extract cell barcodes
+meta <- microglia_combined_to_use@meta.data
+
+id <- lapply(colnames(ns), function(nm) {
+  x <- ns[, nm]
+  # Initialize variables
+  n <- 0    # N of cells
+  s <- c()  # Gem IDs
+  b <- c()  # Cell barcodes
+  while (n < m & length(x) > 0) {
+    # select gem id with the most cells
+    i <- names(sort(x, decreasing = TRUE))[[1]]
+    # Add gem id to vector s
+    s <- c(s, i)
+    # Add number of cells per cell type to n
+    n <- n + x[[i]]
+    # Remove gem id from x to move on to the next
+    x <- x[names(x) != i]
+    # extract barcode
+    barcode <- rownames(meta[meta[, "cell_id"] == i &
+                               meta[, "labelling"] == nm, ])
+    # make sure it adds up to m
+    # print(barcode)
+    if ((length(b) + length(barcode)) > m) {
+      barcode <- sample(x = barcode, size = m - length(b), replace = FALSE)
+    }
+    b <- c(b, barcode)  # Cell barcodes
+  }
+  return(b)
+})
+
+sc_sub <- microglia_combined_to_use[, unlist(id)]
+table(sc_sub@meta.data$labelling) 
+
+save(sc_sub, file=paste0(dir_results,"sc_sub_most_repre_samples.RData"))
+
+gc()
+
+
+
+## 2- TCGA-LGG DATA COLLECTION AND SELECTION ##
+
+# # TCGA RNA-seq data download:
+
+# library(TCGAbiolinks)
+# 
+# query <- GDCquery(
+#   project = "TCGA-LGG",
+#   data.category = "Gene expression",
+#   data.type = "Gene expression quantification",
+#   platform = "Illumina HiSeq", 
+#   file.type  = "normalized_results",
+#   experimental.strategy = "RNA-Seq",
+#   legacy = TRUE
+# )
+# GDCdownload(
+#   query = query, 
+#   method = "api", 
+#   files.per.chunk = 10
+# )
+# data <- GDCprepare(query = query)
+
+# data_LGG <- data
+# save(data_LGG,file="/Users/an/Documents/JC_projects/microglia/TCGA_RNA_data_LGG.RData")
+
+
+# Data downloaded from TCGA: (with the script hid before) 
+load(paste0(dir,"TCGA_RNA_data_LGG.RData")) #name: data_LGG
+
+
+# Selection of the same list of patients Imma had:
+
+# tables TCGA patients (from Imma)
+astro_proportion <- read.csv(paste0(dir,"astro_proportion.csv"),header=TRUE)
+oligo_proportion <- read.csv(paste0(dir,"oligo_proportion.csv"),header=TRUE)
+
+# list of patients
+astro_patients <- astro_proportion$ID.y
+oligo_patients <- oligo_proportion$ID.y
+
+all_patients <- c(astro_patients,oligo_patients) # selecting the same patients 
+
+# subset expression data
+data_LGG_subset <- data_LGG[,which(data_LGG@colData$patient %in% all_patients)]
+
+
+
+# For some patients there are more than one RNA sample: 
+duplicated_patients <- unique(data_LGG_subset@colData$patient[which(duplicated(data_LGG_subset@colData$patient))]) # 12 patients
+
+metadata_duplis <- as.data.frame(data_LGG_subset@colData[which(data_LGG_subset@colData$patient %in% duplicated_patients), 1:59])
+
+# for(patient in duplicated_patients){
+#   print(patient)
+#   print(metadata_duplis[which(metadata_duplis$patient == patient),])
+#   print("")
+#   print("----------------------------------------")
+#   print("")
+#   print("")
+# }
+
+# Selection of the "Primary solid Tumor"
+selected_barcodes <- c("TCGA-DU-6397-01A-11R-1708-07",
+                       "TCGA-DU-5872-01A-11R-1708-07",
+                       "TCGA-TQ-A7RV-01A-21R-A34F-07",
+                       "TCGA-DU-7304-01A-12R-2090-07",
+                       "TCGA-FG-A4MT-01A-11R-A26U-07",
+                       "TCGA-TQ-A7RK-01A-11R-A33Z-07",
+                       "TCGA-DU-5870-01A-11R-1708-07",
+                       "TCGA-DU-6407-01A-13R-1708-07",
+                       "TCGA-FG-5965-01B-11R-1896-07",
+                       "TCGA-TQ-A8XE-01A-11R-A36H-07",
+                       "TCGA-DH-A669-01A-12R-A31N-07",
+                       "TCGA-TM-A7CF-01A-11R-A32Q-07")
+
+
+# TCGA RNAseq data subset unique samples, 418 in total:
+data_LGG_subset_unique <- data_LGG_subset[,-which(data_LGG_subset@colData$patient %in% duplicated_patients & ! data_LGG_subset@colData$barcode %in% selected_barcodes)]
+
+
+counts_expr_lgg <- as.data.frame(assay(data_LGG_subset_unique))
+
+counts_expr_lgg_matrix <- as.matrix(counts_expr_lgg)
+
+
+## 3- RUN SPOTLIGHT ##
+
+res <- SPOTlight(
+  x = sc_sub,
+  y = counts_expr_lgg_matrix,
+  groups = as.character(sc_sub$labelling), 
+  mgs = mgs,
+  hvg = hvg,
+  weight_id = "avg_log2FC",
+  group_id = "cluster",
+  gene_id = "gene")
+
+save(res, file=paste0(dir_results,"res_spotlight_tcga_LGG_mgsImma_hvgComputed.RData"))
+
+
+## 4- PLOT TOPIC PROFILES ##
+
+pdf(file=paste0(dir_results,"plot_TopicProfiles_tcga_LGG_mgsImma_hvgComputed_facet.pdf"),heigh=8,width=15)
+plotTopicProfiles(
+  x = res$NMF,
+  y = sc_sub$labelling, 
+  facet = TRUE,
+  min_prop = 0.01,
+  ncol = 5) +
+  theme(aspect.ratio = 1)
+dev.off()
+
+
+pdf(file=paste0(dir_results,"plot_TopicProfiles_tcga_LGG_mgsImma_hvgComputed.pdf"),heigh=8,width=8)
+plotTopicProfiles(
+  x = res$NMF,
+  y = sc_sub$labelling, 
+  facet = FALSE,
+  min_prop = 0.01,
+  ncol = 1) +
+  theme(aspect.ratio = 1)
+dev.off()
+
+
+
+## 5- PLOT HEATMAP WITH THE PROPORTIONS OF THE 10 CELL CATEGORIES, ANNOTATED IF THE SAMPLE IS ASTRO OR OLIGO  ##
+
+library(grid)
+library(ComplexHeatmap)
+
+input_data <- as.matrix(res$mat)
+
+#annotation astro and oligo
+out_mat <- res$mat
+patients <- rownames(out_mat)
+
+out_df <- as.data.frame(out_mat)
+out_df$patient_id <- patients
+
+out_df$group <- rep(NA,nrow(out_df))
+out_df[which(out_df$patient_id %in% astro_patients),"group"] <- "ASTRO"
+out_df[which(out_df$patient_id %in% oligo_patients),"group"] <- "OLIGO"
+
+as.data.frame(table(out_df$group))
+# Var1 Freq
+# 1 ASTRO  249
+# 2 OLIGO  169
+
+row_ha = rowAnnotation(group = out_df$group)
+
+heatmap <- Heatmap(as.matrix(res$mat),
+                   row_names_gp = gpar(fontsize = 2),
+                   column_names_gp = gpar(fontsize = 8),
+                   cluster_rows = TRUE,cluster_columns=TRUE,
+                   right_annotation = row_ha) #top_annotation = column_ha
+
+
+ht = draw(heatmap)
+pdf(paste0(dir_results,"heatmap_deconv_tcga_LGG_mgsImma_hvgComputed.pdf"),heigh=15,width=8)
+ht
+dev.off()
+
+
+
+# Heatmap only OLIGO:
+
+data_oligo <- res$mat[which(rownames(res$mat) %in% oligo_patients),]
+
+heatmap_res <- Heatmap(as.matrix(data_oligo),
+                       row_names_gp = gpar(fontsize = 4),
+                       column_names_gp = gpar(fontsize = 10),
+                       cluster_rows = TRUE,#cluster_columns = FALSE,
+                       heatmap_legend_param = list(title = "proportion",legend_height = unit(4, "cm"),
+                                                   title_position = "lefttop-rot")
+)
+
+ht = draw(heatmap_res)
+pdf(paste0(dir_results,"heatmap_deconv_tcga_LGG_mgsImma_hvgComputed_only_OLIGO.pdf"),heigh=15,width=8)
+ht
+dev.off()
+
+
+# Heatmap only ASTRO:
+
+data_astro <- res$mat[which(rownames(res$mat) %in% astro_patients),]
+
+heatmap_res <- Heatmap(as.matrix(data_astro),
+                       row_names_gp = gpar(fontsize = 4),
+                       column_names_gp = gpar(fontsize = 10),
+                       cluster_rows = TRUE,#cluster_columns = FALSE,
+                       heatmap_legend_param = list(title = "proportion",legend_height = unit(4, "cm"),
+                                                   title_position = "lefttop-rot")
+)
+
+ht = draw(heatmap_res)
+pdf(paste0(dir_results,"heatmap_deconv_tcga_LGG_mgsImma_hvgComputed_only_ASTRO.pdf"),heigh=15,width=8)
+ht
+dev.off()
+
+
+
+
+## 6- BOXPLOTS PROPORTION PER CELL CATEGORY ASTRO VS OLIGO ##
+
+library(ggpubr)
+
+out_deconv <- res$mat
+out_deconv_melted <- melt(out_deconv)
+colnames(out_deconv_melted) <- c("patient_id","cluster","value")
+out_deconv_melted$group <- rep(NA,nrow(out_deconv_melted))
+out_deconv_melted[which(out_deconv_melted$patient_id %in% astro_patients),"group"] <- "ASTRO"
+out_deconv_melted[which(out_deconv_melted$patient_id %in% oligo_patients),"group"] <- "OLIGO"
+
+clusters <- as.character(unique(out_deconv_melted$cluster))
+
+for(cluster in clusters){
+  print(cluster)
+  subset <- out_deconv_melted[which(out_deconv_melted$cluster==cluster),]
+  cellname <- gsub(" ","_",cluster)
+  cellname <- gsub("-","_",cellname)
+  cellname <- gsub("+","",cellname,fixed=TRUE)
+  
+  plot <- ggplot(subset, aes(y = value,x=group, fill=group)) +
+    #geom_violin() +
+    #geom_violin(color=col_cells[which(names(col_cells) == cluster)],trim=FALSE) +
+    scale_fill_manual(values=c("ASTRO"="lightsalmon","OLIGO"="mediumaquamarine")) +
+    geom_boxplot(color="black",width=0.5) + 
+    ylab(paste0("Proportion of ",cluster)) +
+    xlab("") +
+    #ggtitle(paste0(cluster)) +
+    stat_compare_means(size=6,label.x = 1.3) +
+    #ylim(0,100) +
+    theme(axis.text.x = element_text(size=20, hjust=0.5,vjust=0.5,face="bold"),
+          axis.text.y = element_text(size=18, hjust=1, vjust = 0.5),
+          axis.title.x = element_text(size=22, face= "bold"),
+          axis.title.y = element_text(size=22, face= "bold"),
+          legend.title = element_text(size = 12, face="bold"),
+          strip.text.x = element_text(size=18, color="black",face="bold"),
+          plot.title = element_text(hjust = 0.5, face="bold",size=25),
+          legend.text = element_text(size = 12), legend.position = "none")
+  
+  ggsave(plot, file=paste0(dir_results,"/boxplots/comparison_deconv_astro_oligo_",cellname,"_boxplot.pdf"), width=20,height=20, units = "cm",limitsize = FALSE)
+  
+}
+
+
+
+
+
+#############################
+####  Survival analysis  ####
+#############################
+library("survival")
+library("survminer")
+
+
+# LOAD MERGED TABLE: RESULTS DECONVOLUTION TCGA-LGG + SURVIVAL DATA TCGA-LGG
+
+load(paste0(dir_results,"data_proportion_survival_TCGA.RData")) 
+
+
+# [1] ALL PATIENTS (ASTRO AND OLIGO) SURVIVAL WITH AGE, TUMOR GRADE OR SEX.
+
+# SURVIVAL BY AGE
+res_cox <- coxph(Surv(survival_time, status) ~ age,
+                 data = data_proportion_survival)
+summary(res_cox)
+
+
+# SURVIVAL BY TUMOR GRADE
+res_cox <- coxph(Surv(survival_time, status) ~ neoplasm_histologic_grade,
+                 data = data_proportion_survival)
+summary(res_cox)
+
+fit <- survfit(Surv(survival_time, status) ~ neoplasm_histologic_grade, data = data_proportion_survival)
+print(fit)
+
+pdf(file = paste0(dir_results,"survival/survival_curve_all_patients_tumor_grade.pdf"),width = 9,height = 6,onefile=F)
+ggsurvplot(fit,
+           pval = TRUE, conf.int = FALSE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+)
+dev.off()
+
+
+# SURVIVAL BY SEX
+res_cox <- coxph(Surv(survival_time, status) ~ sex,
+                 data = data_proportion_survival)
+summary(res_cox)
+
+fit <- survfit(Surv(survival_time, status) ~ sex, data = data_proportion_survival)
+print(fit)
+
+pdf(file = paste0(dir_results,"survival/survival_curve_all_patients_sex.pdf"),width = 9,height = 6,onefile=F)
+ggsurvplot(fit,
+           pval = TRUE, conf.int = FALSE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+)
+dev.off()
+
+
+
+
+# [2] ARE THERE DIFFERENCES IN SURVIVAL OLIGO vs ASTRO?
+res_cox <- coxph(Surv(survival_time, status) ~ group + age + neoplasm_histologic_grade,
+                 data = data_proportion_survival)
+summary(res_cox)
+
+
+res_cox <- coxph(Surv(survival_time, status) ~ group,
+                 data = data_proportion_survival)
+summary(res_cox)
+
+
+fit <- survfit(Surv(survival_time, status) ~ group, data = data_proportion_survival)
+print(fit)
+
+pdf(file = paste0(dir_results,"survival/survival_curve_astro_vs_oligo_without_covar_age_tumorgrade.pdf"),width = 9,height = 6,onefile=F)
+ggsurvplot(fit,
+           pval = TRUE, conf.int = FALSE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+)
+dev.off()
+
+res_cox <- coxph(Surv(survival_time, status) ~ group + age,
+                 data = data_proportion_survival)
+summary(res_cox)
+
+res_cox <- coxph(Surv(survival_time, status) ~ group + neoplasm_histologic_grade,
+                 data = data_proportion_survival)
+summary(res_cox)
+
+fit <- survfit(Surv(survival_time, status) ~ neoplasm_histologic_grade, data = data_proportion_survival)
+print(fit)
+pdf(file = paste0(dir_results,"survival/survival_curve_astro_vs_oligo_neoplasm_histologic_grade.pdf"),width = 9,height = 6,onefile=F)
+ggsurvplot(fit,
+           pval = TRUE, conf.int = FALSE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+)
+dev.off()
+
+
+# [3] SURVIVAL IN OLIGO (169 patients)
+data_proportion_survival_oligo <- data_proportion_survival[which(data_proportion_survival$group == "OLIGO"),]
+
+
+# 3.1 sex
+res_cox <- coxph(Surv(survival_time, status) ~ sex,
+                 data = data_proportion_survival_oligo)
+summary(res_cox)
+
+
+# 3.2 neoplasm_histologic_grade
+res_cox <- coxph(Surv(survival_time, status) ~ neoplasm_histologic_grade,
+                 data = data_proportion_survival_oligo)
+summary(res_cox)
+
+fit <- survfit(Surv(survival_time, status) ~ neoplasm_histologic_grade, data = data_proportion_survival_oligo)
+print(fit)
+pdf(file = paste0(dir_results,"survival/survival_curve_oligo_tumor_grade.pdf"),width = 9,height = 6,onefile=F)
+ggsurvplot(fit,
+           pval = TRUE, conf.int = FALSE,
+           risk.table = TRUE, # Add risk table
+           risk.table.col = "strata", # Change risk table color by groups
+           linetype = "strata", # Change line type by groups
+           surv.median.line = "hv", # Specify median survival
+           ggtheme = theme_bw(), # Change ggplot2 theme
+)
+dev.off()
+
+# 3.3 age
+res_cox <- coxph(Surv(survival_time, status) ~ age,
+                 data = data_proportion_survival_oligo)
+summary(res_cox)
+
+
+
+##############
+##  OLIGO  ### - SUMMARY TABLE SURVIVAL OUTPUTS COX REGRESSION -
+##############
+
+list_cellpopulations <- colnames(data_proportion_survival_oligo)[2:11]
+
+list_cellpopulations_simple <- gsub(" ","_",list_cellpopulations)
+list_cellpopulations_simple <- gsub("-","_",list_cellpopulations_simple,fixed=TRUE)
+list_cellpopulations_simple <- gsub("−","_",list_cellpopulations_simple,fixed=TRUE)
+list_cellpopulations_simple <- gsub("+","plus",list_cellpopulations_simple,fixed=TRUE)
+
+
+summary_tab_survival <- as.data.frame(matrix(ncol=15,nrow=10))
+colnames(summary_tab_survival) <- c("prop_coef","prop_pval","prop_sig",
+                                    "prop_age_coef","prop_age_pval","prop_age_sig",
+                                    "prop_grade_coef","prop_grade_pval","prop_grade_sig",
+                                    "prop_age_grade_coef","prop_age_grade_pval","prop_age_grade_sig",
+                                    "prop_stratagrade_coef","prop_stratagrade_pval","prop_stratagrade_sig")
+
+rownames(summary_tab_survival) <- list_cellpopulations_simple
+
+
+# LOOP THROUGH ALL POPULATIONS
+
+for(cellpopu_name in list_cellpopulations){
+  print(cellpopu_name)
+  
+  cellpopu_name_simple <- gsub(" ","_",cellpopu_name)
+  cellpopu_name_simple <- gsub("-","_",cellpopu_name_simple,fixed=TRUE)
+  cellpopu_name_simple <- gsub("−","_",cellpopu_name_simple,fixed=TRUE)
+  cellpopu_name_simple <- gsub("+","plus",cellpopu_name_simple,fixed=TRUE)
+  print(cellpopu_name_simple)
+  
+  index <- which(colnames(data_proportion_survival_oligo)==cellpopu_name)
+  data_proportion_survival_oligo_population <- data_proportion_survival_oligo[,c(1,index,12:28)]
+  colnames(data_proportion_survival_oligo_population)[2] <- cellpopu_name_simple
+  
+  boxplot_data <- boxplot(data_proportion_survival_oligo_population[,cellpopu_name_simple],plot=FALSE)
+
+  # Saving boxplot to pdf:
+  pdf(file =paste0(dir_results,"survival/boxplot_proportion_",cellpopu_name_simple,"_oligo.pdf"))
+  boxplot(data_proportion_survival_oligo_population[,cellpopu_name_simple])
+  dev.off()
+  
+  # Cut-off Q3 and group division
+  cutoff <- boxplot_data$stats[4,]
+  print(paste0("Cut-off Q3 = ",cutoff))
+  data_proportion_survival_oligo_population$proportion_category <- rep(NA,nrow(data_proportion_survival_oligo_population))
+  data_proportion_survival_oligo_population[which(data_proportion_survival_oligo_population[,colnames(data_proportion_survival_oligo_population)==cellpopu_name_simple] <= cutoff),"proportion_category"] <- "low"
+  data_proportion_survival_oligo_population[which(data_proportion_survival_oligo_population[,colnames(data_proportion_survival_oligo_population)==cellpopu_name_simple] > cutoff),"proportion_category"] <- "high"
+  
+  # Cox regression
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + age + neoplasm_histologic_grade,
+                   data = data_proportion_survival_oligo_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_OLIGO_",cellpopu_name_simple,"_prop_age_grade.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_age_grade_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_age_grade_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + neoplasm_histologic_grade,
+                   data = data_proportion_survival_oligo_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_OLIGO_",cellpopu_name_simple,"_prop_grade.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_grade_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_grade_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + strata(neoplasm_histologic_grade),
+                   data = data_proportion_survival_oligo_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_OLIGO_",cellpopu_name_simple,"_prop_Strata_grade.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_stratagrade_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_stratagrade_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + age,
+                   data = data_proportion_survival_oligo_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_OLIGO_",cellpopu_name_simple,"_prop_age.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_age_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_age_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #  
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category,
+                   data = data_proportion_survival_oligo_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_OLIGO_",cellpopu_name_simple,"_prop.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  # Plot curves
+  fit <- survfit(Surv(survival_time, status) ~ proportion_category, data = data_proportion_survival_oligo_population)
+  print(fit)
+  pdf(file = paste0(dir_results,"survival/survival_curve_proportion_category_OLIGO_",cellpopu_name_simple,"_noconfint.pdf"),width = 9,height = 6,onefile=F)
+  print(ggsurvplot(fit,
+                   pval = TRUE, conf.int = FALSE,
+                   risk.table = TRUE, # Add risk table
+                   risk.table.col = "strata", # Change risk table color by groups
+                   linetype = "strata", # Change line type by groups
+                   surv.median.line = "hv", # Specify median survival
+                   ggtheme = theme_bw(), # Change ggplot2 theme
+  ))
+  dev.off()
+  
+  fit <- survfit(Surv(survival_time, status) ~ proportion_category, data = data_proportion_survival_oligo_population)
+  print(fit)
+  pdf(file = paste0(dir_results,"survival/survival_curve_proportion_category_OLIGO_",cellpopu_name_simple,"_confint.pdf"),width = 9,height = 6,onefile=F)
+  print(ggsurvplot(fit,
+                   pval = TRUE, conf.int = TRUE,
+                   risk.table = TRUE, # Add risk table
+                   risk.table.col = "strata", # Change risk table color by groups
+                   linetype = "strata", # Change line type by groups
+                   surv.median.line = "hv", # Specify median survival
+                   ggtheme = theme_bw(), # Change ggplot2 theme
+  ))
+  dev.off()
+  
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_coef"] <- prop_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_pval"] <- prop_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_age_coef"] <- prop_age_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_age_pval"] <- prop_age_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_grade_coef"] <- prop_grade_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_grade_pval"] <- prop_grade_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_age_grade_coef"] <- prop_age_grade_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_age_grade_pval"] <- prop_age_grade_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_stratagrade_coef"] <- prop_stratagrade_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_stratagrade_pval"] <- prop_stratagrade_pval
+  
+}
+
+
+summary_tab_survival[which(summary_tab_survival$prop_pval > 0.1),"prop_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.1 & summary_tab_survival$prop_pval > 0.05),"prop_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.05 & summary_tab_survival$prop_pval > 0.01),"prop_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.01 & summary_tab_survival$prop_pval > 0.001),"prop_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.001 & summary_tab_survival$prop_pval > 0),"prop_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_age_pval > 0.05),"prop_age_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.1 & summary_tab_survival$prop_age_pval > 0.05),"prop_age_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.05 & summary_tab_survival$prop_age_pval > 0.01),"prop_age_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.01 & summary_tab_survival$prop_age_pval > 0.001),"prop_age_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.001 & summary_tab_survival$prop_age_pval >= 0),"prop_age_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval > 0.05),"prop_grade_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.1 & summary_tab_survival$prop_grade_pval > 0.05),"prop_grade_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.05 & summary_tab_survival$prop_grade_pval > 0.01),"prop_grade_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.01 & summary_tab_survival$prop_grade_pval > 0.001),"prop_grade_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.001 & summary_tab_survival$prop_grade_pval >= 0),"prop_grade_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval > 0.05),"prop_age_grade_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.1 & summary_tab_survival$prop_age_grade_pval > 0.05),"prop_age_grade_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.05 & summary_tab_survival$prop_age_grade_pval > 0.01),"prop_age_grade_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.01 & summary_tab_survival$prop_age_grade_pval > 0.001),"prop_age_grade_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.001 & summary_tab_survival$prop_age_grade_pval > 0),"prop_age_grade_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval > 0.05),"prop_stratagrade_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.1 & summary_tab_survival$prop_stratagrade_pval > 0.05),"prop_stratagrade_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.05 & summary_tab_survival$prop_stratagrade_pval > 0.01),"prop_stratagrade_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.01 & summary_tab_survival$prop_stratagrade_pval > 0.001),"prop_stratagrade_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.001 & summary_tab_survival$prop_stratagrade_pval > 0),"prop_stratagrade_sig"] <- "***"
+
+
+library("gridExtra")
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,1:3])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_age.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,4:6])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_grade.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,7:9])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_age_grade.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,10:12])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_strata_grade.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,13:15])
+dev.off()
+
+
+summary_tab_survival_2dig <- summary_tab_survival
+summary_tab_survival_2dig[,1] <- round(summary_tab_survival_2dig[,1],digits=2)
+summary_tab_survival_2dig[,2] <- round(summary_tab_survival_2dig[,2],digits=2)
+summary_tab_survival_2dig[,4] <- round(summary_tab_survival_2dig[,4],digits=2)
+summary_tab_survival_2dig[,5] <- round(summary_tab_survival_2dig[,5],digits=2)
+summary_tab_survival_2dig[,7] <- round(summary_tab_survival_2dig[,7],digits=2)
+summary_tab_survival_2dig[,8] <- round(summary_tab_survival_2dig[,8],digits=2)
+summary_tab_survival_2dig[,10] <- round(summary_tab_survival_2dig[,10],digits=2)
+summary_tab_survival_2dig[,11] <- round(summary_tab_survival_2dig[,11],digits=2)
+summary_tab_survival_2dig[,13] <- round(summary_tab_survival_2dig[,13],digits=2)
+summary_tab_survival_2dig[,14] <- round(summary_tab_survival_2dig[,14],digits=2)
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportionsRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,1:3]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_ageRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,4:6]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_gradeRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,7:9]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_age_gradeRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,10:12]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_oligo_proportions_strata_gradeRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,13:15]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+
+
+
+
+
+
+# [4] SURVIVAL IN ASTRO (247 patients)
+data_proportion_survival_astro <- data_proportion_survival[which(data_proportion_survival$group == "ASTRO"),]
+
+# 4.1 sex
+res_cox <- coxph(Surv(survival_time, status) ~ sex,
+                 data = data_proportion_survival_astro)
+summary(res_cox)
+
+# 4.2 
+res_cox <- coxph(Surv(survival_time, status) ~ neoplasm_histologic_grade,
+                 data = data_proportion_survival_astro)
+summary(res_cox)
+
+# 4.3
+res_cox <- coxph(Surv(survival_time, status) ~ age,
+                 data = data_proportion_survival_astro)
+summary(res_cox)
+
+
+
+##############
+##  ASTRO  ### - SUMMARY TABLE SURVIVAL OUTPUTS COX REGRESSION PH -
+##############
+
+
+list_cellpopulations <- colnames(data_proportion_survival_astro)[2:11]
+
+list_cellpopulations_simple <- gsub(" ","_",list_cellpopulations)
+list_cellpopulations_simple <- gsub("-","_",list_cellpopulations_simple,fixed=TRUE)
+list_cellpopulations_simple <- gsub("−","_",list_cellpopulations_simple,fixed=TRUE)
+list_cellpopulations_simple <- gsub("+","plus",list_cellpopulations_simple,fixed=TRUE)
+
+
+summary_tab_survival <- as.data.frame(matrix(ncol=15,nrow=10))
+colnames(summary_tab_survival) <- c("prop_coef","prop_pval","prop_sig",
+                                    "prop_age_coef","prop_age_pval","prop_age_sig",
+                                    "prop_grade_coef","prop_grade_pval","prop_grade_sig",
+                                    "prop_age_grade_coef","prop_age_grade_pval","prop_age_grade_sig",
+                                    "prop_stratagrade_coef","prop_stratagrade_pval","prop_stratagrade_sig")
+
+rownames(summary_tab_survival) <- list_cellpopulations_simple
+
+
+# LOOP THROUGH ALL POPULATIONS
+
+for(cellpopu_name in list_cellpopulations){
+  print(cellpopu_name)
+  
+  cellpopu_name_simple <- gsub(" ","_",cellpopu_name)
+  cellpopu_name_simple <- gsub("-","_",cellpopu_name_simple,fixed=TRUE)
+  cellpopu_name_simple <- gsub("−","_",cellpopu_name_simple,fixed=TRUE)
+  cellpopu_name_simple <- gsub("+","plus",cellpopu_name_simple,fixed=TRUE)
+  print(cellpopu_name_simple)
+  
+  index <- which(colnames(data_proportion_survival_astro)==cellpopu_name)
+  data_proportion_survival_astro_population <- data_proportion_survival_astro[,c(1,index,12:28)]
+  colnames(data_proportion_survival_astro_population)[2] <- cellpopu_name_simple
+  
+  boxplot_data <- boxplot(data_proportion_survival_astro_population[,cellpopu_name_simple],plot=FALSE)
+  
+  # Saving boxplot to pdf:
+  pdf(file =paste0(dir_results,"survival/boxplot_proportion_",cellpopu_name_simple,"_astro.pdf"))
+  boxplot(data_proportion_survival_astro_population[,cellpopu_name_simple])
+  dev.off()
+  
+  # Cut-off Q3 and group division
+  cutoff <- boxplot_data$stats[4,]
+  print(paste0("Cut-off Q3 = ",cutoff))
+  data_proportion_survival_astro_population$proportion_category <- rep(NA,nrow(data_proportion_survival_astro_population))
+  data_proportion_survival_astro_population[which(data_proportion_survival_astro_population[,colnames(data_proportion_survival_astro_population)==cellpopu_name_simple] <= cutoff),"proportion_category"] <- "low"
+  data_proportion_survival_astro_population[which(data_proportion_survival_astro_population[,colnames(data_proportion_survival_astro_population)==cellpopu_name_simple] > cutoff),"proportion_category"] <- "high"
+  
+  # Cox regression
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + age + neoplasm_histologic_grade,
+                   data = data_proportion_survival_astro_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_ASTRO_",cellpopu_name_simple,"_prop_age_grade.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_age_grade_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_age_grade_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + neoplasm_histologic_grade,
+                   data = data_proportion_survival_astro_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_ASTRO_",cellpopu_name_simple,"_prop_grade.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_grade_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_grade_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + strata(neoplasm_histologic_grade),
+                   data = data_proportion_survival_astro_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_ASTRO_",cellpopu_name_simple,"_prop_Strata_grade.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_stratagrade_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_stratagrade_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category + age,
+                   data = data_proportion_survival_astro_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_ASTRO_",cellpopu_name_simple,"_prop_age.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_age_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_age_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  #  
+  res_cox <- coxph(Surv(survival_time, status) ~ proportion_category,
+                   data = data_proportion_survival_astro_population)
+  print(summary(res_cox))
+  sink(file = paste0(dir_results,"survival/summaries_cox/","summary_cox_ASTRO_",cellpopu_name_simple,"_prop.txt"))
+  print(summary(res_cox))
+  sink(file = NULL)
+  
+  prop_coef <- summary(res_cox)$coefficients[1, 1]
+  prop_pval <- summary(res_cox)$coefficients[1, 5]
+  
+  
+  # Plot curves
+  fit <- survfit(Surv(survival_time, status) ~ proportion_category, data = data_proportion_survival_astro_population)
+  print(fit)
+  pdf(file = paste0(dir_results,"survival/survival_curve_proportion_category_ASTRO_",cellpopu_name_simple,"_noconfint.pdf"),width = 9,height = 6,onefile=F)
+  print(ggsurvplot(fit,
+                   pval = TRUE, conf.int = FALSE,
+                   risk.table = TRUE, # Add risk table
+                   risk.table.col = "strata", # Change risk table color by groups
+                   linetype = "strata", # Change line type by groups
+                   surv.median.line = "hv", # Specify median survival
+                   ggtheme = theme_bw(), # Change ggplot2 theme
+  ))
+  dev.off()
+  
+  fit <- survfit(Surv(survival_time, status) ~ proportion_category, data = data_proportion_survival_astro_population)
+  print(fit)
+  pdf(file = paste0(dir_results,"survival/survival_curve_proportion_category_ASTRO_",cellpopu_name_simple,"_confint.pdf"),width = 9,height = 6,onefile=F)
+  print(ggsurvplot(fit,
+                   pval = TRUE, conf.int = TRUE,
+                   risk.table = TRUE, # Add risk table
+                   risk.table.col = "strata", # Change risk table color by groups
+                   linetype = "strata", # Change line type by groups
+                   surv.median.line = "hv", # Specify median survival
+                   ggtheme = theme_bw(), # Change ggplot2 theme
+  ))
+  dev.off()
+  
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_coef"] <- prop_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_pval"] <- prop_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_age_coef"] <- prop_age_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_age_pval"] <- prop_age_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_grade_coef"] <- prop_grade_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_grade_pval"] <- prop_grade_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_age_grade_coef"] <- prop_age_grade_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_age_grade_pval"] <- prop_age_grade_pval
+  
+  summary_tab_survival[cellpopu_name_simple,"prop_stratagrade_coef"] <- prop_stratagrade_coef
+  summary_tab_survival[cellpopu_name_simple,"prop_stratagrade_pval"] <- prop_stratagrade_pval
+  
+}
+
+
+summary_tab_survival[which(summary_tab_survival$prop_pval > 0.1),"prop_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.1 & summary_tab_survival$prop_pval > 0.05),"prop_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.05 & summary_tab_survival$prop_pval > 0.01),"prop_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.01 & summary_tab_survival$prop_pval > 0.001),"prop_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_pval <= 0.001 & summary_tab_survival$prop_pval > 0),"prop_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_age_pval > 0.05),"prop_age_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.1 & summary_tab_survival$prop_age_pval > 0.05),"prop_age_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.05 & summary_tab_survival$prop_age_pval > 0.01),"prop_age_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.01 & summary_tab_survival$prop_age_pval > 0.001),"prop_age_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_age_pval <= 0.001 & summary_tab_survival$prop_age_pval >= 0),"prop_age_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval > 0.05),"prop_grade_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.1 & summary_tab_survival$prop_grade_pval > 0.05),"prop_grade_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.05 & summary_tab_survival$prop_grade_pval > 0.01),"prop_grade_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.01 & summary_tab_survival$prop_grade_pval > 0.001),"prop_grade_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_grade_pval <= 0.001 & summary_tab_survival$prop_grade_pval >= 0),"prop_grade_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval > 0.05),"prop_age_grade_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.1 & summary_tab_survival$prop_age_grade_pval > 0.05),"prop_age_grade_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.05 & summary_tab_survival$prop_age_grade_pval > 0.01),"prop_age_grade_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.01 & summary_tab_survival$prop_age_grade_pval > 0.001),"prop_age_grade_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_age_grade_pval <= 0.001 & summary_tab_survival$prop_age_grade_pval > 0),"prop_age_grade_sig"] <- "***"
+
+
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval > 0.05),"prop_stratagrade_sig"] <- "ns"
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.1 & summary_tab_survival$prop_stratagrade_pval > 0.05),"prop_stratagrade_sig"] <- "."
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.05 & summary_tab_survival$prop_stratagrade_pval > 0.01),"prop_stratagrade_sig"] <- "*"
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.01 & summary_tab_survival$prop_stratagrade_pval > 0.001),"prop_stratagrade_sig"] <- "**"
+summary_tab_survival[which(summary_tab_survival$prop_stratagrade_pval <= 0.001 & summary_tab_survival$prop_stratagrade_pval > 0),"prop_stratagrade_sig"] <- "***"
+
+
+library("gridExtra")
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,1:3])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_age.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,4:6])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_grade.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,7:9])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_age_grade.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,10:12])
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_strata_grade.pdf"),width = 8,height = 5) #,width = 9,height = 6,onefile=F
+grid.table(summary_tab_survival[,13:15])
+dev.off()
+
+
+summary_tab_survival_2dig <- summary_tab_survival
+summary_tab_survival_2dig[,1] <- round(summary_tab_survival_2dig[,1],digits=2)
+summary_tab_survival_2dig[,2] <- round(summary_tab_survival_2dig[,2],digits=2)
+summary_tab_survival_2dig[,4] <- round(summary_tab_survival_2dig[,4],digits=2)
+summary_tab_survival_2dig[,5] <- round(summary_tab_survival_2dig[,5],digits=2)
+summary_tab_survival_2dig[,7] <- round(summary_tab_survival_2dig[,7],digits=2)
+summary_tab_survival_2dig[,8] <- round(summary_tab_survival_2dig[,8],digits=2)
+summary_tab_survival_2dig[,10] <- round(summary_tab_survival_2dig[,10],digits=2)
+summary_tab_survival_2dig[,11] <- round(summary_tab_survival_2dig[,11],digits=2)
+summary_tab_survival_2dig[,13] <- round(summary_tab_survival_2dig[,13],digits=2)
+summary_tab_survival_2dig[,14] <- round(summary_tab_survival_2dig[,14],digits=2)
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportionsRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,1:3]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_ageRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,4:6]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_gradeRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,7:9]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_age_gradeRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,10:12]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+
+pdf(file = paste0(dir_results,"survival/summary_table_survival_coxph_astro_proportions_strata_gradeRound.pdf"),width = 7,height = 5) #,width = 9,height = 6,onefile=F
+data <- summary_tab_survival_2dig[,13:15]
+colnames(data) <- c("coef", "pval","sig")
+grid.table(data)
+dev.off()
+```
+

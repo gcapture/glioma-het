@@ -1,0 +1,98 @@
+# Figure 3E {.unnumbered}
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# Load samples.
+data <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/data_3E.rds")
+
+```
+
+```{r}
+#| eval: false
+p <- data %>% 
+     ggplot2::ggplot(mapping = ggplot2::aes(y = forcats::fct_rev(.data$Type),
+                                            x = .data$Score)) + 
+     ggplot2::geom_boxplot(na.rm = TRUE)  +
+     ggbeeswarm::geom_beeswarm(size = 2, 
+                               color = "black", 
+                               fill = "white", 
+                               shape = 21, 
+                               stroke = 0.5, 
+                               cex = 2, 
+                               na.rm = TRUE) + 
+     ggplot2::labs(y = "", 
+                   x = "Histopatology score", 
+                   title = "p-STAT1+ IBA1+") + 
+     ggplot2::theme_minimal(base_size = 10) +
+     ggplot2::scale_x_continuous(limits = c(0, 4)) + 
+     ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
+                                                       hjust = 0.5,
+                                                       vjust = 0),
+                    plot.subtitle = ggplot2::element_text(face = "bold", hjust = 0),
+                    plot.caption = ggplot2::element_text(face = "plain", hjust = 1),
+                    legend.text = ggplot2::element_text(face = "plain"),
+                    legend.title = ggplot2::element_text(face = "bold"),
+                    plot.title.position = "panel",
+                    plot.caption.position = "plot",
+                    text = ggplot2::element_text(family = "sans"),
+                    legend.justification = "center",
+                    legend.position = "bottom",
+                    axis.title.x = ggplot2::element_text(color = "black", face = "bold", hjust = 0.5),
+                    axis.title.y.left = ggplot2::element_text(color = "black", face = "bold", angle = 90),
+                    axis.title.y.right = ggplot2::element_blank(),
+                    axis.text.y.left = ggplot2::element_text(color = "black",
+                                                              face = "plain"),
+                    axis.text.y.right = ggplot2::element_blank(),
+                    axis.ticks.x.bottom = ggplot2::element_line(color = "black"),
+                    axis.ticks.y.right = ggplot2::element_blank(),
+                    axis.ticks.y.left = ggplot2::element_line(color = "black"),
+                    axis.text.x.bottom = ggplot2::element_text(color = "black",
+                                                        face = "plain",
+                                                        angle = SCpubr:::get_axis_parameters(angle = 45, flip = TRUE)[["angle"]],
+                                                        hjust = SCpubr:::get_axis_parameters(angle = 45, flip = TRUE)[["hjust"]],
+                                                        vjust = SCpubr:::get_axis_parameters(angle = 45, flip = TRUE)[["vjust"]]),
+                    strip.text.x = ggplot2::element_text(face = "bold",
+                                                         color = "black"),
+                    strip.text.y = ggplot2::element_blank(),
+                    panel.border = ggplot2::element_rect(color = "black", fill = NA),
+                    panel.grid = ggplot2::element_line(color = "grey90", linetype = "dotted"),
+                    plot.margin = ggplot2::margin(t = 10, r = 10, b = 10, l = 0),
+                    plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                    panel.background = ggplot2::element_rect(fill = "white", color = "black", linetype = "solid"),
+                    legend.background = ggplot2::element_rect(fill = "white", color = "white"))
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_3E",
+                  file_name = "Figure_3E",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.33,
+                  height = 6.75)
+```
+
+
+<img src="../figs/Figure_3E/Figure_3E.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+  
+  

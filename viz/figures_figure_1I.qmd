@@ -1,0 +1,125 @@
+# Figure 1I {.unnumbered}
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# Load samples.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_LGGs.rds")
+
+cluster_cols <- c("RA" = "#ECA809",
+                  "OPC-like" = "#043362",                    
+                  "Gradient" = "#D6D6D6",                    
+                  "Astro-like" = "#9A031E",                  
+                  "Cycling" = "#5F0F40")
+
+idents.keep <- c("OPC-like", "Astro-like", "RA", "Gradient", "Cycling")
+sample <- sample[, sample$relabelling %in% idents.keep]
+```
+
+```{r}
+#| eval: false
+p0 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Oligodendroglioma"],
+                         group.by = "relabelling",
+                         split.by = "orig.ident",
+                         facet.by = "subtype",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = TRUE,
+                         order.by = "RA",
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Oligodendroglioma") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10)) 
+
+p1 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Astrocytoma"],
+                         group.by = "relabelling",
+                         split.by = "orig.ident",
+                         facet.by = "subtype",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = TRUE,
+                         order.by = "RA",
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Astrocytoma") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10)) 
+
+p2 <- SCpubr::do_BarPlot(sample = sample,
+                         group.by = "relabelling",
+                         split.by = "grade",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         legend.title = "",
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4,
+                         legend.ncol = 3) +
+      ggplot2::xlab("Grade") +
+      ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+
+layout <- paste(c(rep("A", 8), rep("B", 6), rep("C", 2), "D"), collapse = "\n")
+
+p <- patchwork::wrap_plots(A = p0,
+                           B = p1,
+                           C = p2,
+                           D = patchwork::guide_area(),
+                           design = layout)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1I",
+                  file_name = "Figure_1I",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.75,
+                  height = 6.75)
+```
+
+
+<img src="../figs/Figure_1I/Figure_1I.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+  
+  

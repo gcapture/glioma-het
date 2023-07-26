@@ -1,0 +1,75 @@
+# Figure 4B {.unnumbered}
+
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# Read in metadata.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_paired_AS.rds")
+sample$relabelling[sample$relabelling == "RA"] <- "RE"
+Seurat::Idents(sample) <- sample$relabelling
+
+cluster_cols <- c("RE" = "#ECA809",
+                  "OPC-like" = "#043362",                    
+                  "T Cell" = "#009FF5",                   
+                  "Oligodendrocytes" = "#BC5210",            
+                  "Astrocytes" = "#279185",                  
+                  "Microglia" = "#7EB356",                   
+                  "Pericytes" = "#AC70FF",                  
+                  "Mixed" = "#8d5d3f",                   
+                  "Gradient" = "#D6D6D6",                    
+                  "Neurons" = "#544B81",                   
+                  "Endothelial" = "#da627d",                 
+                  "Astro-like" = "#9A031E",                  
+                  "Excluded" = "#4D6880",                   
+                  "Cycling" = "#5F0F40")
+
+idents.keep <- c("OPC-like", "Astro-like", "RE", "Gradient", "Cycling")
+```
+
+
+```{r}
+#| eval: false
+p <- SCpubr::do_DimPlot(sample = sample,
+                        group.by = "relabelling",
+                        idents.keep = c("OPC-like", "Astro-like", "RE", "Gradient", "Cycling"),
+                        font.size = 12,
+                        raster = TRUE,
+                        raster.dpi = 2048,
+                        pt.size = 4,
+                        colors.use = cluster_cols,
+                        legend.icon.size = 8,
+                        legend.ncol = 3,
+                        na.value = "grey50")
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+# Save the plot.
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_4B",
+                  file_name = "Figure_4B",
+                  dpi = 300,
+                  width = 6.33,
+                  height = 9,
+                  output_format = "publication")
+```
+<img src="../figs/Figure_4B/Figure_4B.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+  

@@ -1,0 +1,67 @@
+# Figure S1G {.unnumbered}
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+sample.oligo <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_OD.rds")
+sample.oligo$orig.ident <- stringr::str_remove_all(sample.oligo$orig.ident, "OE0145-")
+
+scale.ident <- c("IDH_ACB_AD_540" = "#E07A5F",
+                 "IDH_ACB_AD_809" = "#F2CC8F",
+                 "IDH_ACB_AD_883" = "#DAA82B",
+                 "IDH_NCH2111" = "#81B29A",
+                 "IDH_NCH536" = "#3E745E",
+                 "IDH_NCH6341" = "#5CADC1",
+                 "IDH_NCH6702" = "#8B6BB8",
+                 "IDH_NCH781" = "#3D405B")
+
+# Define set of markers.
+markers.suva <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/IDH_gliomas_TB_annotation_kit_with_Suva_programs_and_metaprogram_iterations.rds")
+
+sample.oligo <- SCpubr:::compute_enrichment_scores(sample = sample.oligo,
+                                                   input_gene_list = list("Stemness_program" = markers.suva$Suva_Stemness_Program),
+                                                   flavor = "Seurat")
+
+
+```
+
+```{r}
+#| eval: false
+p <- SCpubr::do_BoxPlot(sample = sample.oligo[, sample.oligo$relabelling == "RA"],
+                        feature = "Stemness_program",
+                        order = TRUE,
+                        group.by = "orig.ident",
+                        colors.use = scale.ident) +
+     ggplot2::ylab("Stemness enrichment score") +
+     ggplot2::xlab("Patient")
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S1G",
+                  file_name = "Figure_S1G",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 15,
+                  height = 10)
+```
+
+<img src="../figs/Figure_S1G/Figure_S1G.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

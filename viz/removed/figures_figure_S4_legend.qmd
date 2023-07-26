@@ -1,0 +1,3 @@
+# Figure S4 Legend {.unnumbered}
+
+**Fig. S4. Quality metrics of the RA population.** From top to bottom, distribution of UMIs per cell, genes per cell and percentage of mitochondrial RA per cell are shown for primary oligodendroglioma (**A**), primary astrocytoma (**B**) and paired astrocytoma (**C**) tumors.

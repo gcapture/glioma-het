@@ -1,0 +1,59 @@
+# Label transfer {.unnumbered}
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+library(EnsDb.Hsapiens.v86)
+
+sample.od.rna <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_OD.rds")
+sample.as.rna <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
+sample.od.atac <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_OD.rds")
+sample.as.atac <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_AS.rds")
+
+transfer.anchors <- Seurat::FindTransferAnchors(reference = sample.od.rna, 
+                                                query = sample.od.atac, 
+                                                features = Seurat::VariableFeatures(object = sample.od.rna),
+                                                normalization.method = "SCT",
+                                                reference.assay = "SCT", 
+                                                query.assay = "ACTIVITY", 
+                                                reduction = "cca")
+
+celltype.predictions <- Seurat::TransferData(anchorset = transfer.anchors, 
+                                             refdata = sample.od.rna$relabelling,
+                                             weight.reduction = sample.od.atac[["lsi"]], 
+                                             dims = 2:30)
+
+sample.od.atac <- Seurat::AddMetaData(sample.od.atac,
+                                      metadata = celltype.predictions)
+
+Seurat::Idents(sample.od.atac) <- sample.od.atac$predicted.id
+
+saveRDS(sample.od.atac, "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_OD.rds", compress = FALSE)
+
+
+transfer.anchors <- Seurat::FindTransferAnchors(reference = sample.as.rna, 
+                                                query = sample.as.atac, 
+                                                features = Seurat::VariableFeatures(object = sample.as.rna),
+                                                normalization.method = "SCT",
+                                                reference.assay = "SCT", 
+                                                query.assay = "ACTIVITY", 
+                                                reduction = "cca")
+
+celltype.predictions <- Seurat::TransferData(anchorset = transfer.anchors, 
+                                             refdata = sample.as.rna$relabelling,
+                                             weight.reduction = sample.as.atac[["lsi"]], 
+                                             dims = 2:30)
+
+sample.as.atac <- Seurat::AddMetaData(sample.as.atac,
+                                      metadata = celltype.predictions)
+
+Seurat::Idents(sample.as.atac) <- sample.as.atac$predicted.id
+
+saveRDS(sample.as.atac, "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_AS.rds", compress = FALSE)
+```
+

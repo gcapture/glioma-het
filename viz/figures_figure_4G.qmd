@@ -1,0 +1,232 @@
+# Figure 4G {.unnumbered}
+
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# Read in metadata.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/microglia_paired.rds")
+
+cluster_cols <- c("Mg Homeostatic"= "#ECA809",                          
+                  "Mg Inflammatory TAMs" = "#043362",                  
+                  "Mg Activated"= "#9A031E",                 
+                  "Mg Resident−like TAMs"= "#009FF5",                    
+                  "BMD Anti−inflammatory TAMs"= "#BC5210",            
+                  "Mg Phagocytic"= "#279185",                 
+                  "Mg IFNg TAMs"= "#7EB356",                   
+                  "Mg Stressed TAMs"= "#AC70FF",                  
+                  "Mg Inflammatory ICAM1+"= "#63412C")
+```
+
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH557", "IDH_NCH758A")],
+                         group.by = "final_annotation",
+                         split.by = "orig.ident",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Pair 1") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10)) 
+
+p2 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH511B", "IDH_NCH678K")],
+                         group.by = "final_annotation",
+                         split.by = "orig.ident",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Pair 2") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+
+p3 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH302", "IDH_NCH645")],
+                         group.by = "final_annotation",
+                         split.by = "orig.ident",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Pair 3") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+
+p4 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH988", "IDH_NCH2375")],
+                         group.by = "final_annotation",
+                         split.by = "orig.ident",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Pair 4") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+
+p5 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH740W", "IDH_NCH2367")],
+                         group.by = "final_annotation",
+                         split.by = "orig.ident",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Pair 5") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+
+p6 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH673D", "IDH_NCH2260")],
+                         group.by = "final_annotation",
+                         split.by = "orig.ident",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Pair 6") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     strip.text = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 10, l = 10))
+
+p7 <- SCpubr::do_BarPlot(sample = sample,
+                         group.by = "final_annotation",
+                         split.by = "time",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.position = "none",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4) +
+      ggplot2::xlab("Relapse status") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 10, l = 10))
+
+
+p8 <- SCpubr::do_BarPlot(sample = sample,
+                         group.by = "final_annotation",
+                         split.by = "grade",
+                         font.size = 12,
+                         flip = TRUE,
+                         colors.use = cluster_cols,
+                         position = "fill",
+                         legend.title = "",
+                         order = FALSE,
+                         plot.grid = FALSE,
+                         add.n = TRUE,
+                         add.n.expand = c(0, 1.15),
+                         axis.text.face = "plain",
+                         add.n.size = 4,
+                         legend.ncol = 2) +
+      ggplot2::xlab("Grade") +
+      ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+
+layout <- paste(c(rep("A", 2), rep("B", 2), rep("C", 2), rep("D", 2), rep("E", 2), rep("F", 2), rep("G", 2), rep("H", 3), "I"), collapse = "\n")
+
+p <- patchwork::wrap_plots(A = p1,
+                           B = p2,
+                           C = p3,
+                           D = p4,
+                           E = p5,
+                           F = p6,
+                           G = p7,
+                           H = p8,
+                           I = patchwork::guide_area(),
+                           design = layout)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+# Save the plot.
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_4G",
+                  file_name = "Figure_4G",
+                  dpi = 300,
+                  width = 6.33,
+                  height = 9,
+                  output_format = "publication")
+```
+<img src="../figs/Figure_4G/Figure_4G.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+  

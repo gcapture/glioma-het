@@ -1,0 +1,19 @@
+#  Cluster labelling {.unnumbered}
+
+```{r}
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#--------------------------------------------------------------------
+# 6 - CLUSTER LABELLING
+#--------------------------------------------------------------------
+
+# Samples are labelled according to external lists of marker genes:
+# TME: PanglaoDB: https://panglaodb.se/index.html
+# Tumor bulk: https://pubmed.ncbi.nlm.nih.gov/27806376/
+# A table with the annotation for each cell will be provided as supplementary data.
+```
+

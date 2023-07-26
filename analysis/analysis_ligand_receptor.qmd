@@ -1,0 +1,687 @@
+# LR analysis {.unnumbered}
+
+```{r}
+#| eval: false
+# Inma Hernandez Lopez
+# inmaculada.hernandez-lopez@ukr.de
+# LIT -  Leibniz-Institute für Immunotherapie
+
+# Marc Elosua Bayés
+# marc.elosua@cnag.crg.eu
+# CNAG - CRG
+
+# 1. Object cpdb_microgliaAstrocytoma_AstrolikeAstrocytoma.rds:
+# 
+# 1.1.Subset Astrocytoma from microglia object Clusters_microglia_primary_annotated.rds -> RNA assay -> logNorm()
+# 1.2.Subset Astro-Like from OE0145-IDH_integrated_astrocytoma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds -> RNA assay -> logNorm()
+# 1.3.Merge objects 1.1 and 1.2: cpdb_microgliaAstrocytoma_AstrolikeAstrocytoma.rds
+
+rm(list = ls())
+library(Seurat)
+library(here)
+library(glue)
+library(dplyr)
+
+
+source("paths.R")
+
+seurat <-"{sc_data}/OE0145-IDH_integrated_astrocytoma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+labs_ls <- "{sc_data}/labels.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+    
+lab_astr <- labs_ls$AS %>%
+    data.frame() %>%
+    tibble::rownames_to_column("bc") %>%
+    dplyr::rename("final_annot" = ".")
+
+# Add them to the object
+seurat@meta.data <- seurat@meta.data %>%
+    tibble::rownames_to_column("bc") %>%
+    left_join(lab_astr, by = "bc") %>%
+    tibble::column_to_rownames("bc")
+
+Idents(seurat) <- "final_annot"
+
+seurat <- subset(seurat, idents = "Astro-like")
+seurat@active.assay <- "RNA"
+seurat@assays$SCT <- NULL
+
+microglia <-"{microglia_data}/microglia_combined_to_use.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+
+Idents(microglia) <- "sample"
+microglia <- subset(microglia, idents = "primary_astro")
+
+seurat <- DietSeurat(
+  seurat,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+seurat <- NormalizeData(seurat)
+
+microglia <- DietSeurat(
+  microglia,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+microglia <- NormalizeData(microglia)
+
+
+cpdb_microgliaAstrocytoma_AstrolikeAstrocytoma <- merge(seurat, y = microglia, add.cell.ids = c("AstroLike", "microg"))
+
+saveRDS(cpdb_microgliaAstrocytoma_AstrolikeAstrocytoma,glue(here("Dropbox/Glioma_review_analysis/Liana/results/cpdb_microgliaAstrocytoma_AstrolikeAstrocytoma.rds")))
+
+# 2. Object cpdb_microgliaAstrocytoma_OPClikeAstrocytoma.rds
+# 
+# 2.1.Subset Astrocytoma from microglia object Clusters_microglia_primary_annotated.rds -> RNA assay -> logNorm()
+# 2.2.Subset OPC-Like from OE0145-IDH_integrated_astrocytoma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds -> RNA assay -> logNorm()
+# 2.3.Merge objects 2.1 and 2.2: cpdb_microgliaAstrocytoma_OPClikeAstrocytoma.rds
+
+
+rm(list = ls())
+library(Seurat)
+library(here)
+library(glue)
+library(dplyr)
+
+source("paths.R")
+
+seurat <-"{sc_data}/OE0145-IDH_integrated_astrocytoma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+labs_ls <- "{sc_data}/labels.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+    
+lab_astr <- labs_ls$AS %>%
+    data.frame() %>%
+    tibble::rownames_to_column("bc") %>%
+    dplyr::rename("final_annot" = ".")
+
+# Add them to the object
+seurat@meta.data <- seurat@meta.data %>%
+    tibble::rownames_to_column("bc") %>%
+    left_join(lab_astr, by = "bc") %>%
+    tibble::column_to_rownames("bc")
+
+Idents(seurat) <- "final_annot"
+
+seurat <- subset(seurat, idents = "OPC-like")
+seurat@active.assay <- "RNA"
+seurat@assays$SCT <- NULL
+
+microglia <-"{microglia_data}/microglia_combined_to_use.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+Idents(microglia) <- "sample"
+microglia <- subset(microglia, idents = "primary_astro")
+
+seurat <- DietSeurat(
+  seurat,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+seurat <- NormalizeData(seurat)
+
+microglia <- DietSeurat(
+  microglia,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+microglia <- NormalizeData(microglia)
+
+cpdb_microgliaAstrocytoma_OPClikeAstrocytoma <- merge(seurat, y = microglia, add.cell.ids = c("OPCLike", "microg"))
+
+saveRDS(cpdb_microgliaAstrocytoma_OPClikeAstrocytoma,glue(here("Dropbox/Glioma_review_analysis/Liana/results/cpdb_microgliaAstrocytoma_OPClikeAstrocytoma.rds")))
+
+# 3. Object cpdb_microgliaOligodendroglioma_AstrolikeOligodendroglioma.rds:
+# 
+# 3.1.Subset Oligodendroglioma from microglia object Clusters_microglia_primary_annotated.rds -> RNA assay -> logNorm()
+# 3.2.Subset Astro-Like from OE0145-IDH_integrated_oligodendroglioma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds -> RNA assay -> logNorm()
+# 3.3.Merge objects 3.1 and 3.2: cpdb_microgliaOligodendroglioma_AstrolikeOligodendroglioma.rds
+
+
+rm(list = ls())
+library(Seurat)
+library(here)
+library(glue)
+library(dplyr)
+
+source("paths.R")
+
+seurat <-"{sc_data}/OE0145-IDH_integrated_oligodendroglioma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+labs_ls <- "{sc_data}/labels.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+    
+lab_astr <- labs_ls$OD %>%
+    data.frame() %>%
+    tibble::rownames_to_column("bc") %>%
+    dplyr::rename("final_annot" = ".")
+
+# Add them to the object
+seurat@meta.data <- seurat@meta.data %>%
+    tibble::rownames_to_column("bc") %>%
+    left_join(lab_astr, by = "bc") %>%
+    tibble::column_to_rownames("bc")
+
+Idents(seurat) <- "final_annot"
+
+seurat <- subset(seurat, idents = "Astro-like")
+seurat@active.assay <- "RNA"
+seurat@assays$SCT <- NULL
+
+microglia <-"{microglia_data}/microglia_combined_to_use.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+
+Idents(microglia) <- "sample"
+microglia <- subset(microglia, idents = "primary_oligo")
+
+seurat <- DietSeurat(
+  seurat,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+seurat <- NormalizeData(seurat)
+
+microglia <- DietSeurat(
+  microglia,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+microglia <- NormalizeData(microglia)
+
+
+cpdb_microgliaOligodendroglioma_AstrolikeOligodendroglioma <- merge(seurat, y = microglia, add.cell.ids = c("AstroLike", "microg"))
+
+saveRDS(cpdb_microgliaOligodendroglioma_AstrolikeOligodendroglioma,glue(here("Dropbox/Glioma_review_analysis/Liana/results/cpdb_microgliaOligodendroglioma_AstrolikeOligodendroglioma.rds")))
+
+
+# 4. Object cpdb_microgliaOligodendroglioma_OPClikeOligodendroglioma.rds
+# 
+# 4.1.Subset Oligodendroglioma from microglia object Clusters_microglia_primary_annotated.rds -> RNA assay -> logNorm()
+# 4.2.Subset OPC-Like from OE0145-IDH_integrated_oligodendroglioma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds -> RNA assay -> logNorm()
+# 4.3.Merge objects 4.1 and 4.2: cpdb_microgliaOligodendroglioma_OPClikeOligodendroglioma.rds
+
+rm(list = ls())
+library(Seurat)
+library(here)
+library(glue)
+library(dplyr)
+
+source("paths.R")
+
+seurat <-"{sc_data}/OE0145-IDH_integrated_oligodendroglioma_NMF_labelled_with_metacell_mapping_and_1p_scores_newlabel.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+labs_ls <- "{sc_data}/labels.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+    
+lab_astr <- labs_ls$OD %>%
+    data.frame() %>%
+    tibble::rownames_to_column("bc") %>%
+    dplyr::rename("final_annot" = ".")
+
+# Add them to the object
+seurat@meta.data <- seurat@meta.data %>%
+    tibble::rownames_to_column("bc") %>%
+    left_join(lab_astr, by = "bc") %>%
+    tibble::column_to_rownames("bc")
+
+Idents(seurat) <- "final_annot"
+
+seurat <- subset(seurat, idents = "OPC-like")
+seurat@active.assay <- "RNA"
+seurat@assays$SCT <- NULL
+
+microglia <-"{microglia_data}/microglia_combined_to_use.rds" %>%
+    glue() %>%
+    here() %>%
+    readRDS()
+
+Idents(microglia) <- "sample"
+microglia <- subset(microglia, idents = "primary_oligo")
+
+seurat <- DietSeurat(
+  seurat,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+seurat <- NormalizeData(seurat)
+
+microglia <- DietSeurat(
+  microglia,
+  counts = TRUE,
+  data = TRUE,
+  scale.data = FALSE,
+  features = NULL,
+  assays = NULL,
+  dimreducs = NULL,
+  graphs = NULL,
+  misc = TRUE
+)
+microglia <- NormalizeData(microglia)
+
+cpdb_microgliaOligodendroglioma_OPClikeOligodendroglioma <- merge(seurat, y = microglia, add.cell.ids = c("OPCLike", "microg"))
+
+saveRDS(cpdb_microgliaOligodendroglioma_OPClikeOligodendroglioma,glue(here("Dropbox/Glioma_review_analysis/Liana/results/cpdb_microgliaOligodendroglioma_OPClikeOligodendroglioma.rds")))
+
+## Introduction
+##In this R markdown we are going to carry out a Ligand-Receptor analysis using `Liana` - *LIgand-receptor ANalysis frAmework*. You can see the GitHub repository [here](https://github.com/saezlab/liana/) and the vignette [here](https://saezlab.github.io/liana/articles/liana_tutorial.html). Later we will combine the results with `NicheNet` to identify pathways affected by these interactions as shown [here](https://saezlab.github.io/liana/articles/liana_nichenet.html).
+
+rm(list=ls())
+library(Seurat)
+library(ggpubr)
+library(cowplot)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+# BiocManager::install("OmnipathR")
+# remotes::install_github('saezlab/liana')
+library(liana)
+# For R version <4.1.0
+# urlPackage <- "https://cran.r-project.org/src/contrib/Archive/randomForest/randomForest_4.6-14.tar.gz"
+# install.packages(urlPackage, repos=NULL, type="source") 
+# remotes::install_github('saeyslab/nichenetr')
+library(nichenetr)
+library(ggrepel)
+library(igraph)
+library(SCpubr)
+
+## Load data
+# We are going to load the entire dataset for comparision Astro Like - microglia Astrocytoma*
+
+path = "/Users/Inma/Dropbox/Glioma_review_analysis/Liana/Data_Prep/"
+se_obj <- paste0(path, "cpdb_microgliaAstrocytoma_AstrolikeAstrocytoma.rds")%>%
+  readRDS(file = .)
+
+# Create new Seurat object with updated gene names
+c_mtrx <- se_obj@assays$RNA@counts
+
+se_obj[["Cells"]] = Cells(se_obj)
+metadata <- as.data.frame(se_obj@meta.data[,c("Cells","final_annot")]) 
+colnames(metadata) = c("Cell","cell_type")
+
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                       pattern = " ",
+                                       replacement = "_")
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                      pattern = "-",
+                                      replacement = "_")
+metadata$Cell <- str_replace_all(metadata$Cell,
+                                      pattern = "-",
+                                      replacement = "_")
+
+# Create new se_obj
+se <- Seurat::CreateSeuratObject(
+  counts = c_mtrx,
+  meta.data = metadata) %>%
+  Seurat::NormalizeData()
+rm(se_obj)
+gc()
+# set cell identity to cell type
+Idents(se) <- se$cell_type
+table(Idents(se))
+
+# filtering out cells with 0 counts across all ligands and receptors
+# As recommended in this [issue](https://github.com/saezlab/liana/issues/18)
+
+cells <- colSums(se@assays$RNA@data) > 0
+table(cells)
+se <- se[, cells]
+table(Idents(se))
+
+### Run LIANA
+# And then we can execute LIANA using default parameters. After LIANA execution, we employ the function `liana_aggregate()` to summarize the output of different methods and to obtain a single score for each interaction.
+
+path="/Users/Inma/Dropbox/Glioma_review_analysis/Liana/results/"
+result="liana_res_microgliaAstrocytoma_AstrolikeAstrocytoma.rds"
+table="liana_table_microgliaAstrocytoma_AstrolikeAstrocytoma.rds"
+
+# Run Liana, if this step is already done, run the next chunck
+consensus_df <- liana::select_resource("Consensus")[[1]]
+df1 <- consensus_df %>% dplyr::filter(target_genesymbol == "CSF1R"& source_genesymbol == "CSF1_IL34")
+df1_csf1 <- df1 %>% mutate(source_genesymbol = "CSF1")
+df1_il34 <- df1 %>% mutate(source_genesymbol = "IL34")
+consensus_new <- bind_rows(list(consensus_df, df1_csf1, df1_il34))
+
+
+# liana Wrap
+liana_res <-
+    liana_wrap(
+       se,
+       method = c("natmi", "connectome", "logfc", "sca", "cellphonedb"),
+        resource='custom', return_all = TRUE,
+        external_resource = consensus_new
+    ) 
+
+saveRDS(liana_res, file = glue::glue(path, result))
+
+liana_res <- readRDS(glue::glue(path, result))
+
+liana_df <- liana_res %>%
+    liana_aggregate()
+
+liana_df <- liana_df %>%
+  left_join(
+    liana_res[["cellphonedb"]],
+    by = c(
+      "source", "target",
+      "ligand.complex", "receptor.complex"))
+
+
+saveRDS(liana_df, file = glue::glue(path, table))
+
+
+## Load data
+# We are going to load the entire dataset for comparision of microglia Oligodendroglioma and OPC like Oligodendroglioma*
+
+path = "/Users/Inma/Dropbox/Glioma_review_analysis/Liana/Data_Prep/"
+se_obj <- paste0(path, "cpdb_microgliaOligodendroglioma_AstrolikeOligodendroglioma.rds")%>%
+  readRDS(file = .)
+
+c_mtrx <- se_obj@assays$RNA@counts
+
+se_obj[["Cells"]] = Cells(se_obj)
+metadata <- as.data.frame(se_obj@meta.data[,c("Cells","final_annot")]) 
+colnames(metadata) = c("Cell","cell_type")
+
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                       pattern = " ",
+                                       replacement = "_")
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                      pattern = "-",
+                                      replacement = "_")
+metadata$Cell <- str_replace_all(metadata$Cell,
+                                      pattern = "-",
+                                      replacement = "_")
+
+# Create new se_obj
+se <- Seurat::CreateSeuratObject(
+  counts = c_mtrx,
+  meta.data = metadata) %>%
+  Seurat::NormalizeData()
+rm(se_obj)
+gc()
+# set cell identity to cell type
+Idents(se) <- se$cell_type
+table(Idents(se))
+
+#filtering out cells with 0 counts across all ligands and receptors
+#As recommended in this [issue](https://github.com/saezlab/liana/issues/18)
+
+cells <- colSums(se@assays$RNA@data) > 0
+table(cells)
+se <- se[, cells]
+table(Idents(se))
+
+### Run LIANA
+# And then we can execute LIANA using default parameters. After LIANA execution, we employ the function `liana_aggregate()` to summarize the output of different methods and to obtain a single score for each interaction.
+
+
+path="/Users/Inma/Dropbox/Glioma_review_analysis/Liana/results/"
+result="liana_res_microgliaOligodendroglioma_AstrolikeOligodendroglioma.rds"
+table="liana_table_microgliaOligodendroglioma_AstrolikeOligodendroglioma.rds"
+
+consensus_df <- liana::select_resource("Consensus")[[1]]
+df1 <- consensus_df %>% dplyr::filter(target_genesymbol == "CSF1R"& source_genesymbol == "CSF1_IL34")
+df1_csf1 <- df1 %>% mutate(source_genesymbol = "CSF1")
+df1_il34 <- df1 %>% mutate(source_genesymbol = "IL34")
+consensus_new <- bind_rows(list(consensus_df, df1_csf1, df1_il34))
+
+
+# liana Wrap
+liana_res <-
+    liana_wrap(
+       se,
+       method = c("natmi", "connectome", "logfc", "sca", "cellphonedb"),
+        resource='custom', return_all = TRUE,
+        external_resource = consensus_new
+    ) 
+
+saveRDS(liana_res, file = glue::glue(path, result))
+
+liana_res <- readRDS(glue::glue(path, result))
+
+liana_df <- liana_res %>%
+    liana_aggregate()
+
+liana_df <- liana_df %>%
+  left_join(
+    liana_res[["cellphonedb"]],
+    by = c(
+      "source", "target",
+      "ligand.complex", "receptor.complex"))
+
+
+saveRDS(liana_df, file = glue::glue(path, table))
+
+## Load data
+# We are going to load the entire dataset for comparision of microglia Oligodendroglioma and OPC like Oligodendroglioma*
+path = "/Users/Inma/Dropbox/Glioma_review_analysis/Liana/Data_Prep/"
+se_obj <- paste0(path, "cpdb_microgliaAstrocytoma_OPClikeAstrocytoma.rds")%>%
+  readRDS(file = .)
+
+c_mtrx <- se_obj@assays$RNA@counts
+
+se_obj[["Cells"]] = Cells(se_obj)
+metadata <- as.data.frame(se_obj@meta.data[,c("Cells","final_annot")]) 
+colnames(metadata) = c("Cell","cell_type")
+
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                       pattern = " ",
+                                       replacement = "_")
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                      pattern = "-",
+                                      replacement = "_")
+metadata$Cell <- str_replace_all(metadata$Cell,
+                                      pattern = "-",
+                                      replacement = "_")
+
+# Create new se_obj
+se <- Seurat::CreateSeuratObject(
+  counts = c_mtrx,
+  meta.data = metadata) %>%
+  Seurat::NormalizeData()
+rm(se_obj)
+gc()
+# set cell identity to cell type
+Idents(se) <- se$cell_type
+table(Idents(se))
+
+# filtering out cells with 0 counts across all ligands and receptors
+# As recommended in this [issue](https://github.com/saezlab/liana/issues/18)
+
+cells <- colSums(se@assays$RNA@data) > 0
+table(cells)
+se <- se[, cells]
+table(Idents(se))
+
+### Run LIANA
+# And then we can execute LIANA using default parameters. After LIANA execution, we employ the function `liana_aggregate()` to summarize the output of different methods and to obtain a single score for each interaction.
+
+consensus_df <- liana::select_resource("Consensus")[[1]]
+df1 <- consensus_df %>% dplyr::filter(target_genesymbol == "CSF1R"& source_genesymbol == "CSF1_IL34")
+df1_csf1 <- df1 %>% mutate(source_genesymbol = "CSF1")
+df1_il34 <- df1 %>% mutate(source_genesymbol = "IL34")
+consensus_new <- bind_rows(list(consensus_df, df1_csf1, df1_il34))
+
+
+# liana Wrap
+liana_res <-
+    liana_wrap(
+       se,
+       method = c("natmi", "connectome", "logfc", "sca", "cellphonedb"),
+        resource='custom', return_all = TRUE,
+        external_resource = consensus_new
+    ) 
+saveRDS(liana_res, file = glue::glue(path, result))
+
+liana_res <- readRDS(glue::glue(path, result))
+
+liana_df <- liana_res %>%
+    liana_aggregate()
+
+liana_df <- liana_df %>%
+  left_join(
+    liana_res[["cellphonedb"]],
+    by = c(
+      "source", "target",
+      "ligand.complex", "receptor.complex"))
+
+
+saveRDS(liana_df, file = glue::glue(path, table))
+
+## Load data
+# We are going to load the entire dataset for comparision of microglia Oligodendroglioma and OPC like Oligodendroglioma*
+
+path = "/Users/Inma/Dropbox/Glioma_review_analysis/Liana/Data_Prep/"
+se_obj <- paste0(path, "cpdb_microgliaOligodendroglioma_OPClikeOligodendroglioma.rds")%>%
+  readRDS(file = .)
+
+# Create new Seurat object with updated gene names
+c_mtrx <- se_obj@assays$RNA@counts
+
+se_obj[["Cells"]] = Cells(se_obj)
+metadata <- as.data.frame(se_obj@meta.data[,c("Cells","final_annot")]) 
+colnames(metadata) = c("Cell","cell_type")
+
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                       pattern = " ",
+                                       replacement = "_")
+metadata$cell_type <- str_replace_all(metadata$cell_type,
+                                      pattern = "-",
+                                      replacement = "_")
+metadata$Cell <- str_replace_all(metadata$Cell,
+                                      pattern = "-",
+                                      replacement = "_")
+
+# Create new se_obj
+se <- Seurat::CreateSeuratObject(
+  counts = c_mtrx,
+  meta.data = metadata) %>%
+  Seurat::NormalizeData()
+rm(se_obj)
+gc()
+# set cell identity to cell type
+Idents(se) <- se$cell_type
+table(Idents(se))
+
+# filtering out cells with 0 counts across all ligands and receptors
+# As recommended in this [issue](https://github.com/saezlab/liana/issues/18)
+cells <- colSums(se@assays$RNA@data) > 0
+table(cells)
+se <- se[, cells]
+table(Idents(se))
+
+### Run LIANA
+# And then we can execute LIANA using default parameters. After LIANA execution, we employ the function `liana_aggregate()` to summarize the output of different methods and to obtain a single score for each interaction.
+
+path="/Users/Inma/Dropbox/Glioma_review_analysis/Liana/results/"
+result="liana_res_microgliaOligodendroglioma_OPClikeOligodendroglioma.rds"
+table="liana_table_microgliaOligodendroglioma_OPClikeOligodendroglioma.rds"
+
+consensus_df <- liana::select_resource("Consensus")[[1]]
+df1 <- consensus_df %>% dplyr::filter(target_genesymbol == "CSF1R"& source_genesymbol == "CSF1_IL34")
+df1_csf1 <- df1 %>% mutate(source_genesymbol = "CSF1")
+df1_il34 <- df1 %>% mutate(source_genesymbol = "IL34")
+consensus_new <- bind_rows(list(consensus_df, df1_csf1, df1_il34))
+
+
+# liana Wrap
+liana_res <-
+    liana_wrap(
+       se,
+       method = c("natmi", "connectome", "logfc", "sca", "cellphonedb"),
+        resource='custom', return_all = TRUE,
+        external_resource = consensus_new
+    ) 
+saveRDS(liana_res, file = glue::glue(path, result))
+
+liana_res <- readRDS(glue::glue(path, result))
+
+liana_df <- liana_res %>%
+    liana_aggregate()
+
+liana_df <- liana_df %>%
+  left_join(
+    liana_res[["cellphonedb"]],
+    by = c(
+      "source", "target",
+      "ligand.complex", "receptor.complex"))
+
+
+saveRDS(liana_df, file = glue::glue(path, table))
+
+```
+
+
+

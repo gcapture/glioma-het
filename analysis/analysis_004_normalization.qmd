@@ -1,0 +1,54 @@
+#  Normalization and Cell Cycle scoring {.unnumbered}
+
+
+```{r}
+#| eval: false
+#| 
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#--------------------------------------------------------------------
+# 4 - NORMALIZATION USING SCTRANSFORM AND CELL CYCLE SCORING
+#--------------------------------------------------------------------
+
+# In this process, we want to regress out the effect of 5 variables:
+# - nCount_RNA: UMIs. We observe different numbers across samples.
+# - nFeature_RNA: genes. We observe different numbers across samples.
+# - percent.mt: % of mitochondrial RNA in the cells.
+# - S.Score and G2M.Score: Cell cycle effect. We want to be sure this is not a bias in the data.
+
+# Get S phase genes.
+s.genes <- Seurat::cc.genes.updated.2019$s.genes
+# Get G2-M phase genes.
+g2m.genes <- Seurat::cc.genes.updated.2019$g2m.genes
+
+
+# We normalize first using SCTransform and removing the effect of UMIs, genes and percent.mt.
+# Process followed as in https://github.com/satijalab/seurat/issues/1679#issuecomment-557781838
+
+sample <- Seurat::SCTransform(sample,
+                  			  assay = "RNA",
+                              new.assay.name = "SCT",
+                              vars.to.regress = c("nCount_RNA", "nFeature_RNA", "percent.mt"))
+
+
+# With the data normalized, we asses the cell cycle effect.
+sample <- Seurat::CellCycleScoring(object = sample,
+                                   s.features = s.genes,
+                                   g2m.features = g2m.genes,
+                                   set.ident = FALSE)
+
+
+# And then, since now S.Score and G2M.Score are stored as metadata variables, we can normalize again using also these variables in the regress out.
+
+sample <- Seurat::SCTransform(sample,
+                  			  assay = "RNA",
+                              new.assay.name = "SCT",
+                              vars.to.regress = c("nCount_RNA", "nFeature_RNA", "percent.mt", "S.Score", "G2M.Score"))
+# Please note that this second normalization uses the data in the "RNA" assay, this is, the unnormalized data.
+# Therefore, the data we will work on is only normalized once.
+```
+

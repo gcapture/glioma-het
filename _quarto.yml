@@ -1,0 +1,183 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas"
+  reader-mode: false
+  open-graph: true
+  license: "CC BY-NC-SA 4.0"
+
+  #navbar:
+  twitter-card: true
+  favicon: ./favicon.png
+  sidebar:
+    title: "Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas"
+    foreground: primary
+    collapse-level: 2
+    border: true
+    style: docked
+  page-footer:
+    left: |
+      Written by **<a href="https://github.com/enblacar">Enrique Blanco Carmona</a>**
+    right: |
+       Figures generated with **<a href="https://github.com/enblacar/SCpubr">SCpubr</a>** | Book built with **<a href="https://quarto.org/">Quarto</a>**
+  site-url: https://enblacar.github.io/IDH_gliomas_book/
+  repo-url: https://github.com/enblacar/IDH_gliomas_book/
+  repo-branch: main
+  search:
+    location: "navbar"
+    type: "textbox"
+  chapters:
+    - part: "README"
+      chapters:
+        - index.qmd
+    - part: "Analysis | snRNAseq"
+      chapters:
+        - ./analysis/analysis_001_count_matrices.qmd
+        - ./analysis/analysis_002_doublets.qmd
+        - ./analysis/analysis_003_merge_samples.qmd
+        - ./analysis/analysis_004_normalization.qmd
+        - ./analysis/analysis_005_dimensional_reduction.qmd
+        - ./analysis/analysis_006_cluster_labelling.qmd
+        - ./analysis/analysis_007_CNV.qmd
+        - ./analysis/analysis_008_NMF.qmd
+        - ./analysis/analysis_009_permutation_testing.qmd
+        - ./analysis/analysis_010_progeny.qmd
+        - ./analysis/analysis_012_diffusion.qmd
+        - ./analysis/analysis_ligand_receptor.qmd
+    - part: "Analysis | snATACseq"
+      chapters:
+        -  ./analysis/analysis_013_ATAC_QC.qmd
+        -  ./analysis/analysis_014_ATAC.qmd
+
+    - part: "Analysis | Deconvolution"
+      chapters:
+        -  ./analysis/analysis_deconvolution_oligo.qmd
+        -  ./analysis/analysis_deconvolution_astro.qmd
+        -  ./analysis/analysis_microglia_deconvolution.qmd
+
+
+    - part: "Figure 1"
+      chapters:
+      - ./viz/figures_figure_1A.qmd
+      - ./viz/figures_figure_1B.qmd
+      - ./viz/figures_figure_1C.qmd
+      - ./viz/figures_figure_1D.qmd
+      - ./viz/figures_figure_1E.qmd
+      - ./viz/figures_figure_1F.qmd
+      - ./viz/figures_figure_1G.qmd
+      - ./viz/figures_figure_1H.qmd
+      - ./viz/figures_figure_1I.qmd
+      - ./viz/figures_figure_1L.qmd
+    - part: "Figure 2"
+      chapters:
+      - ./viz/figures_figure_2A.qmd
+      - ./viz/figures_figure_2B.qmd
+      - ./viz/figures_figure_2C.qmd
+      - ./viz/figures_figure_2D.qmd
+      - ./viz/figures_figure_2E.qmd
+      - ./viz/figures_figure_2F.qmd
+      - ./viz/figures_figure_2G.qmd
+      - ./viz/figures_figure_2H.qmd
+      - ./viz/figures_figure_2I.qmd
+    - part: "Figure 3"
+      chapters:
+      - ./viz/figures_figure_3A.qmd
+      - ./viz/figures_figure_3B.qmd
+      - ./viz/figures_figure_3C.qmd
+      - ./viz/figures_figure_3F.qmd
+      - ./viz/figures_figure_3G.qmd
+    - part: "Figure 4"
+      chapters:
+      - ./viz/figures_figure_4A.qmd
+      - ./viz/figures_figure_4B.qmd
+      - ./viz/figures_figure_4C.qmd
+      - ./viz/figures_figure_4E.qmd
+      - ./viz/figures_figure_4F.qmd
+      - ./viz/figures_figure_4G.qmd
+      - ./viz/figures_figure_4H.qmd
+    - part: "Figure S1"
+      chapters:
+      - ./viz/figures_figure_S1A.qmd
+      - ./viz/figures_figure_S1B.qmd
+      - ./viz/figures_figure_S1E.qmd
+      - ./viz/figures_figure_S1F.qmd
+      - ./viz/figures_figure_S1G.qmd
+      - ./viz/figures_figure_S1H.qmd
+      - ./viz/figures_figure_S1I.qmd
+    - part: "Figure S2"
+      chapters:
+      - ./viz/figures_figure_S2A.qmd
+      - ./viz/figures_figure_S2B.qmd
+      - ./viz/figures_figure_S2C.qmd
+      - ./viz/figures_figure_S2D.qmd
+      - ./viz/figures_figure_S2E.qmd
+      - ./viz/figures_figure_S2F.qmd
+      - ./viz/figures_figure_S2G.qmd
+    - part: "Figure S3"
+      chapters:
+      - ./viz/figures_figure_S3A.qmd
+      - ./viz/figures_figure_S3B.qmd
+      - ./viz/figures_figure_S3C.qmd
+      - ./viz/figures_figure_S3D.qmd
+      - ./viz/figures_figure_S3E.qmd
+      - ./viz/figures_figure_S3F.qmd
+      - ./viz/figures_figure_S3G.qmd
+      - ./viz/figures_figure_S3H.qmd
+    - part: "Figure S4"
+      chapters:
+      - ./viz/figures_figure_S4A.qmd
+      - ./viz/figures_figure_S4B.qmd
+      - ./viz/figures_figure_S4C.qmd
+      - ./viz/figures_figure_S4D.qmd
+    - part: "Figure S5"
+      chapters:
+      - ./viz/figures_figure_S5A.qmd
+      - ./viz/figures_figure_S5B.qmd
+      - ./viz/figures_figure_S5C.qmd
+      - ./viz/figures_figure_S5D.qmd
+    - part: "Figure S6"
+      chapters:
+      - ./viz/figures_figure_S6A.qmd
+      - ./viz/figures_figure_S6B.qmd
+    - part: "Figure S7"
+      chapters:
+      - ./viz/figures_figure_S7A.qmd
+      - ./viz/figures_figure_S7B.qmd
+      - ./viz/figures_figure_S7C.qmd
+      - ./viz/figures_figure_S7D.qmd
+      - ./viz/figures_figure_S7E.qmd
+    - part: "Figure S9"
+      chapters:
+      - ./viz/figures_figure_S9A.qmd
+      - ./viz/figures_figure_S9B.qmd
+
+format:
+  html:
+    fig-dpi: 300
+    number-sections: false
+    include-in-header:
+      text: <script type="text/javascript" src="./intense.js"></script>
+    include-after-body:
+      - ./img_zoom.html
+    theme:
+      - flatly
+      - IDH_gliomas.scss
+
+    code-link: true
+    code-fold: true
+    code-overflow: scroll
+    code-copy: true
+    code-block-border-left: false
+    callout-appearance: default
+    grid:
+      sidebar-width: 500px
+      body-width: 1300px
+      margin-width: 0px
+      gutter-width: 1.5rem
+      
+
+
+editor: source
+

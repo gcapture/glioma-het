@@ -1,0 +1,284 @@
+#  Permutation testing {.unnumbered}
+
+```{r}
+#| eval: false
+
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#' Retrieve statistically enriched cells for a list of genes in gradient-like enrichment cases.
+#'
+#' Designed for 10X datasets. The following analysis aims to find a way to statistically select the cells that are truly enriched in a list of marker genes.
+#' For this, a permutation analysis approach is followed, in which we compute a null distribution by shuffling the expression values
+#' of the genes queried for enrichment. Therefore, this disrupts the equation for the enrichment scores, since they are, in short,
+#' the result of the difference in means between the expression values of the genes queried (which we disrupted) and the control
+#' selected randomly by the function. This is done until we have one million values, which would act as the null distribution.
+#' Once we have a null distribution and an empirical one, we can assess how extreme our values in the empirical distribution are with
+#' respect to the values in the null distribution, being the p-value the proportion of values in the null distribution that are higher
+#' than the given value from the empirical distribution you are querying. These p-values are, then, adjusted for multiple testing, selecting
+#' a FDR cutoff of 0.05/n, being n the total number of lists of marker genes we are going to query to the same cells and use altogether
+#' to define a labeling (for instance, if we query two lists for the same tumor bulk, it would be 0.05/2). This is doing to avoid
+#' over inflation of the alpha error. Special thanks to Martin Sils for double checking the statistical part of the function.
+#'
+#' Estimated running time: 15 minutes.
+#'
+#' @param sample Seurat object.
+#' @param input_gene_list Named list of marker genes. Can contain multiple lists, the important point here is that each list has to be named.
+#' @param compute_enrichment Whether to compute the enrichment scores for the requested list of genes using \link[Seurat]{AddModuleScore}.
+#' @param FDR_cutoff FDR cutoff to apply (ranging from 0 to 1).
+#' @param idents.use Identities to include in the analysis.
+#' @param group.by Variable you want the cells to be colored for in the output DimPlot.
+#' @param colors.use Vector of named HEX values to color the cells. It has to match the number of unique values in either `Seurat::Idents(sample)` or the group.by variable.
+#' @param verbose Defaults to TRUE. It will provide different print statements. Progress bars can not be suppressed by this.
+#' @return A list containing the plots and the surpassed cells, together with the p-value matrix.
+#' @noRd
+#' @examples
+#' \dontrun{
+#' TBD
+#' }
+do_GradientSelection <- function(sample,
+                                 input_gene_list,
+                                 assay = "SCT",
+                                 slot = "data",
+                                 group.by = NULL,
+                                 colors.use = NULL,
+                                 FDR_cutoff = 0.05 / length(names(input_gene_list)),
+                                 verbose = T,
+                                 nbin = 24,
+                                 ctrl = 100,
+                                 font.size = 14,
+                                 font.type = "sans",
+                                 legend.position = "bottom",
+                                 use_viridis = TRUE,
+                                 viridis_color_map = "G",
+                                 viridis_direction = 1,
+                                 sequential.palette = "YlGnBu",
+                                 sequential_direction = -1){
+
+  # Checks for packages.
+  #check_suggests(function_name = "do_GradientSelection")
+
+  # Check if the sample provided is a Seurat object.
+  #check_Seurat(sample = sample)
+
+  # Define pipe operator internally.
+  `%>%` <- magrittr::`%>%`
+
+
+  # If the user has provided a color list.
+  if (!is.null(colors.use)){
+    #check_colors(colors.use)
+  }
+
+  if (is.null(group.by)){
+    sample$group.by <- Seurat::Idents(sample)
+    group.by <- "group.by"
+  }
+
+  list.out <- list()
+  if (isTRUE(verbose)){message(paste("Computing enrichment scores..."))}
+  out <- SCpubr::do_EnrichmentHeatmap(sample = sample,
+                                      input_gene_list = input_gene_list,
+                                      flavor = "Seurat",
+                                      nbin = nbin,
+                                      ctrl = ctrl,
+                                      return_object = TRUE,
+                                      use_viridis = FALSE,
+                                      sequential_direction = 1)
+  list.out[["Enrichment_Heatmap"]] <- out$Heatmap
+
+  for (name in names(input_gene_list)){
+    if (isTRUE(verbose)){message(paste("Running permutation testing for list:", name))}
+
+    # Retrieve empirical distribution.
+    test.dist <- out$Object@meta.data[, name, drop = FALSE]
+    vect <- test.dist[, 1]
+    names(vect) <- rownames(test.dist)
+    test.dist <- vect
+    list.out[[name]][["Data"]][["Empirical_Distribution"]] <- test.dist
+    # Compute Null distribution
+    if (isTRUE(verbose)){message("Computing permutations...")}
+    # We want a null distribution with at least 1.000.000 permutations.
+    wanted_permutations <- 1000000
+    number_cells <- ncol(sample)
+    nruns <- trunc(wanted_permutations / number_cells) + 1
+
+    null.dist <- data.frame(row.names = colnames(sample))
+    message("Computing iterations...")
+    for (i in seq_len(nruns)){
+      message(i)
+      # Set seed in every iteration.
+      set.seed(i)
+
+      genes.query <- input_gene_list[[name]]
+      # First, create a replacement object.
+      sample.null <- sample
+      # Get the normalized data assay (sparse matrix).
+      data.use <- Seurat::GetAssayData(object = sample.null,
+                                       assay = assay,
+                                       slot = slot)
+      row.order <- rownames(data.use) # We want to preserve the original order of the matrix.
+
+      # Subset out the matrix we do not want to reshuffle.
+      data.keep <- data.use[-which(rownames(data.use) %in% genes.query), ] # Remove the input genes from the matrix.
+
+      # Get the subset for reshuffle.
+      data.to.shuffle <- data.use[which(rownames(data.use) %in% genes.query), ]
+      # For each gene in the list of markers.
+      df.new <- list()
+      for (gene in genes.query){
+        # Get the scores.
+        expression.scores <- data.to.shuffle[gene, ]
+        # Permute the scores for all cells for that given gene.
+        shuffled.scores <- sample(expression.scores, length(expression.scores))
+        # As the cell names get shuffled as well, we have to change them back to the original order.
+        names(shuffled.scores) <- names(expression.scores)
+        df.new[[gene]] <- shuffled.scores
+      }
+      data.to.shuffle <- Matrix::as.matrix(t(sapply(df.new, unlist)))
+      data.use <- rbind(data.keep, data.to.shuffle) # Perform a rowbind of the two matrices (instead of directly modifying the first one, which takes forever to do)
+      data.use <- data.use[row.order, ] # Reorder back the matrix.
+      # Set the new matrix as the Assay data from which the enrichment scores will be computed on.
+      sample.null <- Seurat::SetAssayData(sample.null, assay = assay, slot = slot, new.data = data.use)
+      # Compute enrichment scores, which will be the null distribution of the iteration.
+      sample.null <- SCpubr:::compute_enrichment_scores(sample = sample.null,
+                                                        input_gene_list = input_gene_list[name],
+                                                        assay = assay)
+      # Retrieve teh null distribution.
+      null.dist[[i]] <- sample.null[[]][, name]
+    }
+
+    # Assign the cell names back to the output matrix.
+    rownames(null.dist) <- colnames(sample)
+    list.out[[name]][["Data"]][["Null_Dist_Iteration_Vectors"]] <- null.dist
+    # Prepare the data for plotting.
+    data.plot <- as.data.frame(null.dist) %>% # Make the matrix into tidiverse accepted object.
+      dplyr::mutate(Empirical = test.dist) %>% # Add the empirical distribution to the matrix of AddModuleScore() iterations.
+      tidyr::pivot_longer(dplyr::everything(), names_to = "Distribution", values_to = "Enrichment") %>%
+      dplyr::mutate(Distribution = ifelse(Distribution == "Empirical", "Empirical", "Null")) # Assign any name in Distribution that is not "Empirical" into "Null". By default, non-labelled df columns are named V1, V2...
+    list.out[[name]][["Data"]][["Distributions"]] <- data.plot
+
+    # Visualize the density plot of both distributions.
+
+
+    p.dist <- data.plot %>%
+      ggplot2::ggplot(ggplot2::aes(x = .data$Enrichment,
+                                   y = ..density..,
+                                   color = .data$Distribution,
+                                   fill = .data$Distribution)) +
+      ggplot2::geom_density(alpha = 0.5) +
+      ggplot2::scale_fill_manual(values = rev(RColorBrewer::brewer.pal(n = 11, name = "RdBu")[c(1, 11)])) +
+      ggplot2::scale_color_manual(values = rev(RColorBrewer::brewer.pal(n = 11, name = "RdBu")[c(1, 11)])) +
+      ggplot2::xlab("Enrichment scores") +
+      ggplot2::ylab("Density") +
+      ggplot2::labs(title = paste0(name, " | Null vs Empirical distributions"),
+                    caption = "P-value is, for a given cell and its empirical enrichment score,\n the proportion of values in the null distribution higher than it.") +
+      ggplot2::guides(fill = ggplot2::guide_legend(title = "Distribution",
+                                                   title.position = "top",
+                                                   title.hjust = 0.5)) +
+      ggplot2::theme_minimal(base_size = font.size) +
+      ggplot2::theme(axis.title = ggplot2::element_text(color = "black",
+                                                        face = "bold"),
+                     axis.line.x = ggplot2::element_line(color = "black"),
+                     axis.line.y = ggplot2::element_blank(),
+                     axis.text.x = ggplot2::element_text(color = "black",
+                                                         face = "bold"),
+                     axis.text.y = ggplot2::element_text(color = "black", face = "bold"),
+                     axis.ticks = ggplot2::element_line(color = "black"),
+                     panel.grid.major = ggplot2::element_blank(),
+                     plot.title.position = "plot",
+                     plot.title = ggplot2::element_text(face = "bold", hjust = 0),
+                     plot.subtitle = ggplot2::element_text(hjust = 0),
+                     plot.caption = ggplot2::element_text(hjust = 1),
+                     panel.grid = ggplot2::element_blank(),
+                     text = ggplot2::element_text(family = font.type),
+                     plot.caption.position = "plot",
+                     legend.text = ggplot2::element_text(face = "bold"),
+                     legend.position = legend.position,
+                     legend.title = ggplot2::element_text(face = "bold"),
+                     legend.justification = "center",
+                     plot.margin = ggplot2::margin(t = 10, r = 10, b = 10, l = 10),
+                     plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                     panel.background = ggplot2::element_rect(fill = "white", color = "white"),
+                     legend.background = ggplot2::element_rect(fill = "white", color = "white"),
+                     strip.text =ggplot2::element_text(color = "black", face = "bold"))
+
+
+    list.out[[name]][["Plots"]][["Distirbution_plot"]] <- p.dist
+
+    # Generate the p-values for each enrichment score in the empirical distribution.
+    num_permutations <- sum(data.plot$Distribution == "Null")
+
+    null_dist_values <- data.plot %>% # Gather the null distribution.
+      dplyr::filter(Distribution == "Null") %>% # Filter only the values for the NULL.
+      dplyr::select(Enrichment)
+    null_dist_values <- null_dist_values$Enrichment
+
+
+    if (verbose){message("Computing p-values.")}
+    p.value.vector <- c() # Will store all the p-values and will become a column of dist.data.
+    # This might also take 10 minutes, since the vector is of 1 million data points to be suuuuuuper exact on the null distribution side.
+    p.value.vector <- unlist(pbapply::pblapply(test.dist, function(x){
+      greater_values <- sum(null_dist_values > x)
+      p.value <- (greater_values + 1) / (num_permutations + 1) #https://pubmed.ncbi.nlm.nih.gov/21044043/
+      names(p.value) <- names(x) # Assign the cell name to the p-value.
+      p.value.vector <- c(p.value.vector, p.value) # Add the p-value to the output vector.
+    }))
+
+    # Generate a reporting matrix for the given permutation test.
+    dist.data <- tidyr::tibble(Cell = names(test.dist),
+                               Empirical = test.dist,
+                               p.value = p.value.vector)
+
+    # FDR correction.
+    if (isTRUE(verbose)) {message(paste0("Using the FDR cutoff of: ", FDR_cutoff))}
+    dist.data <- dist.data %>%
+      dplyr::arrange(.data$p.value) %>% # Order by ascending p-value.
+      dplyr::mutate(p.value.adj = stats::p.adjust(.data$p.value, method = "BH")) %>% # Adjust for multiple testing and produce q-values.
+      dplyr::mutate(significant = ifelse(.data$p.value.adj <= FDR_cutoff, TRUE, FALSE))
+    list.out[[name]][["Data"]][["PlotData"]] <- dist.data
+    list.out[[name]][["Data"]][["Null_Distribution"]] <- null_dist_values
+
+    # Visualizations.
+    # UMAP coloring the cells that surpassed the FDR correction.
+    surpassing_cells <- dist.data %>%
+      dplyr::filter(.data$significant == TRUE) %>%
+      dplyr::pull(.data$Cell)
+    list.out[[name]][["Data"]][["Satatistically_Enriched_Cells"]] <- surpassing_cells
+    p.umap <- SCpubr::do_FeaturePlot(out$Object,
+                                     features = name,
+                                     use_viridis = use_viridis,
+                                     viridis_color_map = viridis_color_map,
+                                     viridis_direction = viridis_direction,
+                                     sequential.palette = sequential.palette,
+                                     sequential_direction = sequential_direction,
+                                     legend.position = legend.position,
+                                     font.size = font.size,
+                                     font.type = font.type)
+    list.out[[name]][["Plots"]][["Enrichment"]] <- p.umap
+    if (length(surpassing_cells) > 0){
+
+      p.selection <-SCpubr::do_DimPlot(sample,
+                                       cells.highlight = surpassing_cells,
+                                       plot.caption = paste("Selected cells for gene list: ",
+                                                            name,
+                                                            " | Enriched cells: ",
+                                                            sum(dist.data$p.value.adj < FDR_cutoff),
+                                                            "| FDR used: ",
+                                                            FDR_cutoff,
+                                                            " | Enrichment score cutoff:",
+                                                            round(min(dist.data$Empirical[sum(dist.data$p.value.adj < FDR_cutoff)], na.rm = TRUE), 3),
+                                                            " | Number comparisons: ",
+                                                            length(names(input_gene_list))))
+
+      list.out[[name]][["Plots"]][["Selection"]] <- p.selection
+    }
+  }
+  return(list.out)
+}
+
+```
+

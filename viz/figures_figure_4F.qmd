@@ -1,0 +1,65 @@
+# Figure 4F {.unnumbered}
+
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# Read in metadata.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/microglia_paired.rds")
+
+cluster_cols <- c("Mg Homeostatic"= "#ECA809",                          
+                  "Mg Inflammatory TAMs" = "#043362",                  
+                  "Mg Activated"= "#9A031E",                 
+                  "Mg Resident−like TAMs"= "#009FF5",                    
+                  "BMD Anti−inflammatory TAMs"= "#BC5210",            
+                  "Mg Phagocytic"= "#279185",                 
+                  "Mg IFNg TAMs"= "#7EB356",                   
+                  "Mg Stressed TAMs"= "#AC70FF",                  
+                  "Mg Inflammatory ICAM1+"= "#63412C")
+```
+
+
+```{r}
+#| eval: false
+p <- SCpubr::do_DimPlot(sample = sample,
+                        group.by = "final_annotation",
+                        font.size = 11,
+                        raster = TRUE,
+                        raster.dpi = 2048,
+                        pt.size = 4,
+                        colors.use = cluster_cols,
+                        legend.icon.size = 8,
+                        legend.ncol = 3,
+                        na.value = "grey90")
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+# Save the plot.
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_4F",
+                  file_name = "Figure_4F",
+                  dpi = 300,
+                  width = 6.33,
+                  height = 9,
+                  output_format = "publication")
+```
+<img src="../figs/Figure_4F/Figure_4F.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+  

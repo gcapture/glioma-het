@@ -1,0 +1,163 @@
+#  CNV analysis {.unnumbered}
+
+```{r}
+#| eval: false
+#| 
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#----------------------------------------------------------------------------
+# 7 - CNV PROFILING FOR 10X SAMPLES GENERATING METACELLS FOR INCREASED SIGNAL
+#----------------------------------------------------------------------------
+
+# CNV profiling is done using inferCNV package.
+# In addition, here we provide the code for the generation of metacells, to further increase the resolution of the output, which can be quite noisy for 10X datasets.
+
+
+# First of all, we want to get rid of any clusters with less than 10 cells.
+# Also, we assume that the current labelling is stored in the metadata variable "New_NMF_labelling" and this is also use as Idents in the seurat object.
+Seurat::Idents(sample) <- sample$New_NMF_labelling
+
+
+clusters_keep <- c()
+for (cluster in levels(sample)){
+    num <- sum(sample$New_NMF_labelling == cluster)
+    if (num >= 10){
+        clusters_keep <- append(clusters_keep, cluster)
+    }
+}
+
+# Subset the sample.
+sample <- sample[, sample$New_NMF_labelling %in% clusters_keep]
+
+
+# We need to retrieve the count matrix. For this, we generate metacells as follows:
+
+# Generate a new metadata column storing the mapping cell-metacell.
+sample[["metacell_mapping"]] <- "not_mapped"
+
+# Generate a new metadata column storing the mapping cell-metacell.
+sample[["metacell_mapping"]] <- "not_mapped"
+
+# Will store all the metacells.
+whole_metacells <- data.frame(test = rownames(sample), row.names = rownames(sample))
+# Will store the complete annotation for the metacells.
+whole_annotation <- data.frame(cluster_names = "test", row.names = "test")
+
+meta_counter <- 0 # To keep a count of the metacells that are created.
+metacell_content <- 5 # How many cells per metacell.
+
+for (cluster_id in rev(levels(sample))){
+	print(sprintf("Computing metacells for cluster %s.", cluster_id))
+	# Will store the metacells per cluster.
+	metacells <- data.frame(test = rownames(sample), row.names = rownames(sample))
+
+	# Subset the sample by each cluster ID.
+	chunksample <- sample[, sample$TME_annotation == cluster_id]
+
+	# Get the count data as a data frame and transpose it so columns are GENES and rows are CELLS.
+	countdata <- t(as.data.frame(Seurat::GetAssayData(chunksample, assay = "RNA", slot =  "counts")))
+
+	# Get the possible amount of metacells.
+	times <- trunc(dim(countdata)[1] / metacell_content)
+
+	for (i in seq(1,times)){
+		meta_counter <- meta_counter + 1
+		# Generate slice points for each metacell.
+		start <- ((i -1) * metacell_content + 1)
+		end <- i * metacell_content
+
+
+		# Compute the slice as a data frame containing the sum of the subsetted cells. dims = 1 row (metacell), X columns (genes)
+		slice <- as.data.frame(colSums(countdata[start:end, ]))
+
+		# Get the name of the cells merged.
+		cell_names <- rownames(countdata[start:end, ])
+
+		# Add the metacell.
+		col_name <- sprintf("metacell_%s", meta_counter)
+		metacells[[col_name]] <- slice[,1]
+
+		# Add the mapping.
+		sample$metacell_mapping[colnames(sample) %in% cell_names] <- col_name
+	}
+
+	# Delete the test column as we already have more than 1 column in our data frame.
+	metacells[["test"]] <- NULL
+
+	# Will contain the annotation of the generated metacells. Columns: cluster identities. Rows: each metacell.
+	annotation <- data.frame(cluster_names = colnames(metacells), row.names = colnames(metacells))
+	# Replace the dummy cluster_names column's values for the actual label for the cluster.
+	annotation$cluster_names <- cluster_id
+
+	# Add the annotation data and the metacell data to the global containers. In the end: # Columns for metacell object = # rows for annotation object.
+	whole_metacells <- cbind(whole_metacells, metacells)
+	whole_annotation <- rbind(whole_annotation, annotation)
+}
+
+# Turn the names into characters for the sake of avoiding errors when subsetting.
+whole_annotation$cluster_names <- as.character(whole_annotation$cluster_names)
+
+# Delete the test row from the global annotation data.
+whole_annotation <- whole_annotation[!rownames(whole_annotation) %in% c("test"), , drop = FALSE]
+
+# Delete the test column from the global metacell data.
+whole_metacells$test <- NULL
+
+cnv_analysis_folder <- "" # Path to store the output of inferCNV
+annotation_file <- sprintf("%s/annotation_metacells.tsv", cnv_analysis_folder)
+# Save the annotation object.
+utils::write.table(whole_annotation,
+	               file = annotation_file,
+	               sep = "\t",
+	               row.names = TRUE,
+	               col.names = FALSE,
+	               quote = FALSE)
+
+# Return the metacell object as a matrix (required for running inferCNV).
+count_matrix <- as.matrix(whole_metacells)
+
+# You might also want to save the Seurat object with the metacell mapping annotation.
+saveRDS(sample, "") # Modify accordingly.
+
+# Run inferCNV:
+gene_ordering_file <- "" # Path to where the file with the order of the genes is stored. It can also be downloaded here: https://data.broadinstitute.org/Trinity/CTAT/cnv/
+ref_clusters <- "" # Which clusters to use as a reference.
+
+# Create the inferCNV object.
+infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = count_matrix,
+                                               annotations_file = annotation_file,
+                                               delim = "\t",
+                                               gene_order_file = gene_ordering_file,
+                                               ref_group_names = ref_clusters)
+
+# Run inferCNV.
+cnv_analysis_folder_output <- "" # This path needs to not exist in your filesystem otherwise inferCNV will stop complaining that the path exists.
+infercnv_obj <- infercnv::run(infercnv_obj,
+                              cutoff = 0.1,  # use 1 for smart-seq, 0.1 for 10x-genomics
+                              min_cells_per_gene = 3, # Default.
+                              out_dir = cnv_analysis_folder,  # dir is auto-created for storing outputs
+                              cluster_by_groups = TRUE,   # Cluster by groups.
+                              denoise = TRUE,
+                              HMM = TRUE,
+                              HMM_type = "i6",
+                              window_length = 201,
+                              num_threads = 8,
+                              resume_mode=FALSE)
+
+# For further denoising, you can apply median filtering, but this might remove true signal from the plot.
+infercnv_obj_median_filtered = infercnv::apply_median_filtering(infercnv_obj)
+
+infercnv::plot_cnv(infercnv_obj_median_filtered,
+                   out_dir = cnv_analysis_folder_output,
+                   output_filename = 'infercnv.median_filtered',
+                   x.range = "auto",
+                   x.center = 1,
+                   title = "infercnv",
+                   color_safe_pal = FALSE)
+
+```
+

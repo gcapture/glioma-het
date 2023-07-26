@@ -1,0 +1,98 @@
+# Figure 2G {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Inma Hernandez Lopez
+# inmaculada.hernandez-lopez@ukr.de
+# LIT -  Leibniz-Institute für Immunotherapie
+
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+
+sample.oligo <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_OD.rds")
+sample.astro <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_AS.rds")
+
+Seurat::DefaultAssay(sample.oligo) <- "ATAC"
+Seurat::DefaultAssay(sample.astro) <- "ATAC"
+
+sample.oligo <- sample.oligo[, sample.oligo$relabelling %in% c("OPC-like", "Astro-like", "RA", "Cycling")]
+sample.astro <- sample.astro[, sample.astro$relabelling %in% c("OPC-like", "Astro-like", "RA", "Cycling")]
+sample.oligo$relabelling[sample.oligo$relabelling == "RA"] <- "RE"
+sample.astro$relabelling[sample.astro$relabelling == "RA"] <- "RE"
+
+
+Seurat::Idents(sample.oligo) <- sample.oligo$relabelling
+Seurat::Idents(sample.astro) <- sample.astro$relabelling
+
+sample.oligo <- Seurat::FindVariableFeatures(sample.oligo)
+sample.astro <- Seurat::FindVariableFeatures(sample.astro)
+```
+
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_CorrelationPlot(sample.oligo,
+                                 mode = "hvg",
+                                 assay = "ATAC",
+                                 max.cutoff = 0.5,
+                                 min.cutoff = -0.5,
+                                 font.size = 12,
+                                 legend.length = 12,
+                                 legend.width = 0.5,
+                                 legend.framecolor = "grey50",
+                                 legend.tickcolor = "white",
+                                 legend.framewidth = 0.2,
+                                 legend.tickwidth = 0.2,
+                                 axis.text.face = "plain",
+                                 legend.position = "none") + 
+      ggplot2::xlab("Oligodendroglioma")
+
+p2 <- SCpubr::do_CorrelationPlot(sample.astro,
+                                 mode = "hvg",
+                                 assay = "ATAC",
+                                 max.cutoff = 0.5,
+                                 min.cutoff = -0.5,
+                                 font.size = 12,
+                                 legend.length = 12,
+                                 legend.width = 0.5,
+                                 legend.framecolor = "grey50",
+                                 legend.tickcolor = "white",
+                                 legend.framewidth = 0.2,
+                                 legend.tickwidth = 0.2,
+                                 axis.text.face = "plain")  + 
+       ggplot2::xlab("Astrocytoma")
+
+p <- patchwork::wrap_plots(A = p1, B = p2, C = patchwork::guide_area(),design = "AB
+                                                                                 CC", guides = "collect")
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2G",
+                  file_name = "Figure_2G",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.33,
+                  height = 6.33)
+```
+
+
+<img src="../figs/Figure_2G/Figure_2G.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+

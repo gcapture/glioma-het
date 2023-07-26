@@ -1,0 +1,3 @@
+# Figure S10 Legend {.unnumbered}
+
+**Fig. S10. Characterization of external datasets.** Three external datasets are used to query for the different cell populations retrieved from the IDH gliomas primary datasets: Mouse model of IDH gliomas *insert later* (**A**), primary oligodendroglioma from *Venteicher, et al.* (**B**) and primary astrocytoma from *insert later* (**C**). For all datasets, data is normalized and dimensional reduction is performed and cells are visualized as a UMAP where each color correspond to a different cluster (left). For each cluster, using lists of marker genes and NMF metaprograms, activity (middle) and enrichment scores (right) are computed using *decoupleR* and *Seurat.*

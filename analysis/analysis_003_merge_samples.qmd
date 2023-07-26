@@ -1,0 +1,38 @@
+#  Merge datasets {.unnumbered}
+
+```{r}
+#| eval: false
+#| 
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#--------------------------------------------------------------------
+# 3 - MERGE INDIVIDUAL SAMPLES TOGETHER
+#--------------------------------------------------------------------
+
+# Generate a list containing all samples.
+list_samples <- list()
+sample_names_vector <- c() # Vector containing all sample names.
+
+for (sample_name_use in sample_names_vector){
+	sample.individual <- readRDS(paste0(output_path, "/", sample_name_use, "_after_QC.rds"))
+	list.samples[[sample_name_use]] <- sample.individual
+}
+
+# Generate the merged sample.
+sample_name <- "" # Name for the merged sample.
+sample <- merge(list_samples[[1]],
+		        y = list_samples[2: length(list_samples)],
+		        add.cell.ids = names(list_samples),
+		        project = sample_name)
+
+merged_sample@meta.data$orig.ident <- stringr::str_replace_all(merged_sample@meta.data$orig.ident, "\\.", "-")
+
+# Exclude doublets.
+message(print0("Total number of doublets in the sample: ", sum(sample$scrublet_binary)))
+sample <- sample[, sample$scrublet_binary == FALSE]
+```
+

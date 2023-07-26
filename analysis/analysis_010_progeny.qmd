@@ -1,0 +1,107 @@
+# Pathway and TF activity analysis {.unnumbered}
+
+```{r}
+#| eval: false
+
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# ------------------------------------------------------------------
+# 10 - PROGENY ANALYSIS
+# ------------------------------------------------------------------
+
+# Retrieve the merged LGG: OD + AS dataset.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/datasets/integrated_LGGs.rds")
+
+# And the labels from OD and AS.
+labels.astro <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/datasets/labels_primary_AS.rds")
+labels.oligo <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/datasets/labels_primary_OD.rds")
+labels.use <- c(labels.astro, labels.oligo)
+sample$relabelling <- labels.use
+
+# Subset for tumor cells.
+sample <- sample[, sample$relabelling %in% c("Astro-like", "RA", "OPC-like", "Gradient", "Cycling")]
+
+# Since our datasets are quite large, it is not possible to run them at once in R.
+# Therefore, we generate chunks and then combine the scores back to a single matrix.
+# Will contain the results of the chunks.
+dorothea_vector <- list()
+progeny_vector <- list()
+
+
+# Retrieve prior-knowledge networks.
+dorothea_network <- decoupleR::get_dorothea(organism = "human",
+                                            levels = c("A", "B", "C"))
+
+progeny_network <- decoupleR::get_progeny(organism = "human")
+
+# This for loop is tailored to our dataset.
+# Chunks of 10000 cells.
+for (i in 0:11){
+  values <- c((10000 * i) + 1, (10000 * i) + 10000)
+  if (i == 11){
+    values[2] <- 119424 # Max cells.
+  }
+  values <- seq(from = values[1], to = values[2], by = 1)
+  
+  # Subset sample.
+  sample.use <- sample[, colnames(sample)[values]]
+  
+  # Run dorothea.
+  activities <- decoupleR::run_wmean(mat = as.matrix(sample.use@assays[["SCT"]]@data),
+                                     network = dorothea_network,
+                                     .source = "source",
+                                     .targe = "target",
+                                     .mor = "mor",
+                                     times = 100,
+                                     minsize = 5)
+  dorothea_vector[[paste0("Iteration_", i)]] <- activities
+
+  # Run progeny.
+  activities <- decoupleR::run_wmean(mat = as.matrix(sample.use@assays[["SCT"]]@data),
+                                     network = progeny_network,
+                                     .source = "source",
+                                     .targe = "target",
+                                     .mor = "weight",
+                                     times = 100,
+                                     minsize = 5)
+  progeny_vector[[paste0("Iteration_", i)]] <- activities
+}
+
+# Save results.
+dorothea_activities <- rbind(dorothea_vector$Iteration_0,
+                             dorothea_vector$Iteration_1,
+                             dorothea_vector$Iteration_2,
+                             dorothea_vector$Iteration_3,
+                             dorothea_vector$Iteration_4,
+                             dorothea_vector$Iteration_5,
+                             dorothea_vector$Iteration_6,
+                             dorothea_vector$Iteration_7,
+                             dorothea_vector$Iteration_8,
+                             dorothea_vector$Iteration_9,
+                             dorothea_vector$Iteration_10,
+                             dorothea_vector$Iteration_11)
+saveRDS(dorothea_activities, "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/main/TF_Pathway_analysis/primary_dorothea.rds")
+
+
+# Retrieve prior knowledge network.
+
+message("Saving Progeny results.")
+progeny_activities <- rbind(progeny_vector$Iteration_0,
+                            progeny_vector$Iteration_1,
+                            progeny_vector$Iteration_2,
+                            progeny_vector$Iteration_3,
+                            progeny_vector$Iteration_4,
+                            progeny_vector$Iteration_5,
+                            progeny_vector$Iteration_6,
+                            progeny_vector$Iteration_7,
+                            progeny_vector$Iteration_8,
+                            progeny_vector$Iteration_9,
+                            progeny_vector$Iteration_10,
+                            progeny_vector$Iteration_11)
+saveRDS(progeny_activities, "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/main/TF_Pathway_analysis/primary_progeny.rds")
+```
+

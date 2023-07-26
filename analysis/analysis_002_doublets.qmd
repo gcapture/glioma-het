@@ -1,0 +1,83 @@
+#  Doublet detection {.unnumbered}
+
+```{r}
+#| eval: false
+#| 
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#--------------------------------------------------------------------
+# 2 - DOUBLET DETECTION WITH SCRUBBLET
+#--------------------------------------------------------------------
+
+# For this part we have scrublet installed in a conda environment.
+conda_env <- "" #Path to your conda environment.
+reticulate::use_condaenv(conda_env)
+
+# Import scrublet.
+scrublet <- reticulate::import("scrublet")
+
+# Transpose the count matrix.
+counts_transposed <- Matrix::t(sample@assays$RNA@counts)
+
+# Run scrublet.
+# Code adapted from: https://github.com/swolock/scrublet/blob/master/examples/scrublet_basics.ipynb
+scrub = scrublet$Scrublet(counts_transposed, expected_doublet_rate = 0.06)
+
+# Compute the doublets.
+return_list = scrub$scrub_doublets() # List with the output from scrublet.
+scrublet_score <- return_list[[1]] # Scrublet scores per cell.
+scrublet_binary <- return_list[[2]] # Scrublet assignment for each cell.
+
+# Add cell names to the output, so it can be integrated in the Seurat object.
+row.names(scrublet_score) <- colnames(sample)
+row.names(scrublet_binary) <- colnames(sample)
+
+# Add the output as metadata.
+sample$scrublet_score <- scrublet_score
+sample$scrublet_binary <- scrublet_binary
+
+# Visualize the doublet scores and the assignment.
+h <- graphics::hist(sample$scrublet_score, breaks = "FD") # To compute the breaks according to Freedman–Diaconis rule. https://stats.stackexchange.com/a/383145
+p <- ggplot2::ggplot(sample[[]], ggplot2::aes(x = sample$scrublet_score, fill = sample$scrublet_binary)) +
+     ggplot2::geom_histogram(breaks = h$breaks) +
+     ggplot2::scale_fill_manual(values = colortools::opposite("steelblue")) +
+     ggplot2::geom_vline(ggplot2::aes(xintercept = mean_binary), colour = "grey", linetype = "dashed") +
+     ggpubr::theme_pubclean()
+p$labels$fill <- "Doublet assignment"
+p$labels$y <- "Number of nuclei"
+p$labels$x <- "scrublet score"
+p$labels$subtitle <- sprintf("Binary prediction of doublets failed: %s", was_null)
+p$theme$legend.position <- "bottom"
+p$labels$subtitle <- sprintf("Cutoff: %s\t Predicted doublets: %s\t Number of singlets: %s\t Percentage of doublets: %s",
+                             mean_binary,
+                             sum(sample$scrublet_binary),
+                             sum(!sample$scrublet_binary),
+                             round(sum(sample$scrublet_binary) / length(colnames(sample)), 3))
+
+# At this point, it might be the case that the cutoff decided by scrublet is suboptimal.
+# Therefore, it might make more sense to decide it yourself based on the histogram.
+
+doublet_cutoff <- 0.2 # Put your own value.
+
+# Modify the binary assignment accordingly.
+sample$scrublet_binary <- ifelse(sample$scrublet_score > doublet_cutoff, TRUE, FALSE)
+# You can re-run the histogram above to get the new visualization and metrics.
+
+# Generate a reporting df.
+report_df <- data.frame(number_of_cells_after_qc = length(colnames(sample)),
+                        number_of_predicted_doublets = sum(sample$scrublet_binary),
+                        cutoff = mean_binary,
+                        percentage_of_predicted_doublets_in_sample = sum(sample$scrublet_binary) * 100 / length(colnames(sample)),
+                        prediction_doublet_failed = was_null)
+
+# Save individual samples.
+output_path <- "" # Path where the samples will be stored.
+
+saveRDS(sample, paste0(output_path, "/", sample_name, "_after_QC.rds"))
+```
+
+

@@ -1,0 +1,120 @@
+# Figure 1H  {.unnumbered}
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# Load samples.
+sample.oligo <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_OD.rds")
+sample.astro <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
+
+# Subset tumor entities.
+sample.oligo <- sample.oligo[, sample.oligo$relabelling %in% c("OPC-like", "Astro-like", "Gradient", "RA", "Cycling")]
+sample.astro <- sample.astro[, sample.astro$relabelling %in% c("OPC-like", "Astro-like", "Gradient", "RA", "Cycling")]
+```
+
+```{r}
+#| eval: false
+# Manually picked features from the NMF metaprograms.
+features <- list("Astro-like" = c("NRG3", "ADGRV1", "SLC4A4", "SPARCL1", "ADCY2"),
+                 "Cycling" = c("MKI67", "CENPK", "EZH2", "POLQ", "EGFR"),
+                 "OPC-like" = c("OPCML", "DSCAM", "FGF12", "SOX6", "DLGAP1"),
+                 "RA" = c("EEF2", "EEF1A1", "OLIG1", "ETV1", "RPL13"))
+
+sample.oligo$relabelling <- factor(sample.oligo$relabelling,
+                                   levels = rev(c("Astro-like",
+                                                  "Cycling",
+                                                  "Gradient",
+                                                  "OPC-like",
+                                                  "RA")))
+
+sample.astro$relabelling <- factor(sample.astro$relabelling,
+                                   levels = rev(c("Astro-like",
+                                                  "Cycling",
+                                                  "Gradient",
+                                                  "OPC-like",
+                                                  "RA")))
+p1 <- SCpubr::do_DotPlot(sample.oligo,
+                         features = features,
+                         group.by = "relabelling",
+                         assay = "SCT",
+                         legend.title = "OD | Avg. Expression",
+                         legend.length = 8,
+                         legend.width = 0.5,
+                         legend.framecolor = "grey50",
+                         legend.tickcolor = "white",
+                         legend.framewidth = 0.2,
+                         legend.tickwidth = 0.2,
+                         dot.scale = 10,
+                         font.size = 12,
+                         axis.text.face = "plain") + 
+      ggplot2::ylab("Oligodendroglioma") + 
+      ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),
+                     axis.ticks.x.bottom = ggplot2::element_blank(),
+                     axis.line.x.bottom = ggplot2::element_blank(),
+                     strip.background = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 5, l = 10))
+
+p2 <- SCpubr::do_DotPlot(sample.astro,
+                         features = features,
+                         group.by = "relabelling",
+                         assay = "SCT",
+                         sequential.palette = "YlOrRd",
+                         legend.title = "AS | Avg. Expression",
+                         legend.length = 8,
+                         legend.width = 0.5,
+                         legend.framecolor = "grey50",
+                         legend.tickcolor = "white",
+                         legend.framewidth = 0.2,
+                         legend.tickwidth = 0.2,
+                         dot.scale = 10,
+                         font.size = 12,
+                         axis.text.face = "plain") + 
+      ggplot2::ylab("Astrocytoma") + 
+      ggplot2::theme(strip.background = ggplot2::element_blank(),
+                     strip.text.x.top = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+
+p1$guides$size$title <- "OD | Pct. Expressed"
+p2$guides$size$title <- "AS | Pct. Expressed"
+
+p <- patchwork::wrap_plots(A = p1,
+                           B = p2,
+                           C = patchwork::guide_area(),
+                           design = "A
+                                     B
+                                     C",
+                           guides = "collect") + 
+     patchwork::plot_annotation(theme = ggplot2::theme(legend.position = "bottom"))
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1H",
+                  file_name = "Figure_1H",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 12.25,
+                  height = 6.25)
+```
+
+
+<img src="../figs/Figure_1H/Figure_1H.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+

@@ -1,0 +1,353 @@
+# Microglia deconvolution {.unnumbered}
+
+```{r}
+#| eval: false
+####################################################
+### Deconvolution TCGA-LGG with 'microglia' data ###
+####################################################
+
+library(reshape2)
+library(ggplot2)
+library(SPOTlight)
+library(SingleCellExperiment)
+library(SpatialExperiment)
+library(scater)
+library(scran)
+
+library(Seurat)
+library(dplyr)
+library(DESeq2)
+library(tidyr)
+library(harmony)
+library(cowplot)
+
+
+## 1- SINCLE CELL DATA ##
+
+# single cell RNA counts
+microglia_combined_to_use <- readRDS("/Users/an/Documents/JC_projects/microglia/microglia_combined_to_use.rds")
+
+# marker genes from Imma
+microglia_primary <- readRDS("/Users/an/Documents/JC_projects/microglia/microglia_primary.rds")
+mgs <- microglia_primary
+
+
+# Recompute HVG excluding Ribosomal and mitochondrial
+
+mtx <- microglia_combined_to_use@assays$RNA@counts
+# remove ribosomal and mitochondrial genes
+mtx <- mtx[stringr::str_detect(rownames(mtx), "^RP[L|S]|^MT-", negate = TRUE), ]
+
+sc <- CreateSeuratObject(counts = mtx, meta.data = microglia_combined_to_use@meta.data)
+sc <- Seurat::NormalizeData(sc, verbose = FALSE) %>%
+  Seurat::FindVariableFeatures(selection.method = "vst", nfeatures = 3000)
+
+# hvg top 3000
+hvg <- VariableFeatures(sc)
+
+
+### Subset SC object so all the cells from the same cell type to come from the same batch
+
+# subset most representative sample(s)
+microglia_combined_to_use@meta.data$cell_id <- rownames(microglia_combined_to_use@meta.data)
+
+ns <- with(microglia_combined_to_use@meta.data, table(cell_id, labelling)) 
+ns <- as.matrix(unclass(ns))
+m <- 100 # Max cells per cell type
+# Extract cell barcodes
+meta <- microglia_combined_to_use@meta.data
+
+id <- lapply(colnames(ns), function(nm) {
+  x <- ns[, nm]
+  # Initialize variables
+  n <- 0    # N of cells
+  s <- c()  # Gem IDs
+  b <- c()  # Cell barcodes
+  while (n < m & length(x) > 0) {
+    # select gem id with the most cells
+    i <- names(sort(x, decreasing = TRUE))[[1]]
+    # Add gem id to vector s
+    s <- c(s, i)
+    # Add number of cells per cell type to n
+    n <- n + x[[i]]
+    # Remove gem id from x to move on to the next
+    x <- x[names(x) != i]
+    # extract barcode
+    barcode <- rownames(meta[meta[, "cell_id"] == i &
+                               meta[, "labelling"] == nm, ])
+    # make sure it adds up to m
+    # print(barcode)
+    if ((length(b) + length(barcode)) > m) {
+      barcode <- sample(x = barcode, size = m - length(b), replace = FALSE)
+    }
+    b <- c(b, barcode)  # Cell barcodes
+  }
+  return(b)
+})
+
+sc_sub <- microglia_combined_to_use[, unlist(id)]
+table(sc_sub@meta.data$labelling) 
+
+gc()
+
+
+
+## 2- TCGA-LGG DATA COLLECTION AND SELECTION ##
+
+# # TCGA RNA-seq data download:
+
+# library(TCGAbiolinks)
+# 
+# query <- GDCquery(
+#   project = "TCGA-LGG",
+#   data.category = "Gene expression",
+#   data.type = "Gene expression quantification",
+#   platform = "Illumina HiSeq", 
+#   file.type  = "normalized_results",
+#   experimental.strategy = "RNA-Seq",
+#   legacy = TRUE
+# )
+# GDCdownload(
+#   query = query, 
+#   method = "api", 
+#   files.per.chunk = 10
+# )
+# data <- GDCprepare(query = query)
+
+# data_LGG <- data
+# save(data_LGG,file="/Users/an/Documents/JC_projects/microglia/TCGA_RNA_data_LGG.RData")
+
+
+# Data downloaded from TCGA: (with the script hided before) 
+load("/Users/an/Documents/JC_projects/microglia/TCGA_RNA_data_LGG.RData")
+
+
+# Selection of the same list of patients Imma had:
+
+# tables TCGA patients (from Imma)
+astro_proportion <- read.csv("/Users/an/Documents/JC_projects/tcga_survival/astro_proportion.csv",header=TRUE)
+oligo_proportion <- read.csv("/Users/an/Documents/JC_projects/tcga_survival/oligo_proportion.csv",header=TRUE)
+
+# list of patients
+astro_patients <- astro_proportion$ID.y
+oligo_patients <- oligo_proportion$ID.y
+
+all_patients <- c(astro_patients,oligo_patients) # to select the same patients 
+
+# subset expression data
+data_LGG_subset <- data_LGG[,which(data_LGG@colData$patient %in% all_patients)]
+
+
+
+# For some patients there are more than one RNA sample: 
+duplicated_patients <- unique(data_LGG_subset@colData$patient[which(duplicated(data_LGG_subset@colData$patient))]) # 12 patients
+
+metadata_duplis <- as.data.frame(data_LGG_subset@colData[which(data_LGG_subset@colData$patient %in% duplicated_patients), 1:59])
+
+for(patient in duplicated_patients){
+  print(patient)
+  print(metadata_duplis[which(metadata_duplis$patient == patient),])
+  print("")
+  print("----------------------------------------")
+  print("")
+  print("")
+}
+
+# Select the "Primary solid Tumor"
+selected_barcodes <- c("TCGA-DU-6397-01A-11R-1708-07",
+              "TCGA-DU-5872-01A-11R-1708-07",
+              "TCGA-TQ-A7RV-01A-21R-A34F-07",
+              "TCGA-DU-7304-01A-12R-2090-07",
+              "TCGA-FG-A4MT-01A-11R-A26U-07",
+              "TCGA-TQ-A7RK-01A-11R-A33Z-07",
+              "TCGA-DU-5870-01A-11R-1708-07",
+              "TCGA-DU-6407-01A-13R-1708-07",
+              "TCGA-FG-5965-01B-11R-1896-07",
+              "TCGA-TQ-A8XE-01A-11R-A36H-07",
+              "TCGA-DH-A669-01A-12R-A31N-07",
+              "TCGA-TM-A7CF-01A-11R-A32Q-07")
+
+
+# TCGA RNAseq data subset unique samples, 418 in total:
+data_LGG_subset_unique <- data_LGG_subset[,-which(data_LGG_subset@colData$patient %in% duplicated_patients & ! data_LGG_subset@colData$barcode %in% selected_barcodes)]
+
+
+counts_expr_lgg <- as.data.frame(assay(data_LGG_subset_unique))
+
+counts_expr_lgg_matrix <- as.matrix(counts_expr_lgg)
+
+
+
+## 3- RUN SPOTLIGHT ##
+
+res <- SPOTlight(
+  x = sc_sub,
+  y = counts_expr_lgg_matrix,
+  groups = as.character(sc_sub$labelling), 
+  mgs = mgs,
+  hvg = hvg,
+  weight_id = "avg_log2FC",
+  group_id = "cluster",
+  gene_id = "gene")
+
+save(res, file=paste0("/Users/an/Documents/JC_projects/microglia/res_spotlight_tcga_LGG_mgsImma_hvgComputed.RData"))
+
+
+
+## 4- PLOT TOPIC PROFILES ##
+
+pdf(file=paste0("/Users/an/Documents/JC_projects/microglia/plot_TopicProfiles_tcga_LGG_mgsImma_hvgComputed.pdf"),heigh=8,width=8)
+plotTopicProfiles(
+  x = res$NMF,
+  y = sc_sub$labelling, 
+  facet = FALSE,
+  min_prop = 0.01,
+  ncol = 1) +
+  theme(aspect.ratio = 1)
+dev.off()
+
+
+## 5- PLOT HEATMAP WITH THE PROPORTIONS OF THE 10 CELL CATEGORIES, ANNOTATED IF THE SAMPLE IS ASTRO OR OLIGO  ##
+
+library(grid)
+library(ComplexHeatmap)
+
+input_data <- as.matrix(res$mat)
+
+#annotation astro and oligo
+out_mat <- res$mat
+patients <- rownames(out_mat)
+
+out_df <- as.data.frame(out_mat)
+out_df$patient_id <- patients
+
+out_df$group <- rep(NA,nrow(out_df))
+out_df[which(out_df$patient_id %in% astro_patients),"group"] <- "ASTRO"
+out_df[which(out_df$patient_id %in% oligo_patients),"group"] <- "OLIGO"
+
+as.data.frame(table(out_df$group))
+# Var1 Freq
+# 1 ASTRO  249
+# 2 OLIGO  169
+
+row_ha = rowAnnotation(group = out_df$group)
+
+heatmap <- Heatmap(as.matrix(res$mat),
+                   row_names_gp = gpar(fontsize = 2),
+                   column_names_gp = gpar(fontsize = 8),
+                   cluster_rows = TRUE,cluster_columns=TRUE,
+                   right_annotation = row_ha) #top_annotation = column_ha
+
+
+ht = draw(heatmap)
+pdf(paste0("/Users/an/Documents/JC_projects/microglia/heatmap_deconv_tcga_LGG_mgsImma_hvgComputed.pdf"),heigh=15,width=8)
+ht
+dev.off()
+
+
+
+# Heatmap only OLIGO:
+
+data_oligo <- res$mat[which(rownames(res$mat) %in% oligo_patients),]
+
+heatmap_res <- Heatmap(as.matrix(data_oligo),
+                       row_names_gp = gpar(fontsize = 4),
+                       column_names_gp = gpar(fontsize = 10),
+                       cluster_rows = TRUE,#cluster_columns = FALSE,
+                       heatmap_legend_param = list(title = "proportion",legend_height = unit(4, "cm"),
+                                                   title_position = "lefttop-rot")
+)
+
+ht = draw(heatmap_res)
+pdf(paste0("/Users/an/Documents/JC_projects/microglia/heatmap_deconv_tcga_LGG_mgsImma_hvgComputed_only_OLIGO.pdf"),heigh=15,width=8)
+ht
+dev.off()
+
+
+# Heatmap only ASTRO:
+
+data_astro <- res$mat[which(rownames(res$mat) %in% astro_patients),]
+
+heatmap_res <- Heatmap(as.matrix(data_astro),
+                       row_names_gp = gpar(fontsize = 4),
+                       column_names_gp = gpar(fontsize = 10),
+                       cluster_rows = TRUE,#cluster_columns = FALSE,
+                       heatmap_legend_param = list(title = "proportion",legend_height = unit(4, "cm"),
+                                                   title_position = "lefttop-rot")
+)
+
+ht = draw(heatmap_res)
+pdf(paste0("/Users/an/Documents/JC_projects/microglia/heatmap_deconv_tcga_LGG_mgsImma_hvgComputed_only_ASTRO.pdf"),heigh=15,width=8)
+ht
+dev.off()
+
+
+
+
+## 6- BOXPLOTS PROPORTION PER CELL CATEGORY ASTRO VS OLIGO ##
+
+library(ggpubr)
+
+out_deconv <- res$mat
+out_deconv_melted <- melt(out_deconv)
+colnames(out_deconv_melted) <- c("patient_id","cluster","value")
+out_deconv_melted$group <- rep(NA,nrow(out_deconv_melted))
+out_deconv_melted[which(out_deconv_melted$patient_id %in% astro_patients),"group"] <- "ASTRO"
+out_deconv_melted[which(out_deconv_melted$patient_id %in% oligo_patients),"group"] <- "OLIGO"
+
+clusters <- as.character(unique(out_deconv_melted$cluster))
+
+for(cluster in clusters){
+  print(cluster)
+  subset <- out_deconv_melted[which(out_deconv_melted$cluster==cluster),]
+  cellname <- gsub(" ","_",cluster)
+  cellname <- gsub("-","_",cellname)
+  cellname <- gsub("+","",cellname,fixed=TRUE)
+  
+  plot <- ggplot(subset, aes(y = value,x=group, fill=group)) +
+    geom_violin() +
+    #geom_violin(color=col_cells[which(names(col_cells) == cluster)],trim=FALSE) +
+    scale_fill_manual(values=c("ASTRO"="lightsalmon","OLIGO"="mediumaquamarine")) +
+    geom_boxplot(color="black",width=0.1) + 
+    ylab(paste0("Proportion of ",cluster," cluster")) +
+    xlab("") +
+    #ggtitle(paste0(cluster)) +
+    stat_compare_means(size=6,label.x = 1.3) +
+    #ylim(0,100) +
+    theme(axis.text.x = element_text(size=20, hjust=0.5,vjust=0.5,face="bold"),
+          axis.text.y = element_text(size=18, hjust=1, vjust = 0.5),
+          axis.title.x = element_text(size=22, face= "bold"),
+          axis.title.y = element_text(size=22, face= "bold"),
+          legend.title = element_text(size = 12, face="bold"),
+          strip.text.x = element_text(size=18, color="black",face="bold"),
+          plot.title = element_text(hjust = 0.5, face="bold",size=25),
+          legend.text = element_text(size = 12), legend.position = "none")
+  
+  ggsave(plot, file=paste0("/Users/an/Documents/JC_projects/microglia/boxplots/comparison_deconv_astro_oligo_",cellname,"_violin.pdf"), width=15,height=20, units = "cm",limitsize = FALSE)
+  
+  plot <- ggplot(subset, aes(y = value,x=group, fill=group)) +
+    #geom_violin() +
+    #geom_violin(color=col_cells[which(names(col_cells) == cluster)],trim=FALSE) +
+    scale_fill_manual(values=c("ASTRO"="lightsalmon","OLIGO"="mediumaquamarine")) +
+    geom_boxplot(color="black",width=0.5) + 
+    ylab(paste0("Proportion of ",cluster)) +
+    xlab("") +
+    #ggtitle(paste0(cluster)) +
+    stat_compare_means(size=6,label.x = 1.3) +
+    #ylim(0,100) +
+    theme(axis.text.x = element_text(size=20, hjust=0.5,vjust=0.5,face="bold"),
+          axis.text.y = element_text(size=18, hjust=1, vjust = 0.5),
+          axis.title.x = element_text(size=22, face= "bold"),
+          axis.title.y = element_text(size=22, face= "bold"),
+          legend.title = element_text(size = 12, face="bold"),
+          strip.text.x = element_text(size=18, color="black",face="bold"),
+          plot.title = element_text(hjust = 0.5, face="bold",size=25),
+          legend.text = element_text(size = 12), legend.position = "none")
+  
+  ggsave(plot, file=paste0("/Users/an/Documents/JC_projects/microglia/boxplots/comparison_deconv_astro_oligo_",cellname,"_boxplot.pdf"), width=20,height=20, units = "cm",limitsize = FALSE)
+  
+  
+  
+}
+```
+

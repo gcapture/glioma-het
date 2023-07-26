@@ -1,0 +1,345 @@
+# Figure 3G {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+
+# Inma Hernandez Lopez
+# inmaculada.hernandez-lopez@ukr.de
+# LIT -  Leibniz-Institute für Immunotherapie
+
+# Marc Elosua Bayés
+# marc.elosua@cnag.crg.eu
+# CNAG - CRG
+
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+files <- c("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/liana_table_microgliaAstrocytoma_AstrolikeAstrocytoma.rds",
+           "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/liana_table_microgliaAstrocytoma_OPClikeAstrocytoma.rds",
+           "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/liana_table_microgliaOligodendroglioma_AstrolikeOligodendroglioma.rds",
+           "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/liana_table_microgliaOligodendroglioma_OPClikeOligodendroglioma.rds")
+
+names(files) <- c("Astrolike_Astrocytoma", "OPClike_Astrocytoma", "Astrolike_Oligodendroglioma", "OPClike_Oligodendroglioma")
+
+# Keep only interactions of interest
+macro_ligand <- c("SPP1", "TNF", "DLL1", "SIRPA", "WNT5A", "LGALS9", "PDGFB")
+tumor <- c("Astro_like", "OPC_like")
+
+interact_df <- lapply(names(files), function(i) {tmp <- readRDS(file = files[i])
+                                                 tmp$disease <- i
+                                                 tmp}) %>% 
+               dplyr::bind_rows()
+
+interact_df <- interact_df %>% 
+               dplyr::filter(.data$source %in% setdiff(unique(interact_df$target), tumor) & .data$ligand.complex %in% macro_ligand) %>% 
+               dplyr::filter(.data$target %in% tumor) %>% 
+               dplyr::filter(.data$aggregate_rank < 0.05) %>%
+               dplyr::mutate(target = ifelse(.data$target %in% tumor, .data$disease, .data$target),
+                             aggregate_rank_inv = -log10(aggregate_rank + 1e-10)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "BMD_anti−inflammatory_TAMs", "BMD Anti-inflammatory TAMs", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_Activated", "Mg Activated", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_homeostatic", "Mg Homeostatic", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_IFNg_TAMs", "Mg IFNg TAMs", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_Inflammatory_ICAM+", "Mg Inflammatory ICAM1+", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_inflammatory_TAMs", "Mg Inflammatory TAMs", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_phagocytic", "Mg Phagocytic", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_resident−like_TAMs", "Mg Resident−like TAMs", .data$source)) %>% 
+               dplyr::mutate("source" = ifelse(.data$source == "Mg_stressed_TAMs", "Mg Stressed TAMs", .data$source))
+
+
+liana_OD <- interact_df  %>% 
+            dplyr::filter(.data$target %in% c("Astrolike_Oligodendroglioma", "OPClike_Oligodendroglioma")) %>% 
+            dplyr::mutate("target" = ifelse(.data$target == "Astrolike_Oligodendroglioma", "Astro-like", "OPC-like")) %>% 
+            tidyr::unite(c("ligand.complex", "receptor.complex"), col = "interaction", sep = " | ", remove = FALSE) %>%
+            tidyr:::unite(c("source", "target"), col = "source_target", remove = FALSE, sep = " | ")  %>% 
+            tidyr::complete(source_target, interaction) %>% 
+            dplyr::select(-dplyr::all_of(c("source", "target"))) %>% 
+            tidyr::separate(col = "source_target", sep = " \\| ", remove = FALSE, into = c("source", "target")) %>% 
+            dplyr::select(-dplyr::all_of(c("ligand.complex", "receptor.complex"))) %>% 
+            tidyr::separate(col = "interaction", sep = " \\| ", remove = FALSE, into = c("ligand.complex", "receptor.complex")) %>% 
+            dplyr::mutate("aggregate_rank_inv" = ifelse(is.na(.data$aggregate_rank_inv), 0, .data$aggregate_rank_inv))
+
+liana_AS <- interact_df %>%
+            dplyr::filter(.data$target %in% c("Astrolike_Astrocytoma", "OPClike_Astrocytoma"))  %>% 
+            dplyr::mutate("target" = ifelse(.data$target == "Astrolike_Astrocytoma", "Astro-like", "OPC-like")) %>% 
+            tidyr::unite(c("ligand.complex", "receptor.complex"), col = "interaction", sep = " | ", remove = FALSE) %>%
+            tidyr:::unite(c("source", "target"), col = "source_target", remove = FALSE, sep = " | ")  %>% 
+            tidyr::complete(source_target, interaction) %>% 
+            dplyr::select(-dplyr::all_of(c("source", "target"))) %>% 
+            tidyr::separate(col = "source_target", sep = " \\| ", remove = FALSE, into = c("source", "target")) %>% 
+            dplyr::select(-dplyr::all_of(c("ligand.complex", "receptor.complex"))) %>% 
+            tidyr::separate(col = "interaction", sep = " \\| ", remove = FALSE, into = c("ligand.complex", "receptor.complex")) %>% 
+            dplyr::mutate("aggregate_rank_inv" = ifelse(is.na(.data$aggregate_rank_inv), 0, .data$aggregate_rank_inv))
+
+saveRDS(liana_OD, "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/interactions_OD_microglia_tumor.rds", compress = FALSE)
+saveRDS(liana_AS, "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/interactions_AS_microglia_tumor.rds", compress = FALSE)
+```
+
+```{r}
+#| eval: false
+# Inma Hernandez Lopez
+# inmaculada.hernandez-lopez@ukr.de
+# LIT -  Leibniz-Institute für Immunotherapie
+
+# Marc Elosua Bayés
+# marc.elosua@cnag.crg.eu
+# CNAG - CRG
+
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+liana_OD <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/interactions_OD_microglia_tumor.rds")
+liana_AS <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/interactions_AS_microglia_tumor.rds")
+liana_OD$source <- stringr::str_replace_all(liana_OD$source, "\n", " ")
+liana_AS$source <- stringr::str_replace_all(liana_AS$source, "\n", " ")
+liana_OD$source_target <- stringr::str_replace_all(liana_OD$source_target, "\n", " ")
+liana_AS$source_target <- stringr::str_replace_all(liana_AS$source_target, "\n", " ")
+```
+
+
+```{r}
+#| eval: false
+magnitude_limits <- c(min(c(min(liana_OD$sca.LRscore, na.rm = TRUE),
+                            min(liana_AS$sca.LRscore, na.rm = TRUE))),
+                      max(c(max(liana_OD$sca.LRscore, na.rm = TRUE),
+                            max(liana_AS$sca.LRscore, na.rm = TRUE))))
+
+specificity_limits <- c(min(c(min(liana_OD$aggregate_rank_inv, na.rm = TRUE),
+                              min(liana_AS$aggregate_rank_inv, na.rm = TRUE))),
+                        max(c(max(liana_OD$aggregate_rank_inv, na.rm = TRUE),
+                              max(liana_AS$aggregate_rank_inv, na.rm = TRUE))))
+
+scale.magnitude <- SCpubr:::compute_scales(sample = NULL,
+                                           feature = NULL,
+                                           assay = NULL,
+                                           reduction = NULL,
+                                           slot = NULL,
+                                           number.breaks = 5,
+                                           min.cutoff = NA,
+                                           max.cutoff = NA,
+                                           flavor = "Seurat",
+                                           enforce_symmetry = FALSE,
+                                           from_data = TRUE,
+                                           limits.use = magnitude_limits)
+
+scale.specificity <- SCpubr:::compute_scales(sample = NULL,
+                                             feature = NULL,
+                                             assay = NULL,
+                                             reduction = NULL,
+                                             slot = NULL,
+                                             number.breaks = 5,
+                                             min.cutoff = NA,
+                                             max.cutoff = NA,
+                                             flavor = "Seurat",
+                                             enforce_symmetry = FALSE,
+                                             from_data = TRUE,
+                                             limits.use = specificity_limits)
+
+p1 <- liana_OD %>% 
+      ggplot2::ggplot(mapping = ggplot2::aes(x = .data$source,
+                                             y = .data$interaction,
+                                             fill = .data$sca.LRscore,
+                                             size = .data$aggregate_rank_inv,
+                                             group = .data$source)) +
+      ggplot2::geom_point(shape = 21, na.rm = TRUE, stroke = 0.25) +
+      ggplot2::guides(y.sec = SCpubr:::guide_axis_label_trans(~paste0(levels(.data$interaction)))) +
+      ggplot2::scale_size_continuous(name = "Interaction Specificity",
+                                     range = c(0.25, 5),
+                                     breaks = scale.specificity$breaks,
+                                     labels = scale.specificity$labels,
+                                     limits = scale.specificity$limits) +
+      ggplot2::scale_fill_gradientn(colors =  RColorBrewer::brewer.pal(n = 9, name = "YlGnBu")[1:9],
+                                        na.value = NA,
+                                        name = "Expression Magnitude",
+                                        breaks = scale.magnitude$breaks,
+                                        labels = scale.magnitude$labels,
+                                        limits = scale.magnitude$limits) +
+      ggplot2::facet_grid(.data$ligand.complex ~ .data$target,
+                          space = "free",
+                          scales = "free",
+                          drop = FALSE) +
+      ggplot2::ggtitle("Oligodendroglioma") +
+      ggplot2::xlab("") +
+      ggplot2::ylab("Ligand | Receptor") +
+      ggplot2::guides(size = ggplot2::guide_legend(title.position = "top",
+                                                   title.hjust = 0.5,
+                                                   override.aes = ggplot2::aes(fill = "black"))) +
+      ggplot2::theme_minimal(base_size = 11) +
+      ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
+                                                        hjust = 0.5,
+                                                        vjust = 0,
+                                                        size = 20),
+                     plot.subtitle = ggplot2::element_text(face = "bold", hjust = 0),
+                     plot.caption = ggplot2::element_text(face = "plain", hjust = 1),
+                     legend.text = ggplot2::element_text(face = "plain"),
+                     legend.title = ggplot2::element_text(face = "bold"),
+                     plot.title.position = "panel",
+                     plot.caption.position = "plot",
+                     text = ggplot2::element_text(family = "sans"),
+                     legend.justification = "center",
+                     legend.position = "bottom",
+                     axis.title.x = ggplot2::element_text(color = "black", face = "bold", hjust = 0.5),
+                     axis.title.y.left = ggplot2::element_text(color = "black", face = "bold", angle = 90),
+                     axis.title.y.right = ggplot2::element_blank(),
+                     axis.text.y.right = ggplot2::element_blank(),
+                     axis.text.y.left = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_line(color = "black"),
+                     axis.ticks.y.left = ggplot2::element_blank(),
+                     axis.ticks.y.right = ggplot2::element_blank(),
+                     axis.text.x = ggplot2::element_text(color = "black",
+                                                         face = "plain",
+                                                         angle = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["angle"]],
+                                                         hjust = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["hjust"]],
+                                                         vjust = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["vjust"]]),
+                     strip.text.x = ggplot2::element_text(face = "bold",
+                                                          color = "black"),
+                     strip.text.y = ggplot2::element_blank(),
+                     panel.border = ggplot2::element_rect(color = "black", fill = NA),
+                     panel.grid = ggplot2::element_line(color = "grey90", linetype = "dotted"),
+                     plot.margin = ggplot2::margin(t = 10, r = 10, b = 10, l = 40),
+                     plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                     panel.background = ggplot2::element_rect(fill = "white", color = "black", linetype = "solid"),
+                     legend.background = ggplot2::element_rect(fill = "white", color = "white"))
+         
+p1 <- SCpubr:::modify_continuous_legend(p = p1,
+                                        legend.aes = "fill",
+                                        legend.type = "colorbar",
+                                        legend.position = "bottom",
+                                        legend.length = 10,
+                                        legend.width = 0.5,
+                                        legend.framecolor = "grey50",
+                                        legend.tickcolor = "white",
+                                        legend.framewidth = 0.25,
+                                        legend.tickwidth = 0.25)
+    
+
+
+p2 <- liana_AS %>% 
+      ggplot2::ggplot(mapping = ggplot2::aes(x = .data$source,
+                                             y = .data$interaction,
+                                             fill = .data$sca.LRscore,
+                                             size = .data$aggregate_rank_inv,
+                                             group = .data$source)) +
+      ggplot2::geom_point(shape = 21, na.rm = TRUE, stroke = 0.25) +
+      ggplot2::guides(y.sec = SCpubr:::guide_axis_label_trans(~paste0(levels(.data$interaction)))) +
+      ggplot2::scale_size_continuous(name = "Interaction Specificity",
+                                     range = c(0.25, 5),
+                                     breaks = scale.specificity$breaks,
+                                     labels = scale.specificity$labels,
+                                     limits = scale.specificity$limits) +
+      ggplot2::scale_fill_gradientn(colors =  RColorBrewer::brewer.pal(n = 9, name = "YlGnBu")[1:9],
+                                        na.value = NA,
+                                        name = "Expression Magnitude",
+                                        breaks = scale.magnitude$breaks,
+                                        labels = scale.magnitude$labels,
+                                        limits = scale.magnitude$limits) +
+      ggplot2::facet_grid(.data$ligand.complex ~ .data$target,
+                          space = "free",
+                          scales = "free",
+                          drop = FALSE) +
+      ggplot2::ggtitle("Astrocytoma") +
+      ggplot2::xlab("") +
+      ggplot2::ylab("") +
+      ggplot2::guides(size = ggplot2::guide_legend(title.position = "top",
+                                                   title.hjust = 0.5,
+                                                   override.aes = ggplot2::aes(fill = "black"))) +
+      ggplot2::theme_minimal(base_size = 11) +
+      ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
+                                                        hjust = 0.5,
+                                                        vjust = 0,
+                                                        size = 20),
+                     plot.subtitle = ggplot2::element_text(face = "bold", hjust = 0),
+                     plot.caption = ggplot2::element_text(face = "plain", hjust = 1),
+                     legend.text = ggplot2::element_text(face = "plain"),
+                     legend.title = ggplot2::element_text(face = "bold"),
+                     plot.title.position = "panel",
+                     plot.caption.position = "plot",
+                     text = ggplot2::element_text(family = "sans"),
+                     legend.justification = "center",
+                     legend.position = "bottom",
+                     axis.title.x = ggplot2::element_text(color = "black", face = "bold", hjust = 0.5),
+                     axis.title.y.left = ggplot2::element_text(color = "black", face = "plain", angle = 90),
+                     axis.title.y.right = ggplot2::element_blank(),
+                     axis.text.y.right = ggplot2::element_text(color = "black",
+                                                               face = "plain"),
+                     axis.text.y.left = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_line(color = "black"),
+                     axis.ticks.y.left = ggplot2::element_blank(),
+                     axis.ticks.y.right = ggplot2::element_line(color = "black"),
+                     axis.text.x = ggplot2::element_text(color = "black",
+                                                         face = "plain",
+                                                         angle = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["angle"]],
+                                                         hjust = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["hjust"]],
+                                                         vjust = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["vjust"]]),
+                     strip.text.x = ggplot2::element_text(face = "bold",
+                                                          color = "black"),
+                     strip.text.y = ggplot2::element_blank(),
+                     panel.border = ggplot2::element_rect(color = "black", fill = NA),
+                     panel.grid = ggplot2::element_line(color = "grey90", linetype = "dotted"),
+                     plot.margin = ggplot2::margin(t = 10, r = 10, b = 10, l = 0),
+                     plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                     panel.background = ggplot2::element_rect(fill = "white", color = "black", linetype = "solid"),
+                     legend.background = ggplot2::element_rect(fill = "white", color = "white"))
+         
+p2 <- SCpubr:::modify_continuous_legend(p = p2,
+                                        legend.aes = "fill",
+                                        legend.type = "colorbar",
+                                        legend.position = "bottom",
+                                        legend.length = 10,
+                                        legend.width = 0.5,
+                                        legend.framecolor = "grey50",
+                                        legend.tickcolor = "white",
+                                        legend.framewidth = 0.25,
+                                        legend.tickwidth = 0.25)
+
+
+p <- patchwork::wrap_plots(A = p1,
+                           B = p2,
+                           C = patchwork::guide_area(),
+                           design = "AAAAAAAABBBBBBBB
+                                     AAAAAAAABBBBBBBB
+                                     AAAAAAAABBBBBBBB
+                                     AAAAAAAABBBBBBBB
+                                     AAAAAAAABBBBBBBB
+                                     AAAAAAAABBBBBBBB
+                                     AAAAAAAABBBBBBBB
+                                     AAAAAAAABBBBBBBB
+                                     CCCCCCCCCCCCCCCC",
+                           guides = "collect")  + 
+     patchwork::plot_annotation(theme = ggplot2::theme(legend.position = "bottom",
+                                                       plot.margin = ggplot2::margin(t = 10, r = 10, b = 10, l = 40)))
+  
+  
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_3G",
+                  file_name = "Figure_3G",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 10.5,
+                  height = 14.5)
+```
+
+<img src="../figs/Figure_3G/Figure_3G.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

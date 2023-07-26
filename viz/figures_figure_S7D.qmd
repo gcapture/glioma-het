@@ -1,0 +1,144 @@
+# Figure S7D {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+
+# Read in sample.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/microglia_primary.rds")
+
+# Define colors.
+cluster_cols <- c("Mg Homeostatic"= "#ECA809",                          
+                  "Mg Inflammatory TAMs" = "#043362",                  
+                  "Mg Activated"= "#9A031E",                 
+                  "Mg Resident−like TAMs"= "#009FF5",                    
+                  "BMD Anti−inflammatory TAMs"= "#BC5210",            
+                  "Mg Phagocytic"= "#279185",                 
+                  "Mg IFNg TAMs"= "#7EB356",                   
+                  "Mg Stressed TAMs"= "#AC70FF",                  
+                  "Mg Inflammatory ICAM1+"= "#63412C",                  
+                  "BAMs" = "#5F0F40")
+
+scale.subtype.short <- c("Astrocytoma" = "#b38b14",
+                         "Oligodendroglioma" = "#3c5b8b")
+
+
+markers <- readr::read_tsv("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/TAM_markers.tsv")
+markers <- lapply(as.list(markers), function(x){x[!is.na(x)]})
+markers <- markers[c("Pro-Inflammatory", "Anti-Inflammatory")]
+names(markers) <- c("Pro_Inflammatory", "Anti_Inflammatory")
+
+sample <- SCpubr:::compute_enrichment_scores(sample = sample,
+                                             input_gene_list = markers,
+                                             flavor = "UCell",
+                                             assay = "RNA")
+sample$subtype <- factor(sample$subtype, levels = c("Oligodendroglioma", "Astrocytoma"))
+```
+
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_BoxPlot(sample,
+                         feature = "Pro_Inflammatory",
+                         group.by = "final_annotation",
+                         split.by = "subtype",
+                         colors.use = scale.subtype.short,
+                         font.size = 12,
+                         axis.text.face = "plain",
+                         legend.position = "right",
+                         legend.title = "LGG subtype") + 
+      ggplot2::ylab("Pro Inflammatory TAMs") + 
+      ggplot2::xlab("") +
+      ggplot2::scale_y_continuous(limits = c(0, 0.25)) +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     axis.line.x = ggplot2::element_blank(),
+                     legend.position = "none")
+
+p2 <- SCpubr::do_BoxPlot(sample,
+                         feature = "Anti_Inflammatory",
+                         group.by = "final_annotation",
+                         split.by = "subtype",
+                         colors.use = scale.subtype.short,
+                         font.size = 12,
+                         axis.text.face = "plain",
+                         legend.position = "right",
+                         legend.title = "LGG subtype")  +
+      ggplot2::scale_y_continuous(limits = c(0, 0.25)) +
+      ggplot2::ylab("Anti Inflammatory TAMs") + 
+      ggplot2::xlab("")
+
+
+p3 <- SCpubr::do_BoxPlot(sample,
+                         feature = "Pro_Inflammatory",
+                         group.by = "subtype",
+                         colors.use = scale.subtype.short,
+                         font.size = 12,
+                         axis.text.face = "plain",
+                         legend.position = "right",
+                         legend.title = "LGG subtype") +
+      ggplot2::scale_y_continuous(limits = c(0, 0.25)) + 
+      ggplot2::ylab("") + 
+      ggplot2::xlab("") +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     axis.line.x = ggplot2::element_blank(),
+                     axis.text.y = ggplot2::element_blank(),
+                     axis.ticks.y = ggplot2::element_blank(),
+                     axis.line.y = ggplot2::element_blank(),
+                     legend.position = "none")
+
+p4 <- SCpubr::do_BoxPlot(sample,
+                          feature = "Anti_Inflammatory",
+                          group.by = "subtype",
+                          colors.use = scale.subtype.short,
+                          font.size = 12,
+                          axis.text.face = "plain",
+                         legend.position = "right",
+                         legend.title = "LGG subtype") +  
+      ggplot2::scale_y_continuous(limits = c(0, 0.25)) + 
+      ggplot2::ylab("") + 
+      ggplot2::xlab("") + 
+      ggplot2::theme(axis.text.y = ggplot2::element_blank(),
+                     axis.ticks.y = ggplot2::element_blank(),
+                     axis.line.y = ggplot2::element_blank())
+
+layout <- "AAAAAAAAAAAAAAAAAAAACCE
+           BBBBBBBBBBBBBBBBBBBBDDE"
+p <- patchwork::wrap_plots(A = p1,
+                           B = p2,
+                           C = p3,
+                           D = p4,
+                           E = patchwork::guide_area(),
+                           guides = "collect",
+                           design = layout)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S7D",
+                  file_name = "Figure_S7D",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 19,
+                  height = 6.75)
+```
+
+
+<img src="../figs/Figure_S7D/Figure_S7D.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

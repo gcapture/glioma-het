@@ -1,0 +1,122 @@
+# Figure 2K {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+sample.atac <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_AS.rds")
+sample.rna <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
+markers <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/markers_atac_AS.rds")
+
+
+sample.atac <- sample.atac[, sample.atac$relabelling %in% c("OPC-like", "RA", "Cycling", "Astro-like")]
+sample.rna <- sample.rna[, sample.rna$relabelling %in% c("OPC-like", "RA", "Cycling", "Astro-like")]
+
+Seurat::DefaultAssay(sample.atac) <- "ATAC"
+Seurat::DefaultAssay(sample.rna) <- "SCT"
+
+Seurat::Idents(sample.atac) <- sample.atac$relabelling
+Seurat::Idents(sample.rna) <- sample.rna$relabelling
+
+genes.use <- unique(markers$gene_name)
+genes.activity <- unique(rownames(sample.atac@assays$ACTIVITY$data))
+genes.rna <- unique(rownames(sample.rna@assays$SCT$data))
+
+genes.pool <- genes.rna[genes.rna %in% genes.activity]
+
+genes.use <- genes.use[genes.use %in% genes.pool]
+
+markers <- markers %>% 
+           dplyr::filter(.data$gene_name %in% genes.use) %>% 
+           dplyr::mutate(cluster = factor(.data$cluster, levels = c("Astro-like", "Cycling", "OPC-like", "RA"))) %>% 
+           dplyr::group_by(.data$cluster) %>% 
+           dplyr::arrange(.data$p_val_adj, dplyr::desc(.data$avg_log2FC)) %>% 
+           dplyr::slice_head(n = 50)
+
+markers <- markers[!duplicated(markers$gene_name), ]
+
+markers <- markers %>% 
+           dplyr::slice_head(n = 20)
+
+sample.atac <- Seurat::ScaleData(sample.atac, features = rownames(sample.atac)[rownames(sample.atac) %in% markers$gene])
+sample.rna <- Seurat::ScaleData(sample.rna, features = markers$gene_name)
+```
+
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_ExpressionHeatmap(sample.atac, 
+                                   features = markers$gene, 
+                                   assay = "ATAC", 
+                                   flip = FALSE, 
+                                   cluster = TRUE, 
+                                   slot = "scale.data", 
+                                   enforce_symmetry = TRUE, 
+                                   min.cutoff = -0.5, 
+                                   max.cutoff = 0.8, 
+                                   font.size = 10,
+                                   features.order = markers$gene,
+                                   groups.order = list("Groups" = rev(c("Astro-like", "Cycling", "OPC-like", "RA"))),
+                                   legend.title = "Avg. Chromatin Accessibility",
+                                   diverging.palette = "BrBG") 
+p1 <- p1[[1]]
+p1 <- p1 + 
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),
+                     axis.ticks.x.bottom = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 10))
+
+p2 <- SCpubr::do_ExpressionHeatmap(sample.rna, 
+                                   features = markers$gene_name, 
+                                   assay = "SCT", 
+                                   flip = FALSE, 
+                                   cluster = TRUE, 
+                                   slot = "scale.data", 
+                                   enforce_symmetry = TRUE, 
+                                   features.order = markers$gene_name, 
+                                   min.cutoff = -0.6,  
+                                   max.cutoff = 0.8,
+                                   font.size = 10,
+                                   groups.order = list("Groups" = rev(c("Astro-like", "Cycling", "OPC-like", "RA"))))
+p2 <- p2[[1]]
+p2 <- p2 +
+      ggplot2::xlab("") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 10))
+
+p <- patchwork::wrap_plots(list(p1, p2),
+                           guides = "collect",
+                           ncol = 1) + 
+     patchwork::plot_annotation(theme = ggplot2::theme(legend.position = "bottom"))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2K",
+                  file_name = "Figure_2K",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 20,
+                  height = 12)
+```
+
+
+<img src="../figs/Figure_2K/Figure_2K.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+

@@ -1,0 +1,53 @@
+# Figure S1F {.unnumbered}
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
+```
+
+```{r}
+#| eval: false
+p <- SCpubr::do_CorrelationPlot(sample,
+                                group.by = "relabelling",
+                                legend.length = 12,
+                                legend.width = 0.5,
+                                legend.framecolor = "grey50",
+                                legend.tickcolor = "white",
+                                legend.framewidth = 0.2,
+                                legend.tickwidth = 0.2,
+                                axis.text.face = "plain",
+                                mode = "hvg", 
+                                min.cutoff = -0.25,
+                                max.cutoff = 0.25)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S1F",
+                  file_name = "Figure_S1F",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.33,
+                  height = 9)
+```
+
+<img src="../figs/Figure_S1F/Figure_S1F.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

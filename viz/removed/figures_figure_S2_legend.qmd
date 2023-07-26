@@ -1,0 +1,3 @@
+# Figure S2 Legend {.unnumbered}
+
+**Fig. S2** (**A** and **B**) Quality control metrics of snATAC-seq data generated from oligodendrogliomas (**A**) and astrocytomas (**B**). From top to bottom: Percentage of reads in peaks; peak region fragments; blacklist ratio; transcription start site (TSS) enrichment score and nucleosome signal.

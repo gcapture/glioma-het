@@ -1,0 +1,121 @@
+# Figure 3C {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+
+# Read in sample.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/microglia_primary.rds")
+
+scale.subtype.short <- c("AS" = "#b38b14",
+                         "OD" = "#3c5b8b")
+
+```
+
+```{r}
+#| eval: false
+data <- sample@meta.data %>% 
+        dplyr::select(dplyr::all_of(c("final_annotation", "subtype", "orig.ident"))) %>% 
+        tibble::as_tibble() %>%
+        dplyr::filter(!.data$orig.ident %in% c("IDH_NCH2164", "IDH_NCH6702")) %>% 
+        dplyr::mutate("subtype" = ifelse(.data$subtype == "Oligodendroglioma", "OD", "AS")) %>% 
+        dplyr::group_by(.data$subtype, .data$orig.ident, .data$final_annotation) %>% 
+        dplyr::summarise("n" = dplyr::n(),
+                        "subtype" := unique(.data$subtype),
+                        "final_annotation" := unique(.data$final_annotation)) %>% 
+        dplyr::reframe("freq" = .data$n / sum(.data$n),
+                       "subtype" := unique(.data$subtype),
+                       "final_annotation" := unique(.data$final_annotation),
+                       "orig.ident" := unique(.data$orig.ident))
+
+
+p <- data %>% 
+     ggpubr::ggboxplot(x = "subtype",
+                       y = "freq",
+                       color = "black",
+                       fill = "subtype",
+                       facet.by = "final_annotation",
+                       short.panel.labs = TRUE,
+                       width = 0.9,
+                       outlier.color = "black",
+                       outlier.alpha = 0,
+                       fatten = 1,
+                       key_glyph = "rect",
+                       nrow = 1,
+                       outlier.shape = NA)  +
+     ggplot2::geom_point(color = "black", size = 2) + 
+     ggplot2::scale_fill_manual(values = scale.subtype.short,
+                                name = "") + 
+     ggpubr::stat_compare_means(mapping = ggplot2::aes(label = "p = ", ggplot2::after_stat(p.format)),
+                                method = "wilcox.test", 
+                                comparisons = list(c("OD", "AS")),
+                                paired = FALSE,
+                                position = "jitter") +
+     ggplot2::theme_minimal(base_size = 10) +
+     ggplot2::labs(x = "Subtype", y = "Proportion") +
+     ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_line(color = "black"),
+                    axis.ticks.x.top = ggplot2::element_blank(),
+                    axis.ticks.y.left = ggplot2::element_line(color = "black"),
+                    axis.ticks.y.right = ggplot2::element_blank(),
+                    axis.text.y.left = ggplot2::element_text(color = "black", face = "plain"),
+                    axis.text.y.right = ggplot2::element_blank(),
+                    axis.text.x.top = ggplot2::element_blank(),
+                    axis.text.x.bottom = ggplot2::element_text(color = "black", face = "plain"),
+                    strip.text.x.top = ggplot2::element_text(color = "black", face = "plain"),
+                    axis.title.x.bottom = ggplot2::element_text(color = "black", face = "bold"),
+                    axis.title.x.top = ggplot2::element_blank(),
+                    axis.title.y.right = ggplot2::element_blank(),
+                    axis.title.y.left = ggplot2::element_text(color = "black", face = "bold"),
+                    strip.text = ggplot2::element_text(face = "bold", color = "black"),
+                    axis.line = ggplot2::element_blank(),
+                    plot.title = ggplot2::element_text(face = "bold", hjust = 0),
+                    plot.subtitle = ggplot2::element_text(hjust = 0),
+                    plot.caption = ggplot2::element_text(hjust = 1),
+                    plot.title.position = "plot",
+                    panel.grid = ggplot2::element_blank(),
+                    panel.grid.minor.y = ggplot2::element_line(color = "white", linewidth = 1),
+                    text = ggplot2::element_text(family = "sans"),
+                    plot.caption.position = "plot",
+                    legend.text = ggplot2::element_text(face = "bold"),
+                    legend.title = ggplot2::element_text(face = "bold"),
+                    legend.justification = "center",
+                    plot.margin = ggplot2::margin(t = 4, r = 10, b = 0, l = 10),
+                    panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 1),
+                    panel.grid.major = ggplot2::element_blank(),
+                    legend.position = "none",
+                    legend.spacing = ggplot2::unit(10, unit = "mm"),
+                    plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                    panel.background = ggplot2::element_rect(fill = "white", color = "white"),
+                    legend.background = ggplot2::element_rect(fill = "white", color = "white"),
+                    legend.key = ggplot2::element_rect(linewidth = 1, color = "white"),
+                    legend.key.size = ggplot2::unit(1, 'lines'))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_3C",
+                  file_name = "Figure_3C",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 12.66,
+                  height = 6.33)
+```
+
+
+<img src="../figs/Figure_3C/Figure_3C.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

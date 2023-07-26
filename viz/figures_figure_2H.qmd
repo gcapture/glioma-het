@@ -1,0 +1,91 @@
+# Figure 2H {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Inma Hernandez Lopez
+# inmaculada.hernandez-lopez@ukr.de
+# LIT -  Leibniz-Institute für Immunotherapie
+
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+
+sample.atac <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_OD.rds")
+markers <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/motif_markers_atac_OD.rds")
+markers$cluster <- as.character(markers$cluster)
+markers$cluster[markers$cluster == "RA"] <- "RE"
+sample.atac <- sample.atac[, sample.atac$relabelling %in% c("OPC-like", "RA", "Cycling", "Astro-like")]
+Seurat::DefaultAssay(sample.atac) <- "chromvar"
+
+sample.atac$relabelling[sample.atac$relabelling == "RA"] <- "RE"
+Seurat::Idents(sample.atac) <- sample.atac$relabelling
+
+genes.use <- unique(markers$gene_short)
+
+markers <- markers %>% 
+           dplyr::filter(.data$gene_short %in% genes.use) %>% 
+           dplyr::mutate(cluster = factor(.data$cluster, levels = c("Astro-like", "Cycling", "OPC-like", "RE"))) %>% 
+           dplyr::group_by(.data$cluster) %>% 
+           dplyr::arrange(.data$p_val_adj, dplyr::desc(.data$avg_log2FC)) %>% 
+           dplyr::slice_head(n = 50)
+
+markers <- markers[!duplicated(markers$gene_short), ]
+
+markers <- markers %>% 
+           dplyr::slice_head(n = 15)
+sample.atac <- Seurat::ScaleData(sample.atac, features = markers$gene_long)
+```
+
+
+```{r}
+#| eval: false
+p <- SCpubr::do_ExpressionHeatmap(sample.atac, 
+                                  features = markers$gene_long, 
+                                  assay = "chromvar", 
+                                  flip = FALSE, 
+                                  cluster = TRUE, 
+                                  slot = "scale.data", 
+                                  enforce_symmetry = TRUE, 
+                                  features.order = markers$gene_long,
+                                  groups.order = list("Groups" = rev(c("Astro-like", "Cycling", "OPC-like", "RE"))),
+                                  legend.title = "Motif Score",
+                                  max.cutoff = 0.8,
+                                  min.cutoff = -0.8,
+                                  axis.text.face = "plain",
+                                  font.size = 12) +
+      ggplot2::labs(x = "Motif",
+                    y = "Cell type") + 
+      ggplot2::theme(axis.title.y.left = ggplot2::element_text(hjust = 0.5))
+p$data$gene <-  unname(vapply(p$data$gene, function(x){stringr::str_split(x, "-")[[1]][3]}, FUN.VALUE = character(1)))
+p$data$gene <- factor(p$data$gene, levels = c(markers$gene_short))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2H",
+                  file_name = "Figure_2H",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 19,
+                  height = 3.375)
+```
+
+
+<img src="../figs/Figure_2H/Figure_2H.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+

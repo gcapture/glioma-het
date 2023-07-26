@@ -1,0 +1,3 @@
+# Figure S8 Legend {.unnumbered}
+
+**Fig. S8. Gradient subset characterization.** Gradient cells are pulled out from the tumor subset for primary oligodendroglimas (**A**), primary astrocytomas (**B**) and paired astrocytomas (**C**). Cells are re-normalized, and dimensional reduction is computed, generating a new UMAP embedding and clustering (left). For each cluster, enrichment scores for the NMF metaprograms and the programs described in *Venteicher, et al.* are computed and displayed as an enrichment heatmap (right). In it, the gradient nature is revealed as there is a tendency of the clusters to enrich towards the OPC-like or Astro-like metaprograms.

@@ -1,0 +1,114 @@
+# Figure S6B {.unnumbered}
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_AS.rds")
+
+scale.ident <- c("IDH_ACB_AD_832" = "#ca6702",
+                 "IDH_ACB_AD_865" = "#ee9b00",
+                 "IDH_NCH2018" = "#e9d8a6",
+                 "IDH_NCH2157" = "#457b9d",
+                 "IDH_NCH2164" = "#1d3557")
+
+sample$orig.ident <- stringr::str_replace_all(sample$orig.ident, "OE0145-", "")
+```
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_ViolinPlot(sample = sample,
+                            group.by = "orig.ident",
+                            features = "percentage_reads_in_peaks",
+                            colors.use = scale.ident,
+                            boxplot_width = 0.05,
+                            font.size = 12,
+                            axis.text.face = "plain") + 
+      ggplot2::labs(y = "Pct. Reads in Peaks",
+                    x = "") +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     axis.title.x = ggplot2::element_blank())
+
+p2 <- SCpubr::do_ViolinPlot(sample = sample,
+                            group.by = "orig.ident",
+                            features = "peak_region_fragments",
+                            colors.use = scale.ident,
+                            boxplot_width = 0.05,
+                            font.size = 12,
+                            axis.text.face = "plain") + 
+      ggplot2::labs(y = "Peak region fragments",
+                    x = "") +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     axis.title.x = ggplot2::element_blank())
+
+p3 <- SCpubr::do_ViolinPlot(sample = sample,
+                            group.by = "orig.ident",
+                            features = "blacklist_ratio",
+                            colors.use = scale.ident,
+                            boxplot_width = 0.05,
+                            font.size = 12,
+                            axis.text.face = "plain") + 
+      ggplot2::labs(y = "Blacklist ratio",
+                    x = "") +
+      ggplot2::scale_y_continuous(limits = c(0, 0.0075)) +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     axis.title.x = ggplot2::element_blank())
+
+p4 <- SCpubr::do_ViolinPlot(sample = sample,
+                            group.by = "orig.ident",
+                            features = "TSS.enrichment",
+                            colors.use = scale.ident,
+                            boxplot_width = 0.05,
+                            font.size = 12,
+                            axis.text.face = "plain") + 
+      ggplot2::labs(y = "TSS enrichment",
+                    x = "") +
+      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                     axis.ticks.x = ggplot2::element_blank(),
+                     axis.title.x = ggplot2::element_blank())
+
+p5 <- SCpubr::do_ViolinPlot(sample = sample,
+                            group.by = "orig.ident",
+                            features = "nucleosome_signal",
+                            colors.use = scale.ident,
+                            boxplot_width = 0.05,
+                            font.size = 12,
+                            axis.text.face = "plain") + 
+      ggplot2::labs(y = "Nucleosome signal",
+                    x = "Patient") +
+      ggplot2::scale_y_continuous(limits = c(0, 1.5))
+
+p <- p1 / p2 / p3 / p4 / p5
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S6B",
+                  file_name = "Figure_S6B",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 9.5,
+                  height = 27)
+```
+
+<img src="../figs/Figure_S6B/Figure_S6B.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

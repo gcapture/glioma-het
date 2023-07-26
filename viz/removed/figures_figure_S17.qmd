@@ -1,0 +1,115 @@
+# Figure S17 {.unnumbered}
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| error: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| error: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+
+# Read in sample.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_paired_AS.rds")
+sample_id <- "Paired  RNA AS"
+```
+
+
+
+```{r}
+sample@meta.data %>% 
+dplyr::select(dplyr::all_of(c("orig.ident", "time", "grade", "nFeature_RNA", "nCount_RNA"))) %>% 
+tibble::as_tibble() %>% 
+dplyr::group_by(.data$orig.ident) %>% 
+dplyr::reframe("time" = unique(.data$time),
+               "grade" = unique(.data$grade),
+               "cells" = dplyr::n(),
+               "avg.UMI" = mean(.data$nCount_RNA, na.rm = TRUE),
+               "avg.Genes" = mean(.data$nFeature_RNA)) %>% 
+dplyr::arrange(dplyr::desc(.data$cells), 
+               dplyr::desc(.data$avg.UMI), 
+               dplyr::desc(.data$avg.Genes)) %>% 
+gt::gt()  %>% 
+gt::cols_align(columns = c("orig.ident", "grade", "time"),
+               align = "center") %>% 
+gt::cols_align(columns = c("avg.UMI", "cells", "avg.Genes"),
+               align = "center") %>% 
+gt::tab_style(locations = gt::cells_column_labels(),
+              style = list(gt::cell_text(weight = "bold",
+                                         v_align = "middle",
+                                         align = "center"))) %>% 
+gt::tab_style(locations = gt::cells_body(columns = c("avg.UMI", "cells", "avg.Genes")),
+              style = list(gt::cell_text(style = "italic",
+                                         color = "#00798c"))) %>% 
+gt::tab_style(locations = gt::cells_title(),
+              style = list(gt::cell_text(weight = "bold",
+                                         v_align = "middle"))) %>% 
+gt::fmt_number(columns = c("cells"), 
+               decimals = 0,
+               sep_mark = " ",
+               dec_mark = ".") %>% 
+gt::fmt_number(columns = c("avg.UMI", "avg.Genes"), 
+               decimals = 2,
+               sep_mark = " ",
+               dec_mark = ".") %>% 
+gt::cols_label(orig.ident = "Patient",
+               time = "Relapse status",
+               grade = "LGG grade",
+               cells = "Number of cells",
+               avg.UMI = "Avg. UMI/cell",
+               avg.Genes = "Avg. genes/cell") %>% 
+gt::tab_header(title = paste0('QC metrics | ', sample_id),
+               subtitle = paste0("N = ", length(unique(sample$orig.ident)))) %>%
+gt::opt_stylize(style = 1, color = "cyan")
+            
+```
+
+```{r}
+data <- sample@meta.data %>% 
+        dplyr::select(dplyr::all_of(c("orig.ident", "relabelling"))) %>% 
+        tibble::as_tibble() %>% 
+        dplyr::group_by(.data$orig.ident, .data$relabelling) %>% 
+        dplyr::reframe("cells" = dplyr::n()) %>% 
+        tidyr::pivot_wider(names_from = "relabelling",
+                           values_from = "cells") %>% 
+        as.data.frame()
+
+data[is.na(data)] <- 0
+
+data %>% 
+gt::gt()  %>% 
+gt::cols_align(columns = c("orig.ident"),
+               align = "center") %>% 
+gt::cols_align(columns = unique(sample$relabelling),
+               align = "center") %>% 
+gt::tab_style(locations = gt::cells_column_labels(),
+              style = list(gt::cell_text(weight = "bold",
+                                         v_align = "middle",
+                                         align = "center"))) %>% 
+gt::tab_style(locations = gt::cells_body(columns = unique(sample$relabelling)),
+              style = list(gt::cell_text(style = "italic",
+                                         color = "#00798c"))) %>% 
+gt::tab_style(locations = gt::cells_title(),
+              style = list(gt::cell_text(weight = "bold",
+                                         v_align = "middle"))) %>% 
+gt::fmt_number(columns = unique(sample$relabelling), 
+               decimals = 0,
+               sep_mark = " ",
+               dec_mark = ".") %>% 
+gt::cols_label(orig.ident = "Patient") %>% 
+gt::tab_header(title = paste0('Number of cells per cell type and patient | ', sample_id),
+               subtitle = paste0("N = ", length(unique(sample$orig.ident)))) %>%
+gt::opt_stylize(style = 1, color = "cyan")
+            
+```
+

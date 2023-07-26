@@ -1,0 +1,284 @@
+# Figure 1E {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+scale.grade <- c("Grade 2" = "#1a7d9e",
+                 "Grade 3" = "#9e1a3b",
+                 "Grade 4" = "#576e12")
+
+scale.subtype.short <- c("AS" = "#b38b14",
+                         "OD" = "#3c5b8b")
+
+scale.ident <- c("IDH_ACB_AD_540" = "#E07A5F",
+                 "IDH_ACB_AD_809" = "#F2CC8F",
+                 "IDH_ACB_AD_883" = "#DAA82B",
+                 "IDH_NCH2111"    = "#81B29A",
+                 "IDH_NCH536"     = "#3E745E",
+                 "IDH_NCH6341"    = "#5CADC1",
+                 "IDH_NCH6702"    = "#8B6BB8",
+                 "IDH_NCH781"     = "#3D405B",
+                 "IDH_ACB_AD_785" = "#ae2012",
+                 "IDH_ACB_AD_832" = "#ca6702",
+                 "IDH_ACB_AD_865" = "#ee9b00",
+                 "IDH_NCH2018"    = "#e9d8a6",
+                 "IDH_NCH2157"    = "#457b9d",
+                 "IDH_NCH2164"    = "#1d3557")
+
+
+# Load data.
+sample.astro <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
+sign.scores <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/astrocytomas_sign_scores.rds")
+corr <- stats::cor(sign.scores)
+names(corr) <- stringr::str_replace_all(colnames(corr), "\\.", "-")
+
+# Perform hclust.
+clust <- hclust(stats::dist(corr %>% as.data.frame()))
+order.use <- colnames(corr)[clust$order]
+
+
+data.use <- corr %>% 
+            as.data.frame() %>% 
+            tibble::rownames_to_column(var = "Source") %>% 
+            tidyr::pivot_longer(cols = -dplyr::all_of(c("Source")),
+                                names_to = "Target",
+                                values_to = "Corr_score") %>% 
+            dplyr::mutate("Corr_score" = ifelse(.data$Corr_score == 1, NA, .data$Corr_score)) %>% 
+            dplyr::mutate("Patient" = sapply(.data$Source, function(x){stringr::str_split(x, "\\.")[[1]][2]})) %>% 
+            dplyr::mutate("Target" = factor(.data$Target, levels = rev(order.use)),
+                          "Source" = factor(.data$Source, levels = order.use))
+
+data.patient <- data.use %>% 
+                dplyr::select(-dplyr::all_of(c("Corr_score", "Target"))) %>% 
+                dplyr::group_by(.data$Source) %>% 
+                dplyr::summarise("Patient" = unique(.data$Patient)) %>% 
+                dplyr::mutate("Source" = factor(.data$Source, levels = order.use))
+
+data.grade <- data.use %>% 
+              dplyr::left_join(y = {sample.astro@meta.data %>% 
+                                    dplyr::select(dplyr::all_of(c("orig.ident", "grade"))) %>% 
+                                    dplyr::mutate("Patient" = sapply(.data$orig.ident, function(x){stringr::str_split(x, "-")[[1]][2]})) %>% 
+                                    dplyr::select(-dplyr::all_of("orig.ident")) %>% 
+                                    tibble::as_tibble()},
+                               by = "Patient",
+                               relationship = "many-to-many") %>% 
+              dplyr::select(-dplyr::all_of(c("Patient", "Corr_score", "Target"))) %>% 
+              dplyr::group_by(.data$Source) %>% 
+              dplyr::summarise("Grade" = unique(.data$grade)) %>% 
+              dplyr::mutate("Source" = factor(.data$Source, levels = order.use))
+
+limits <- c(min(data.use$Corr_score, na.rm = TRUE),
+            max(data.use$Corr_score, na.rm = TRUE))
+
+scale.setup <- SCpubr:::compute_scales(sample = NULL,
+                                       feature = NULL,
+                                       assay = NULL,
+                                       reduction = NULL,
+                                       slot = NULL,
+                                       number.breaks = 5,
+                                       min.cutoff = NA,
+                                       max.cutoff = NA,
+                                       flavor = "Seurat",
+                                       enforce_symmetry = TRUE,
+                                       from_data = TRUE,
+                                       limits.use = limits)
+
+p.main <- data.use %>% 
+          ggplot2::ggplot(mapping = ggplot2::aes(x = .data$Source,
+                                                 y = .data$Target, 
+                                                 fill = .data$Corr_score)) +
+          ggplot2::geom_tile(color = "white", linewidth = 0, na.rm = TRUE) +
+          ggplot2::scale_y_discrete(expand = c(0, 0), position = "right") +
+          ggplot2::scale_x_discrete(expand = c(0, 0),
+                                    position = "top") + 
+          ggplot2::coord_equal() +
+          ggplot2::scale_fill_gradientn(colors = rev(RColorBrewer::brewer.pal(n = 11, name = "RdBu")),
+                                        na.value = "grey75",
+                                        name = "P. Corr.",
+                                        breaks = scale.setup$breaks,
+                                        labels = scale.setup$labels,
+                                        limits = scale.setup$limits)
+
+p.main <- SCpubr:::modify_continuous_legend(p = p.main,
+                                            legend.title = "P. Corr.",
+                                            legend.aes = "fill",
+                                            legend.type = "colorbar",
+                                            legend.position = "bottom",
+                                            legend.length = 4,
+                                            legend.width = 0.25,
+                                            legend.framecolor = "grey50",
+                                            legend.tickcolor = "white",
+                                            legend.framewidth = 0.2,
+                                            legend.tickwidth = 0.2)
+
+        
+p.main <- p.main +
+          ggplot2::theme_minimal(base_size = 8) +
+          ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_blank(),
+                         axis.ticks.x.top = ggplot2::element_blank(),
+                         axis.ticks.y.left = ggplot2::element_blank(),
+                         axis.ticks.y.right = ggplot2::element_blank(),
+                         axis.text.y.left = ggplot2::element_blank(),
+                         axis.text.y.right = ggplot2::element_blank(),
+                         axis.text.x.top = ggplot2::element_blank(),
+                         axis.text.x.bottom = ggplot2::element_blank(),
+                         axis.title.x.bottom = ggplot2::element_blank(),
+                         axis.title.x.top = ggplot2::element_blank(),
+                         axis.title.y.right = ggplot2::element_blank(),
+                         axis.title.y.left = ggplot2::element_blank(),
+                         axis.line = ggplot2::element_blank(),
+                         plot.title = ggplot2::element_text(face = "bold", hjust = 0),
+                         plot.subtitle = ggplot2::element_text(hjust = 0),
+                         plot.caption = ggplot2::element_text(hjust = 1),
+                         plot.title.position = "plot",
+                         panel.grid = ggplot2::element_blank(),
+                         panel.grid.minor.y = ggplot2::element_line(color = "white", linewidth = 0),
+                         text = ggplot2::element_text(family = "sans"),
+                         plot.caption.position = "plot",
+                         legend.key.size = ggplot2::unit(0.2, 'cm'),
+                         legend.title = ggplot2::element_text(face = "bold", size = 8),
+                         legend.text = ggplot2::element_text(size = 8),
+                         legend.justification = "center",
+                         plot.margin = ggplot2::margin(t = 1, r = 10, b = 0, l = 10),
+                         panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 0.5),
+                         panel.grid.major = ggplot2::element_blank(),
+                         legend.position = "bottom",
+                         plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                         panel.background = ggplot2::element_rect(fill = "white", color = "white"),
+                         legend.background = ggplot2::element_rect(fill = "white", color = "white"))
+
+
+p.orig <- data.patient %>% 
+          dplyr::mutate("Patient_title" = "Patient") %>% 
+          ggplot2::ggplot(mapping = ggplot2::aes(x = .data$Source,
+                                                 y = .data$Patient_title, 
+                                                 fill = .data$Patient)) +
+          ggplot2::geom_tile(color = "white", linewidth = 0, na.rm = TRUE) +
+          ggplot2::scale_y_discrete(expand = c(0, 0), position = "right") +
+          ggplot2::scale_x_discrete(expand = c(0, 0),
+                                    position = "top") + 
+          ggplot2::coord_equal() +
+          ggplot2::scale_fill_manual(values = scale.ident) +
+          ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", title.hjust = 0.5, ncol = 2)) +
+          ggplot2::theme_minimal(base_size = 8) +
+          ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_blank(),
+                         axis.ticks.x.top = ggplot2::element_blank(),
+                         axis.ticks.y.left = ggplot2::element_blank(),
+                         axis.ticks.y.right = ggplot2::element_line(color = "black"),
+                         axis.text.y.left = ggplot2::element_blank(),
+                         axis.text.y.right = ggplot2::element_text(face = "bold", color = "black"),
+                         axis.text.x.top = ggplot2::element_blank(),
+                         axis.text.x.bottom = ggplot2::element_blank(),
+                         axis.title.x.bottom = ggplot2::element_blank(),
+                         axis.title.x.top = ggplot2::element_blank(),
+                         axis.title.y.right = ggplot2::element_blank(),
+                         axis.title.y.left = ggplot2::element_blank(),
+                         axis.line = ggplot2::element_blank(),
+                         plot.title = ggplot2::element_text(face = "bold", hjust = 0),
+                         plot.subtitle = ggplot2::element_text(hjust = 0),
+                         plot.caption = ggplot2::element_text(hjust = 1),
+                         plot.title.position = "plot",
+                         panel.grid = ggplot2::element_blank(),
+                         panel.grid.minor.y = ggplot2::element_line(color = "white", linewidth = 0),
+                         text = ggplot2::element_text(family = "sans"),
+                         plot.caption.position = "plot",
+                         legend.justification = "center",
+                         legend.key.size = ggplot2::unit(0.2, 'cm'),
+                         legend.title = ggplot2::element_text(face = "bold", size = 8),
+                         legend.text = ggplot2::element_text(size = 8),
+                         plot.margin = ggplot2::margin(t = 0, r = 10, b = 0.75, l = 10),
+                         panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 0.5),
+                         panel.grid.major = ggplot2::element_blank(),
+                         legend.position = "bottom",
+                         plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                         panel.background = ggplot2::element_rect(fill = "white", color = "white"),
+                         legend.background = ggplot2::element_rect(fill = "white", color = "white"))
+
+
+p.grade <- data.grade %>% 
+           dplyr::mutate("Grade_title" = "Grade") %>% 
+           ggplot2::ggplot(mapping = ggplot2::aes(x = .data$Source,
+                                                  y = .data$Grade_title, 
+                                                  fill = .data$Grade)) +
+           ggplot2::geom_tile(color = "white", linewidth = 0, na.rm = TRUE) +
+           ggplot2::scale_y_discrete(expand = c(0, 0), position = "right") +
+           ggplot2::scale_x_discrete(expand = c(0, 0),
+                                     position = "top") + 
+           ggplot2::coord_equal() +
+           ggplot2::scale_fill_manual(values = scale.grade) +
+           ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", title.hjust = 0.5, ncol = 1)) +
+           ggplot2::theme_minimal(base_size = 8) +
+           ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_blank(),
+                          axis.ticks.x.top = ggplot2::element_blank(),
+                          axis.ticks.y.left = ggplot2::element_blank(),
+                          axis.ticks.y.right = ggplot2::element_line(color = "black"),
+                          axis.text.y.left = ggplot2::element_blank(),
+                          axis.text.y.right = ggplot2::element_text(face = "bold", color = "black"),
+                          axis.text.x.top = ggplot2::element_blank(),
+                          axis.text.x.bottom = ggplot2::element_blank(),
+                          axis.title.x.bottom = ggplot2::element_blank(),
+                          axis.title.x.top = ggplot2::element_blank(),
+                          axis.title.y.right = ggplot2::element_blank(),
+                          axis.title.y.left = ggplot2::element_blank(),
+                          axis.line = ggplot2::element_blank(),
+                          plot.title = ggplot2::element_text(face = "bold", hjust = 0),
+                          plot.subtitle = ggplot2::element_text(hjust = 0),
+                          plot.caption = ggplot2::element_text(hjust = 1),
+                          plot.title.position = "plot",
+                          panel.grid = ggplot2::element_blank(),
+                          panel.grid.minor.y = ggplot2::element_line(color = "white", linewidth = 0),
+                          text = ggplot2::element_text(family = "sans"),
+                          plot.caption.position = "plot",
+                          legend.justification = "center",
+                          legend.key.size = ggplot2::unit(0.2, 'cm'),
+                          legend.title = ggplot2::element_text(face = "bold", size = 8),
+                          legend.text = ggplot2::element_text(size = 8),
+                          plot.margin = ggplot2::margin(t = 0, r = 10, b = 0.75, l = 10),
+                          panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 0.5),
+                          panel.grid.major = ggplot2::element_blank(),
+                          legend.position = "bottom",
+                          plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                          panel.background = ggplot2::element_rect(fill = "white", color = "white"),
+                          legend.background = ggplot2::element_rect(fill = "white", color = "white"))
+
+
+design <- "A
+           B
+           C"
+
+p <- patchwork::wrap_plots(A = p.grade,
+                           B = p.orig,
+                           C = p.main,
+                           design = design, guides = "collect") + 
+     patchwork::plot_annotation(theme = ggplot2::theme(legend.position = "bottom"))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1E",
+                  file_name = "Figure_1E",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 4.75,
+                  height = 6.75)
+```
+<img src="../figs/Figure_1E/Figure_1E.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+

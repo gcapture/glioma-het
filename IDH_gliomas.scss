@@ -1,0 +1,270 @@
+/*-- scss:defaults --*/
+/*-- This defines global variables in SCSS format --*/
+$primary: #006494 !default;           /*-- primary color --*/
+$footer-bg: #006494;                  /*-- footer background color --*/
+$sidebar-hl: #006494;                 /*-- No idea he he... --*/
+$code-color: #006494;                 /*-- color of inline code --*/
+$code-bg: #00649430;                  /*-- background color for inline code --*/
+$callout-color-note: #006494;         /*-- color of callout class note --*/
+$callout-color-warning: #d4a411;      /*-- color of callout class warning --*/
+$callout-color-important: #a50d0d;    /*-- color of callout class important --*/
+
+/*-- scss:rules --*/
+/*-- Here the CSS magic begins --*/
+/*-- We modify specific attributes of specific elements --*/
+
+
+/*-- Sidebar title --*/
+.sidebar-title {
+  color: #006494;
+    font-weight: bold;
+}
+
+
+/*-- Sidebar elements text --*/
+.sidebar-item-text{
+  font-weight: normal;
+  color: #006494;
+}
+
+.sidebar-item-text.active{
+  font-weight: bold;
+  color: #006494;
+}
+
+
+/*-- Remove shadow from images added from .png files. --*/
+img.quarto-cover-image {
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+
+
+/* Modify heading levels style. */
+h2 { margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; }
+h3 { margin-top: 1.5em; font-size: 1.2rem; }
+h4 { margin-top: 1.5em; font-size: 1.1rem; }
+h5 { margin-top: 1.5em; font-size: 1rem; }
+
+h1, h2, h3, h4, h5 {
+  line-height: 1.3;
+}
+
+.quarto-section-identifier {
+  color: #6C6C6C;
+    font-weight: bold;
+}
+
+
+
+/* No idea what the class code is. */
+code {
+  font-weight: bold;
+  background-color: #00649435
+}
+
+/*-- No idea what the class pre is. --*/
+pre {
+  background-image: linear-gradient(160deg,#f8f8f8 0,#f1f1f1 100%);
+                                    color: white;
+}
+
+
+/* No idea what this does. */
+@media print {
+  :root {
+    font-size: 11pt;
+  }
+  #quarto-sidebar, #TOC, .nav-page {
+  display: none;
+}
+
+
+/*-- No idea what this does. --*/
+.page-columns .content {
+  grid-column-start: page-start;
+}
+
+/*-- No idea what this does. --*/
+.fixed-top {
+  position: relative;
+}
+
+/*-- Modify attributes of the figure captions. --*/
+.panel-caption, .figure-caption, figcaption {
+  color: #666;
+}
+}
+
+/* Modify captions */
+p.caption {
+  color: #777;
+    margin-top: 10px;
+}
+
+/*-- Modify code chunks text that does not have syntax highlight. --*/
+p code {
+  white-space: inherit;
+  color: #000000;
+}
+
+
+/* Modify attributes of class pre (overall class for code chunks). */
+pre {
+  word-break: normal;
+  word-wrap: normal;
+  font-size: 10pt !important;
+  color: #000000;
+
+}
+
+/*-- Atrributes of class sourceCode. --*/
+sourceCode {
+  word-break: normal;
+  word-wrap: normal;
+  font-size: 10pt !important;
+  color: #000000;
+
+}
+
+/*-- Modify code chunks of source code (specific). --*/
+pre code {
+  white-space: inherit;
+  font-size: 10pt;
+  color: #000000 !important; /*-- !important overrides inherited properties. Might be needed to enforce the change. --*/
+}
+
+/*-- Modify code chunks for source code OUTPUT. (specific). --*/
+pre code:not(.sourceCode) {
+  white-space: inherit;
+  font-size: 10pt;
+  color: black !important;
+  background-color: #f6fefe;  /*-- Adds a background to the element --*/
+  border: 1px solid #f6fefe;  /*-- Adds a border to the background. --*/
+  border-radius: 0.25rem;                   /*-- How thick the border is. --*/
+}
+
+
+/* Justify paragraphs */
+p{
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+/* Change the settings for the inline code. (specific)*/
+p code:not(.sourceCode) {
+  font-weight: bold;
+  font-family: monospace !important;
+  color: #006494;
+  background-color: #00649430;
+}
+
+/* Change the border of the search buttom to the primary color. */
+.form-control:focus {
+  border-color: #006494;
+  box-shadow: white;
+}
+
+/*-- No idea. --*/
+a.text-start {
+  font-weight: bold;
+  color: black;
+}
+
+/*-- No idea. --*/
+i.bi{
+  color: #006494;
+}
+
+/*-- Color of github logo. --*/
+i.bi-github{
+  color: #006494;
+}
+
+/*-- Sidebar TOC chapter number aesthetics. --*/
+.sidebar-item .chapter-number{
+  color: #006494;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+
+/*-- TOC chapter number aesthetics. --*/
+.toc-section-number{
+  color: #006494;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/*-- Center valign items in the footer. --*/
+.nav-footer{
+  align-items: center !important;
+}
+
+/*-- Actively selected tabset --*/
+.nav-link.active{
+  color: #006494;
+  font-weight: normal;
+  border-bottom: 2px solid #006494 !important;
+  text-decoration: none !important;
+}
+
+.nav-link.active:hover{
+  color: #006494;
+  font-weight: normal;
+  border-bottom: 2px solid #006494 !important;
+  text-decoration: none !important;
+}
+
+.nav-link:hover{
+  color: #717109;
+  border-bottom: 2px solid #717109 !important;
+  text-decoration: none !important;
+}
+
+/*-- Not selected tabset --*/
+.nav-link {
+  color: black;
+  text-decoration: none !important;
+  border-bottom: 0px solid #717109 !important;
+}
+
+/*-- Sidebar hover color --*/
+.sidebar nav[role=doc-toc] ul>li>a:hover, .sidebar nav[role=doc-toc] ul>li>ul>li>a:hover {
+    color: #717109 !important;
+    text-decoration: none !important;
+    border-bottom: 0px solid #717109 !important;
+}
+
+/*-- Sidebar active color --*/
+.sidebar nav[role=doc-toc] ul>li>a.active, .sidebar nav[role=doc-toc] ul>li>ul>li>a.active {
+    border-left: 2px solid #006494 !important;
+    border-bottom: 0px solid #717109 !important;
+    color: #006494 !important;
+    font-weight: bold !important;
+}
+
+/*-- Hyperlinks --*/
+a {
+    color: #006494;
+    text-decoration: underline;
+    -webkit-text-decoration: underline;
+    -moz-text-decoration: underline;
+    -ms-text-decoration: underline;
+    -o-text-decoration: underline;
+}
+
+/*-- Hyperlinks hover--*/
+a:hover {
+    color: #717109	;
+    text-decoration: underline;
+    -webkit-text-decoration: underline;
+    -moz-text-decoration: underline;
+    -ms-text-decoration: underline;
+    -o-text-decoration: underline;
+}
+
+img {
+	cursor: zoom-in;
+}
+

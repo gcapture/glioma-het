@@ -1,0 +1,485 @@
+#  NMF analysis {.unnumbered}
+
+```{r}
+#| eval: false
+#| 
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# ------------------------------------------------------------------
+# 8 - NMF ANALYSIS ON THE TUMOR BULK
+# ------------------------------------------------------------------
+
+# Notes:
+# The first half of this code, up to individual NMF signature generation and also the function for
+# scoring metasignatures has been adapted from Volker Hovestadt's code.
+# Methodology explained in: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6754173/
+#
+
+# The following code is strongly suggested to be run in a cluster, for each sample individually as a job.
+# It can take easily 100+ GB of RAM for each unique sample in sample$orig.ident.
+
+nmf_output_folder <- "" # Folder to store the results.
+sample_index <- 1 # This will select the sample out of unique(sample$orig.ident). Modify this parameter as you run it on the cluster.
+
+
+tumor_clusters <- c() # Vector with the clusters that form the tumor bulk.
+sample.tumor <- sample[, sample$New_NMF_labelling %in% tumor_clusters]
+
+# Center the genes over malignant cells.
+sample.tumor <- Seurat::ScaleData(sample.tumor)
+
+nmf.list <- BiocGenerics::lapply(unique(sample.tumor$orig.ident)[sample_index],
+                                   function(samp){
+                                       message(samp)
+
+                                       # Subset the tumor population pertaining to the sample.
+                                       tum <- sample.tumor[, sample.tumor$orig.ident == samp]
+
+                                       # Re-center the genes for this sample.
+                                       tum <- Seurat::ScaleData(tum)
+
+                                       # Extract the count matrix.
+                                       cts <- tum@assays$SCT@scale.data
+
+                                       # Set negative values to 0.
+                                       cts[cts < 0] <- 0
+
+                                       # Remove rows without expression in this sample.
+                                       cts <- cts[rowSums(cts) > 0, ]
+
+                                       # Compute NMF for different K (i.e: signatures).
+                                       # From 2 to 10 NMF signatures.
+                                       k <- 2:10
+                                       nrun <- 10
+                                       seed <- 777 # Let's have some luck :P.
+
+                                       # Run NMF.
+                                       message(sprintf("Computing NMF for sample: %s", samp))
+
+                                           nmf <- NMF::nmf(x = cts,
+                                                           rank = k,
+                                                           nrun = nrun,
+                                                           seed = seed,
+                                                           method = "snmf/r",
+                                                           .options = "p4v")
+                                           # Save the results.
+                                           save(list = c("cts", "nmf"),
+                                                file = paste0(nmf_output_folder, "_", samp, "_nmf2to10", ".RData"))
+
+                                   })
+
+
+
+# Generate further directories for the results.
+nmf_heatmap_summary <- sprintf("%s/signature_summary/", nmf_output_folder)
+nmf_feature_plots <- sprintf("%s/feature_plots/", nmf_output_folder)
+nmf_signature_heatmaps <- sprintf("%s/signature_heatmaps/", nmf_output_folder)
+nmf_go_kegg <- sprintf("%s/signature_GO_KEGG/", nmf_output_folder)
+nmf_top30 <- sprintf("%s/top30_genes_per_signature/", nmf_output_folder)
+nmf_metaclusters <- sprintf("%s/metaclusters/", nmf_output_folder)
+
+dir.create(nmf_heatmap_summary, recursive = T)
+dir.create(nmf_feature_plots, recursive = T)
+dir.create(nmf_signature_heatmaps, recursive = T)
+dir.create(nmf_go_kegg, recursive = T)
+dir.create(nmf_top30, recursive = T)
+dir.create(nmf_metaclusters, recursive = T)
+
+
+# Remove MT genes, as being a snRNAseq experiment they are prone to appear later on as meta-signatures.
+# Retrieve MT genes.
+mitochondrial_genes <- rownames(tumor_scaled)[grepl("^MT", rownames(tumor_scaled))]
+# Filter out ribosomal genes.
+tumor_scaled <- tumor_scaled[!(rownames(tumor_scaled) %in% mitochondrial_genes), ]
+
+# Read in the individual NMF signatures.
+lf <- list.files(nmf_output_folder,
+                         pattern = "nmf2to10.R*",
+                         full.names = TRUE)
+nmf.list <- BiocGenerics::lapply(lf, function(x){
+    load(x)
+    nmf
+})
+
+fi.names <- lf <- list.files(nmf_output_folder,
+                                     pattern = "nmf2to10.R*",
+                                     full.names = FALSE)
+fi.names <- BiocGenerics::sapply(fi.names, function(x) strsplit(x, "_nmf")[[1]][1])
+fi.names <- BiocGenerics::sapply(fi.names, function(x) strsplit(x, "^_")[[1]][2])
+names(nmf.list) <- fi.names
+
+
+message("Analyzing NMF signatures from k = 2 until k = 10.")
+times <- 0
+only_one_k <- FALSE # Check if only NMF was computed for only one value of K.
+for (k in seq(2, 10)){
+    message(sprintf("Using k = %s", k))
+    message("...")
+    times <- times + 1
+    # Start a report.
+    nmf_heatmap_summary_out <- sprintf("%s/k_%s/", nmf_heatmap_summary, k)
+    dir.create(nmf_heatmap_summary_out, recursive = T)
+
+    grDevices::pdf(sprintf("%s/%s_nmf%s.heatmap.pdf", nmf_heatmap_summary, sample_name, k),
+                   width = 6,
+                   height = 6)
+    graphics::par(mar = c(4, 4, 4, 4))
+
+    # Initialize empty lists to store data.
+    list.cor <- list()
+    list.top30 <- list()
+    for (i in names(nmf.list)){
+        if (only_one_k == FALSE){
+            X.nmf <- nmf.list[[i]][["fit"]][[times]]
+        } else if (only_one_k == TRUE){
+            X.nmf <- nmf.list[[i]]@fit
+        }
+
+        # Basis (metagenes).
+        X.nmf.basis <- NMF::basis(X.nmf)
+
+        # Exclude mitochondrial genes.
+        X.nmf.basis <- X.nmf.basis[!(rownames(X.nmf.basis) %in% rownames(X.nmf.basis)[grepl("^MT", rownames(X.nmf.basis))]), ]
+
+        colnames(X.nmf.basis) <- paste0("k", seq(ncol(X.nmf.basis)))
+        X.nmf.basis.hc1 <- stats::hclust(stats::dist(X.nmf.basis), method = "average")
+
+        # Plot heatmap.
+        heatmap(X.nmf.basis,
+                Rowv = stats::as.dendrogram(X.nmf.basis.hc1),
+                Colv = NA,
+                zlim = c(0, max(X.nmf.basis)),
+                scale = "n",
+                col = grDevices::grey.colors(1000, 1, 0),
+                useRaster = TRUE,
+                labRow = FALSE,
+                main = paste0(i, ", base"))
+
+        # Coef.
+        X.nmf.coef <- NMF::coef(X.nmf)
+        rownames(X.nmf.coef) <- paste0("k", seq(nrow(X.nmf.coef)))
+        X.nmf.coef.hc1 <- stats::hclust(stats::dist(X.nmf.coef), method = "average")
+        X.nmf.coef.hc2 <- stats::hclust(stats::dist(t(X.nmf.coef)), method = "average")
+        heatmap(X.nmf.coef[rev(seq(nrow(X.nmf.coef))), ],
+                Rowv = NA,
+                Colv = stats::as.dendrogram(X.nmf.coef.hc2),
+                zlim=c(0, max(X.nmf.coef)),
+                scale="n",
+                col = grDevices::grey.colors(1000, 1, 0),
+                useRaster=FALSE,
+                labCol=FALSE,
+                main=paste0(i, ", coef"))
+
+        # Top genes, just use basis.
+        X.nmf.basis.cor <- t(X.nmf.basis)
+        list.cor[[i]] <- X.nmf.basis.cor
+
+        X.nmf.basis.top30 <- apply(X.nmf.basis.cor, 1, function(x) colnames(X.nmf.basis.cor)[order(x, decreasing = TRUE)[1:30]])
+        list.top30[[i]] <- X.nmf.basis.top30
+
+        Y <- tumor_scaled[as.vector(X.nmf.basis.top30), intersect(colnames(X.nmf.coef), colnames(tumor_scaled))] #
+        Y <- Y - rowMeans(Y)  # re-center
+        Y.hc <- stats::as.dendrogram(stats::hclust(stats::as.dist(1 - stats::cor(Y)), method = "ward.D"))
+        #Y.hc <- stats::reorder(Y.hc, wts = colMeans(tumor_scaled[ribosomal_genes, ])-colMeans(tumor_scaled[c(x1, x2), ]), agglo.FUN = mean)
+        #Z <- as.matrix(scaleMinMax(Y , -6, 6))
+        Z <- as.matrix(scale(Y))
+        heatmap(Z[rev(seq(nrow(Z))), ],
+                Rowv = NA,
+                Colv = as.dendrogram(Y.hc),
+                scale = "n",
+                zlim = c(0, 1),
+                useRaster = TRUE,
+                cexRow = 0.5,
+                cexCol = 0.1,
+                add.expr = graphics::abline(h = head(cumsum(rep(nrow(X.nmf.basis.top30),
+                                                                        ncol(X.nmf.basis.top30))), -1) + 0.5), main=paste0(i, ", ", paste0(dim(Z), collapse="x")))
+    }
+    grDevices::dev.off()
+    save(list = c("list.top30", "list.cor", "nmf.list"),
+         file = paste0(nmf_top30, "all_samples_nmf", k, "_signatures.RData"))
+    list.top30.cbind <- do.call(cbind, list.top30)
+    colnames(list.top30.cbind) <- unlist(BiocGenerics::lapply(names(list.top30), function(i){paste0(i, ".", seq(ncol(list.top30[[i]])))}))
+
+    write.table(list.top30.cbind,
+                file = paste0(nmf_top30, "all_samples_nmf", k, "_signatures.txt"),
+                sep = "\t",
+                quote = FALSE)
+}
+
+# Define 2 custom functions.
+
+# Define 2 functions.
+## (supposed) input for "scoreSignature":
+## X.center - centered expression matrix for all tumor cells
+## X.mean - mean expression for each gene across all tumor cells
+## s - signature genes
+
+# Function from Volker Hovestadt.
+scoreSignature <- function(X.center, X.mean, signature, n = 100, verbose = F) {
+    if(verbose) {
+        message("Number of cells: ", ncol(X.center))
+        message("Number of genes: ", nrow(X.center))
+        message("Number of genes in signature: ", length(signature))
+        message("...\n\n")
+    }
+    # Compute the signature score: A score per cell for the top 30 genes in this signature.
+    s.score <- colMeans(# Compute the mean per column of the output so that you have 1 score per gene.
+        do.call(rbind, # Concatenate the output row by row (gene by gene).
+                BiocGenerics::lapply(signature, # Apply this function to each gene in the list.
+                                     function(gene) {
+                                         ## X.mean[gene] - X.mean => Substracts the median expression of the genes to the expression of the queried gene.
+                                         ## abs(X.mean[gene] - X.mean) ==> Have it as absolute values.
+                                         ## sort(abs(X.mean[gene] - X.mean)) ==> sort the values in ascending order.
+                                         ## names(sort(abs(X.mean[gene] - X.mean)) ==> keep only the names of the sorted genes in ascending order with the lowest difference in expression values.
+                                         ## names(sort(abs(X.mean[gene] - X.mean))[2:(n+1)]) Keep only the 2 to 101 genes (100 in totol) as control set (the 1st is the queried gene).
+                                         g.n <- names(sort(abs(X.mean[gene] - X.mean))[2:(n+1)])
+                                         ## X.center[gene, ] => The expression values of the queried gene in each cell.
+                                         ## X.center[g.n, ] => The mean expression values of the control set in each cell.
+                                         ## X.center[gene, ] - colMeans(X.center[g.n, ]) => Difference in expression between queried gene and the control set per cell.
+                                         X.center[gene, ] - colMeans(X.center[g.n, ])
+                                     }
+                ) # Therefore, this outputs a vector of the difference in expression values between the gene and the control set per cell.
+        ) # Therefore, the outputs a matrix where columns are cells and rows are each of the queried genes.
+        # Each row will contain the difference of expression between each queried gene and the control set, per cells.
+    ) # Finally, this outputs the mean score of all genes belonging to the signature per cell.
+    # In other words, it is the  difference expression values between each gene belonging to the signature
+    # and the control set of genes, which is defined as the top 100 most similar genes in expression values between each queried
+    # gene and the rest of the genes in the centered expression matrix for all tumor cells, averaged for each cell.
+    # s.score = named vector with names = each cell and value = signature score for the cells.
+    return(s.score)
+}
+
+# Adaptation from Volker Hovestadt function.
+# Pretty much the same contept as scoreSignature but with a twist in the end. Instead of doing colMeans to get the average score for each cell for all of the genes in the signature.
+# rowMeans to get the averaged score for each gene for all of the cells in the dataset provided.
+scoreGene <- function(X.center, X.mean, signature, n = 100, verbose = F) {
+    if(verbose) {
+        message("Number of cells: ", ncol(X.center))
+        message("Number of genes: ", nrow(X.center))
+        message("Number of genes in signature: ", length(signature))
+        message("...\n\n")
+    }
+    s.score <- rowMeans(do.call(rbind, lapply(signature, function(gene) {
+        g.n <- names(sort(abs(X.mean[gene] - X.mean))[2:(n+1)])
+        X.center[gene, ] - colMeans(X.center[g.n, ])
+    })))
+    return(s.score)
+}
+
+# The following code creates a list of heatmaps that will help you decide for which value of N (number of NMF signatures) is best.
+# This is decided based on the number and quality of the groups in the correlation plot.
+
+# List placeholder for plot outputs.
+list_plots <- list()
+list_nmf_signatures_heatmaps <- list()
+
+for (k in seq(2,10)){
+    # Read in signatures.
+    print("Reading signatures.")
+    message(paste0("Using k = ", k))
+    nmf.sign <- read.table(paste0(nmf_top30, "all_samples_nmf", k, "_signatures.txt"), sep = "\t")
+
+    # Calculate the scores for each signature in each cell.
+    X.mean <- rowMeans(tumor_scaled) # Mean expression level of the scale.data dataset of the tumor bulk.
+    sign.scores <- apply(nmf.sign, 2, function(signature){scoreSignature(X.center = tumor_scaled,
+                                                                         X.mean = X.mean,
+                                                                         signature)})
+
+    # Correlate/Cluster signatures over all scores.
+    corr <- stats::cor(sign.scores)
+    range <- max(abs(corr))
+
+    # Compute the heatmap.
+    h <- pheatmap::pheatmap(corr,
+                            color = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdBu")))(100),
+                            breaks = seq(-range, range, length.out = 100),
+                            show_colnames = F,
+                            treeheight_col = 0)
+
+    # Store the heatmap.
+    list_nmf_signatures_heatmaps[[paste0("nmf", k)]] <- h
+}
+
+# Modify this values accordingly
+ind_k <- 10 # Final k for individual signatures to use.
+meta_k <- 4 # Number of meta-clusters to derive from the signatures generated with ind_k.
+
+nmf.sign <- read.table(paste0(nmf_top30, "all_samples_nmf", ind_k, "_signatures.txt"), sep = "\t")
+X.mean <- rowMeans(tumor_scaled)
+sign.scores <- apply(nmf.sign, 2, function(signature){scoreSignature(X.center = tumor_scaled,
+                                                                     X.mean = X.mean,
+                                                                     s = signature)})
+
+# Correlate/Cluster signatures over all scores.
+corr <- stats::cor(sign.scores)
+range <- max(abs(corr))
+
+
+
+h <- pheatmap::pheatmap(corr,
+                        color = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdBu")))(100),
+                        breaks = seq(-range, range, length.out = 100),
+                        show_colnames = F,
+                        treeheight_col = 0,
+                        cutree_rows = meta_k,
+                        cutree_cols = meta_k)
+
+# Colors for the metasignature annotation.
+ann_colors <- colortools::wheel("steelblue", meta_k)
+names(ann_colors) <- BiocGenerics::sapply(as.character(seq(1, meta_k)), function(x){paste0("Metasignature_", x)})
+
+# Colors for the sample annotation.
+samp_colors <- colortools::wheel("navyblue", length(unique(sample.tumor$orig.ident)))
+names(samp_colors) <- unique(sample.tumor$orig.ident)
+
+# Colors for the grade annotation.
+subtype_colors <- c("#195A70", "#702F19")
+names(subtype_colors) <- c("2", "3")
+
+# List containing all colors.
+colors <- list("Metasignature" = ann_colors,
+               "Origin" = samp_colors,
+               "Grade" = subtype_colors)
+
+# Workaround to modify the names.
+metaclust <- stats::cutree(h$tree_row, k = meta_k)
+metaclust.s <- as.character(BiocGenerics::sapply(metaclust, function(x){paste0("Metasignature_", x)}))
+names(metaclust.s) <- names(metaclust)
+metaclust <- metaclust.s
+
+# Annotation values for the sample of origin.
+origin <- BiocGenerics::sapply(colnames(corr), function(x){substring(x, 1, nchar(x)-2)})
+origin <- BiocGenerics::sapply(origin, function(x){stringr::str_replace_all(x, "[.]", "-")})
+origin <- BiocGenerics::sapply(origin, function(x){stringr::str_replace_all(x, "-$", "")})
+
+# Annotation vlaues for the grade.
+subgroup <- origin
+grade_2 <- unique(sample.tumor[, sample.tumor$grade == "2"]$orig.ident)
+grade_3 <- unique(sample.tumor[, sample.tumor$grade == "3"]$orig.ident)
+
+origin <- factor(origin)
+
+subgroup[subgroup %in% grade_2] <- 2
+subgroup[subgroup %in% grade_3] <- 3
+
+cellwidth <- 10
+cellheight <- 10
+
+# First visualization of the correlation heatmap with annotations.
+h.anno <- pheatmap::pheatmap(corr,
+                      		 color = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdBu")))(100),
+                      		 breaks = seq(-range, range, length.out = 100),
+                      		 show_colnames = F,
+                      		 treeheight_col = 0,
+                      		 annotation_col = data.frame("Metasignature" = metaclust,
+                      		                             "Origin" = origin,
+                      		                             "Subtype" = subgroup),
+                      		 annotation_colors = colors,
+                      		 cellwidth = cellwidth,
+                      		 cellheight = cellheight)
+
+# Copy  to modify the names. This can also be done to subset only given metasignatures if needed (hence, the .small naming).
+metaclust_small <- metaclust
+
+# Recompute the correlation.
+corr.small <- stats::cor(sign.scores[, names(metaclust_small)])
+range.small <- max(abs(corr.small))
+
+# Rename groups if needed.
+names_sign <- names(metaclust_small)
+assign_sign <- as.character(metaclust_small)
+# Rename the signatures accordingly.
+assign_sign[assign_sign %in% c("Metasignature_3", "Metasignature_5")] <- "Metasignature_1" # Rename several metasignatures at once.
+assign_sign[assign_sign == "Metasignature_6"] <- "Metasignature_3" # Rename individual metasignatures at one.
+# Regenerate the metaclust_small object.
+names(assign_sign) <- names_sign
+metaclust_small <- as.factor(assign_sign)
+
+# Recompute annotation. Same process as before.
+ann_colors_small <- colortools::wheel("steelblue", length(levels(metaclust_small)))
+names(ann_colors_small) <- levels(metaclust_small)
+
+
+origin_small <- BiocGenerics::sapply(colnames(corr.small), function(x){substring(x, 1, nchar(x)-2)})
+origin_small  <- BiocGenerics::sapply(origin_small, function(x){stringr::str_replace_all(x, "[.]", "-")})
+origin_small <- BiocGenerics::sapply(origin_small, function(x){stringr::str_replace_all(x, "-$", "")})
+
+subgroup_small <- origin_small
+grade_2 <- unique(sample.tumor[, sample.tumor$grade == "2"]$orig.ident)
+grade_3 <- unique(sample.tumor[, sample.tumor$grade == "3"]$orig.ident)
+
+origin_small <- factor(origin_small)
+
+subgroup_small[subgroup_small %in% grade_2] <- 2
+subgroup_small[subgroup_small %in% grade_3] <- 3
+
+
+samp_colors <- colortools::wheel("navyblue", length(unique(sample.tumor$orig.ident)))
+names(samp_colors) <- unique(sample.tumor$orig.ident)
+
+colors_small <- list("Metasignature" = ann_colors_small,
+                     "Origin" = samp_colors,
+                     "Subtype" = subtype_colors)
+
+# Final visualization with the annotation fixed. It should look pretty neat.
+h.small <- pheatmap::pheatmap(corr.small,
+                              color = grDevices::colorRampPalette(rev(RColorBrewer::brewer.pal(n = 7, name = "RdBu")))(100),
+                              breaks = seq(-range.small, range.small, length.out = 100),
+                              show_colnames = F,
+                              treeheight_col = 0,annotation_col = data.frame("Metasignature" = metaclust_small,
+                                                          "Origin" = origin_small,
+                                                          "Subtype" = subgroup_small),
+                              annotation_colors = colors_small,
+                              cellwidth = 10,
+                              cellheight = 10)
+
+
+# If the previous visualization is good, we can proceed with the metasignature assignment.
+metaclust <- metaclust_small # Assign the good one.
+
+# Compute a metasignature score for each of the metasignatures for each of the cells.
+avg.sc.cell <- as.data.frame(BiocGenerics::sapply(as.character(levels(metaclust)), function(c) {rowMeans(sign.scores[,which(metaclust == c), drop = FALSE])}))
+
+# Add the scores as metadata.
+for (mc in colnames(avg.sc.cell)){
+    scores <- avg.sc.cell[, mc]
+    names(scores) <- rownames(avg.sc.cell)
+    sample.tumor[[mc]] <- scores
+}
+
+# Assign to each cell the maximum score out of the different computed metasignatures.
+# PLEASE NOTE: while this might give you a hint towards the different populations in the tumor bulk, the assignment might not be perfect.
+# What if a cells is almost equally scored for several metasignatures? Use this as a first look, but not as a definitive result.
+# For this, we recommend the use of the top 30 genes per metasignature paired with enrichment scores (shown afterwards).
+sample.tumor$metaclust <- BiocGenerics::sapply(apply(avg.sc.cell, 1, which.max), function(x){paste0("Metasignature_", x)})
+sample.tumor$metaclust <- as.character(sample.tumor$metaclust)
+
+
+ # Compute the top 30 scoring genes per each metasignature
+ final.sign <- list()
+ for (mc in colnames(avg.sc.cell)){
+     # c here is the FUNCTION to combine VALUES into a VECTOR.
+     ## nmf.sign[which(metaclust == mc) => retrieve the signatures (top 30 genes) from nmf.sign that belong to the meta-signature with the scores per cell for those signatures.
+     ## do.call(c, nmf.sign[which(metaclust == mc)])) => Generate a vector with the genes in each signature.
+     ## unique(do.call(c, nmf.sign[which(metaclust == mc)])) => Avoid repeting genes.
+     ## Therefore, sign is a vector of the unique genes present in all of the signatures that form the meta-signature.
+     sign <- unique(do.call(c, nmf.sign[which(metaclust == mc)]))
+     # Compute the gene scores for each gene for all the cells that were assigned to a given metacluster.
+     gene.score <- scoreGene(tumor_scaled[, which(sample.tumor$metaclust == mc)], X.mean, sign)
+     #expr <- rowMeans(Ec[sign, which(tumor.subs$metaclust == x)])
+     top.genes <- sign[order(gene.score, decreasing = T)[1:30]]
+     # Include the list of top.genes in the final signature list.
+     final.sign[[mc]] <- top.genes
+ }
+
+# Make sure to save both the metaclust and final.sign object.
+saveRDS(metaclust, "") # Modify the path accordingly.
+saveRDS(final.sign, "") # Modify the path accordingly.
+
+# With the top 30 scoring genes per MS, one can do multiple downstream analysis to try to infer the properties of the metasignatures.
+```
+

@@ -1,0 +1,138 @@
+# Figure 2A {.unnumbered}
+
+```{r}
+#| results: "asis"
+#| echo: false
+#| eval: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+# Read in sample.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_LGGs.rds")
+
+# Define set of markers.
+markers.suva <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/IDH_gliomas_TB_annotation_kit_with_Suva_programs_and_metaprogram_iterations.rds")
+
+markers <- list()
+markers$Stemness_program <- markers.suva$Suva_Stemness_Program
+markers$Oligo_program <- markers.suva$Suva_Oligo_Program
+markers$Astro_program <- markers.suva$Suva_Astro_Program
+
+input_gene_list <- markers
+
+# Load diffusion analysis.
+diff.map <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/diffusion_map_only_suva.rds")
+
+# Set the diffusion analysis as a dimensional reduction of the seurat object.
+sample@reductions$diffusion <- Seurat::CreateDimReducObject(embeddings = diff.map@eigenvectors[colnames(sample), ],
+                                                            key = "DC_",
+                                                            assay = "SCT")
+
+# Cluster colors.
+cluster_cols <- c("RE" = "#ECA809",
+                  "OPC-like" = "#043362",                    
+                  "Gradient" = "#D6D6D6",                    
+                  "Astro-like" = "#9A031E",                 
+                  "Cycling" = "#5F0F40")
+
+
+# Exclude gradient for a better visualization.
+sample <- sample[, sample$relabelling != "Gradient"]
+sample$Annotation <- sample$relabelling
+sample$Annotation[sample$Annotation == "RA"] <- "RE"
+sample$Annotation <- factor(sample$Annotation, levels = c("Astro-like", "Cycling", "OPC-like", "RE"))
+```
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_DimPlot(sample = sample,
+                         reduction = "diffusion",
+                         colors.use = cluster_cols,
+                         group.by = "Annotation",
+                         font.size = 12,
+                         raster = TRUE,
+                         raster.dpi = 2048,
+                         pt.size = 4,
+                         legend.icon.size = 8,
+                         legend.ncol = 3,
+                         na.value = "grey50",
+                         axis.title.face = "plain")
+
+out <- SCpubr::do_DiffusionMapPlot(sample = sample,  
+                                   input_gene_list = markers, 
+                                   group.by = "Annotation", 
+                                   colors.use = list("Annotation" = cluster_cols), 
+                                   flavor = "Seurat",
+                                   font.size = 8,
+                                   interpolate = FALSE,
+                                   main.heatmap.size = 0.9,
+                                   axis.text.face = "plain",
+                                   legend.ncol = 2,
+                                   legend.length = 12,
+                                   legend.width = 0.5,
+                                   legend.framecolor = "grey50",
+                                   legend.tickcolor = "white",
+                                   legend.framewidth = 0.2,
+                                   legend.tickwidth = 0.2,
+                                   axis.title.face = "plain")
+p2 <- out$DC_1
+p3 <- out$DC_2
+p2$labels$x <- "DC 1"
+p3$labels$x <- "DC 2"
+p2$labels$y <- "Gene set"
+p3$labels$y <- "Gene set"
+p2$guides$fill$title <- "Enrichment"
+p3$guides$fill$title <- "Enrichment"
+p2[[1]]$guides$fill$title <- ""
+p3[[1]]$guides$fill$title <- ""
+p2[[2]] <- p2[[2]] + ggplot2::theme(axis.title.y = ggplot2::element_text(angle = 90))
+p3[[2]] <- p3[[2]] + ggplot2::theme(axis.title.y = ggplot2::element_text(angle = 90))
+p2 <- p2 & ggplot2::theme(legend.key.size = ggplot2::unit(0.3, 'cm'))
+p3 <- p3 & ggplot2::theme(legend.key.size = ggplot2::unit(0.3, 'cm'))
+p2 <- p2 + patchwork::plot_annotation(theme = ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0)))
+p3 <- p3 + patchwork::plot_annotation(theme = ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0)))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+SCpubr::save_Plot(plot = p1, 
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2A", 
+                  file_name = "Figure_2A-1", 
+                  output_format = "publication", 
+                  dpi = 300, 
+                  width = 6.33, 
+                  height = 6.33)
+
+SCpubr::save_Plot(plot = p2, 
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2A", 
+                  file_name = "Figure_2A-2", 
+                  output_format = "publication", 
+                  dpi = 300, 
+                  width = 6.33, 
+                  height = 3.375)
+
+SCpubr::save_Plot(plot = p3, 
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2A", 
+                  file_name = "Figure_2A-3", 
+                  output_format = "publication", 
+                  dpi = 300,
+                  width = 6.33, 
+                  height = 3.375)
+```
+
+<img src="../figs/Figure_S9/Figure_2A-1.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S9/Figure_2A-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S9/Figure_2A-3.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

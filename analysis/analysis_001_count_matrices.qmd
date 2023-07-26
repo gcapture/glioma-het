@@ -1,0 +1,60 @@
+#  Quality control {.unnumbered}
+
+```{r}
+#| eval: false
+#| 
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#--------------------------------------------------------------------
+# 1 - READ IN COUNT MATRICES AND INDIVIDUAL QC
+#--------------------------------------------------------------------
+
+# ------------------------------------------------------------------
+# All the following code including doublet detection has to be run
+# for each sample individually.
+# ------------------------------------------------------------------
+
+# Global parameters. Used throughout the whole analysis.
+sample_name <- "" # Name of the sample.
+
+# Load samples.
+mt_pattern <- "^MT-"
+sample_path <- "" # Path to where the count matrix from cellranger (either filtered or raw, your choice) is located.
+
+# Read the count matrix and generate a Seurat object.
+sample <- Seurat::Read10X(data.dir = sample_path) %>%
+      		Seurat::CreateSeuratObject(project = sample_name, min.cells = 3, min.features = 200)
+
+# Compute percentage of mitochondrial RNA in the cells.
+sample[["percent.mt"]] <- Seurat::PercentageFeatureSet(object = sample,
+                                                       pattern = mt_pattern)
+
+# Perform QC on the sample.
+# Get cutoffs.
+counts_lower_cutoff <- 1000 # Minimum amount of UMIs per cell.
+genes_lower_cutoff <- 500 # Minimum amount of genes per cell.
+mito_higher_cutoff <- 5 # Maximum amount of mitochondrial RNA per cell.
+
+# Generate the first subset.
+count_mask <- sample$nCount_RNA > counts_lower_cutoff
+gene_mask <- sample$nFeature_RNA > genes_lower_cutoff
+mito_mask <- sample$percent.mt < mito_higher_cutoff
+mask <- count_mask & gene_mask & mito_mask
+sample <- sample[, mask] # Subset the sample.
+
+# Upper cutoffs are determined by the mean and standard deviation of the remaining cells.
+counts_higher_cutoff <- mean(sample$nCount_RNA) + 3 * stats::sd(sample$nCount_RNA)
+genes_higher_cutoff <- mean(sample$nFeature_RNA) + 3 * stats::sd(sample$nFeature_RNA)
+
+
+# Second subset based on the mean and standard deviation of the remaining cells.
+count_mask <- sample$nCount_RNA < counts_higher_cutoff
+gene_mask <- sample$nFeature_RNA < genes_higher_cutoff
+mask <- count_mask & gene_mask
+sample <- sample[, mask] # Subset the sample.
+```
+

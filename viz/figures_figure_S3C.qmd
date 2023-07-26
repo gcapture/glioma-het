@@ -1,0 +1,118 @@
+# Figure S3C {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Inma Hernandez Lopez
+# inmaculada.hernandez-lopez@ukr.de
+# LIT -  Leibniz-Institute für Immunotherapie
+
+# Marc Elosua Bayés
+# marc.elosua@cnag.crg.eu
+# CNAG - CRG
+
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+proportions <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/spotlight_deconv_olig_pseudobulk_long.rds")
+proportions$cell_type[proportions$cell_type == "RA"] <- "RE"
+
+scale.ident <- c("IDH_ACB_AD_540" = "#E07A5F",
+                 "IDH_ACB_AD_809" = "#F2CC8F",
+                 "IDH_ACB_AD_883" = "#DAA82B",
+                 "IDH_NCH2111"    = "#81B29A",
+                 "IDH_NCH536"     = "#3E745E",
+                 "IDH_NCH6341"    = "#5CADC1",
+                 "IDH_NCH6702"    = "#8B6BB8",
+                 "IDH_NCH781"     = "#3D405B",
+                 "IDH_ACB_AD_785" = "#ae2012",
+                 "IDH_ACB_AD_832" = "#ca6702",
+                 "IDH_ACB_AD_865" = "#ee9b00",
+                 "IDH_NCH2018"    = "#e9d8a6",
+                 "IDH_NCH2157"    = "#457b9d",
+                 "IDH_NCH2164"    = "#1d3557")
+```
+
+
+```{r}
+#| eval: false
+p <- proportions %>% 
+     ggplot2::ggplot(mapping = ggplot2::aes(x = .data$freq,
+                                            y = .data$proportion)) + 
+     ggplot2::geom_point(mapping = ggplot2::aes(fill = .data$ID),
+                         size = 4, 
+                         shape = 21, 
+                         color = "black") + 
+     ggplot2::geom_abline(slope = 1, 
+                          intercept = 0, 
+                          linetype = "dashed", 
+                          color = "grey75")  +
+     ggplot2::facet_wrap(. ~ .data$cell_type,
+                         nrow = 1,
+                         scale = "free") +
+     ggplot2::scale_fill_manual(values = scale.ident, name = "") +
+     ggpubr::stat_cor(mapping = ggplot2::aes(label = ggplot2::after_stat(rr.label)), 
+                      label.y.npc = "top", 
+                      label.x.npc = "left",
+                      geom = "text") + 
+     ggplot2::theme_minimal(base_size = 12) +
+     ggplot2::labs(x = "Ground-Truth Proportions",
+                   y = "Predicted Proportions") +
+     ggplot2::theme(axis.title = ggplot2::element_text(color = "black",
+                                                         face = "bold"),
+                    axis.line.x = ggplot2::element_line(color = "black"),
+                    axis.line.y = ggplot2::element_blank(),
+                    axis.text.x = ggplot2::element_text(color = "black",
+                                                        face = "plain",
+                                                        angle = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["angle"]],
+                                                        hjust = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["hjust"]],
+                                                        vjust = SCpubr:::get_axis_parameters(angle = 45, flip = FALSE)[["vjust"]]),
+                    axis.text.y = ggplot2::element_text(color = "black", face = "plain"),
+                    axis.ticks = ggplot2::element_line(color = "black"),
+                    plot.title.position = "plot",
+                    plot.title = ggplot2::element_text(face = "bold", hjust = 0.5),
+                    plot.subtitle = ggplot2::element_text(face = "plain", hjust = 0),
+                    plot.caption = ggplot2::element_text(face = "plain", hjust = 1),
+                    panel.grid = ggplot2::element_blank(),
+                    text = ggplot2::element_text(family = "sans"),
+                    plot.caption.position = "plot",
+                    legend.text = ggplot2::element_text(face = "plain"),
+                    legend.position = "bottom",
+                    legend.title = ggplot2::element_text(face = "bold"),
+                    legend.justification = "center",
+                    plot.margin = ggplot2::margin(t = 10, r = 10, b = 10, l = 10),
+                    plot.background = ggplot2::element_rect(fill = "white", color = "white"),
+                    panel.background = ggplot2::element_rect(fill = "white", color = "black"),
+                    legend.background = ggplot2::element_rect(fill = "white", color = "white"),
+                    strip.text = ggplot2::element_text(color = "black", face = "bold"),
+                    strip.background = ggplot2::element_blank())
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S3C",
+                  file_name = "Figure_S3C",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 19,
+                  height = 3.375)
+```
+
+
+<img src="../figs/Figure_S3C/Figure_S3C.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+

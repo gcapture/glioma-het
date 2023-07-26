@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.324">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas - Quality control</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../analysis/analysis_014_ATAC.html" rel="next">
+<link href="../analysis/analysis_ligand_receptor.html" rel="prev">
+<link href=".././favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script><script type="text/javascript" src="./intense.js"></script>
+<meta property="og:title" content="Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas - Quality control">
+<meta property="og:site-name" content="Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas">
+<meta name="twitter:title" content="Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas - Quality control">
+<meta name="twitter:card" content="summary">
+</head>
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../analysis/analysis_013_ATAC_QC.html">Analysis | snATACseq</a></li><li class="breadcrumb-item"><a href="../analysis/analysis_013_ATAC_QC.html">Quality control</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Tumor heterogeneity and tumor-microglia interactions in primary and recurrent IDH1 mutant gliomas</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/enblacar/IDH_gliomas_book/" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">README</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Key info</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Analysis | snRNAseq</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_001_count_matrices.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quality control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_002_doublets.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doublet detection</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_003_merge_samples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Merge datasets</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_004_normalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Normalization and Cell Cycle scoring</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_005_dimensional_reduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dimensional reduction</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_006_cluster_labelling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cluster labelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_007_CNV.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CNV analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_008_NMF.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NMF analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_009_permutation_testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Permutation testing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_010_progeny.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Pathway and TF activity analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_012_diffusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diffusion maps</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_ligand_receptor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">LR analysis</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Analysis | snATACseq</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_013_ATAC_QC.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Quality control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_014_ATAC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Downstream analyses</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text">Analysis | Deconvolution</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_deconvolution_oligo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Deconvoulution OD Pseudobulk + TCGA + CGGA</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_deconvolution_astro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Deconvoulution AS Pseudobulk + TCGA + CGGA</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../analysis/analysis_microglia_deconvolution.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Microglia deconvolution</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text">Figure 1</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1E.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1E</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1F.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1H</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1G.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1F</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1H.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1H</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1I.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1I</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_1L.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 1L</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text">Figure 2</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2E.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2E</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2F.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2F</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2G.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2G</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2H.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2H</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_2I.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 2I</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true">
+ <span class="menu-text">Figure 3</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_3A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 3A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_3B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 3B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_3C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 3C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_3F.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 3F</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_3G.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 3G</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true">
+ <span class="menu-text">Figure 4</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_4A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 4A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_4B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 4B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_4C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 4C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_4E.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 4E</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_4F.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 4F</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_4G.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 4G</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_4H.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure 4H</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true">
+ <span class="menu-text">Figure S1</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S1A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S1A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S1B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S1B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S1E.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S1E</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S1F.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S1F</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S1G.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S1G</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S1H.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S1H</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S1I.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S1I</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true">
+ <span class="menu-text">Figure S2</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S2A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S2A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S2B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S2B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S2C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S2C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S2D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S2D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S2E.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S2E</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S2F.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S2F</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S2G.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S2G</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" aria-expanded="true">
+ <span class="menu-text">Figure S3</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3E.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3E</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3F.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3F</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3G.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3G</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S3H.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S3H</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" aria-expanded="true">
+ <span class="menu-text">Figure S4</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S4A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S4A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S4B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S4B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S4C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S4C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S4D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S4D</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" aria-expanded="true">
+ <span class="menu-text">Figure S5</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S5A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S5A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S5B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S5B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S5C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S5C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S5D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S5D</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" aria-expanded="true">
+ <span class="menu-text">Figure S6</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S6A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S6A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S6B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S6B</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" aria-expanded="true">
+ <span class="menu-text">Figure S7</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-15" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-15" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S7A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S7A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S7B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S7B</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S7C.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S7C</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S7D.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S7D</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S7E.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S7E</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" aria-expanded="true">
+ <span class="menu-text">Figure S9</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-16" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-16" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S9A.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S9A</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../viz/figures_figure_S9B.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Figure S9B</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><div class="quarto-title">
+<h1 class="title">Quality control</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header><div class="cell">
+<details><summary>Code</summary><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Enrique Blanco Carmona</span></span>
+<span><span class="co"># e.blancocarmona@kitz-heidelberg.de</span></span>
+<span><span class="co"># PhD Student – Clinical Bioinformatics</span></span>
+<span><span class="co"># Division of Pediatric Neurooncology (B062)</span></span>
+<span><span class="co"># DKFZ-KiTZ | Germany</span></span>
+<span></span>
+<span><span class="co">##Input:</span></span>
+<span></span>
+<span><span class="co"># Peak files output of CellRanger</span></span>
+<span><span class="co"># Code heavily based on Signac's vignette: https://satijalab.org/signac/articles/merging.html</span></span>
+<span><span class="co"># Generate the following objects.</span></span>
+<span></span>
+<span><span class="co"># Vector containig all the sample IDs.</span></span>
+<span><span class="va">atac_samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sample_a"</span>,</span>
+<span>                  <span class="st">"sample_b"</span>,</span>
+<span>                  <span class="st">"sample_c"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># List containing as names the IDs in atac_samples and as values the full path to the peaks file.</span></span>
+<span><span class="va">peak.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"sample_a"</span> <span class="op">=</span> <span class="st">"full_path_to_peaks_file"</span>,</span>
+<span>                  <span class="st">"sample_b"</span> <span class="op">=</span> <span class="st">"full_path_to_peaks_file"</span>,</span>
+<span>                  <span class="st">"sample_c"</span> <span class="op">=</span> <span class="st">"full_path_to_peaks_file"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate a list with the peak objects.</span></span>
+<span><span class="va">peak.out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">s.name</span> <span class="kw">in</span> <span class="va">atac_samples</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">db</span> <span class="op">&lt;-</span> <span class="fu">generate_database</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"/icgc/dkfzlsdf/analysis/OE0145_projects/idh_gliomas/scripts/main/06_scana/config_files/%s_config.yml"</span>, <span class="va">s.name</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">peaks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">peak.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                      col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"chr"</span>, <span class="st">"start"</span>, <span class="st">"end"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">peak.out</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">peaks</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Convert peaks into GRanges (Adapt for the number of samples you have).</span></span>
+<span><span class="va">gr.1</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/makeGRangesFromDataFrame.html">makeGRangesFromDataFrame</a></span><span class="op">(</span><span class="va">peak.out</span><span class="op">$</span><span class="va">`sample_a`</span><span class="op">)</span></span>
+<span><span class="va">gr.2</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/makeGRangesFromDataFrame.html">makeGRangesFromDataFrame</a></span><span class="op">(</span><span class="va">peak.out</span><span class="op">$</span><span class="va">`sample_b`</span><span class="op">)</span></span>
+<span><span class="va">gr.3</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomicRanges/man/makeGRangesFromDataFrame.html">makeGRangesFromDataFrame</a></span><span class="op">(</span><span class="va">peak.out</span><span class="op">$</span><span class="va">`sample_c`</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Put them back to a vector.</span></span>
+<span><span class="va">reduce.vector</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">gr.1</span>, <span class="va">gr.2</span>, <span class="va">gr.3</span>, <span class="va">gr.4</span>, <span class="va">gr.5</span>, <span class="va">gr.6</span>, <span class="va">gr.7</span>, <span class="va">gr.8</span>, <span class="va">gr.9</span>, <span class="va">gr.10</span>, <span class="va">gr.11</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Create an unified set of peaks to quantify in each dataset.</span></span>
+<span><span class="va">combined.peaks</span> <span class="op">&lt;-</span> <span class="fu">GenomicRanges</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/IRanges/man/inter-range-methods.html">reduce</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">reduce.vector</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Generate a list for the fragment files location.</span></span>
+<span><span class="va">fragment.paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"sample_a"</span> <span class="op">=</span> <span class="st">"full_path_to_fragments_file"</span>,</span>
+<span>                       <span class="st">"sample_b"</span> <span class="op">=</span> <span class="st">"full_path_to_fragments_file"</span>,</span>
+<span>                       <span class="st">"sample_c"</span> <span class="op">=</span> <span class="st">"full_path_to_fragments_file"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate a list for the metadata files location.</span></span>
+<span><span class="va">metadata.paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"sample_a"</span> <span class="op">=</span> <span class="st">"full_path_to_metadata_file"</span>,</span>
+<span>                       <span class="st">"sample_b"</span> <span class="op">=</span> <span class="st">"full_path_to_metadata_file"</span>,</span>
+<span>                       <span class="st">"sample_c"</span> <span class="op">=</span> <span class="st">"full_path_to_metadata_file"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate a list to store the fragment objects.</span></span>
+<span><span class="va">fragment.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Will contain the framgent objects.</span></span>
+<span><span class="va">md.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Will contain the metadata objects.</span></span>
+<span><span class="kw">for</span><span class="op">(</span><span class="va">s.name</span> <span class="kw">in</span> <span class="va">atac_samples</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span><span class="op">(</span>file <span class="op">=</span> <span class="va">metadata.paths</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                   stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                   sep <span class="op">=</span> <span class="st">","</span>,</span>
+<span>                   header <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   row.names <span class="op">=</span> <span class="fl">1</span>,<span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span>, <span class="op">]</span></span>
+<span>  <span class="co"># Filter low count cells.</span></span>
+<span>  <span class="va">md</span> <span class="op">&lt;-</span> <span class="va">md</span><span class="op">[</span><span class="va">md</span><span class="op">$</span><span class="va">passed_filters</span> <span class="op">&gt;</span> <span class="fl">500</span>, <span class="op">]</span></span>
+<span>  <span class="va">md.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">md</span></span>
+<span>  </span>
+<span>  <span class="co"># Create fragment object.</span></span>
+<span>  <span class="va">frag.md</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/CreateFragmentObject.html">CreateFragmentObject</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">fragment.paths</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                                          cells <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">fragment.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">frag.md</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Generate count matrices and store them in a list.</span></span>
+<span><span class="va">count.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">for</span><span class="op">(</span><span class="va">s.name</span> <span class="kw">in</span> <span class="va">atac_samples</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">ct</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/FeatureMatrix.html">FeatureMatrix</a></span><span class="op">(</span>fragments <span class="op">=</span> <span class="va">fragment.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                              features <span class="op">=</span> <span class="va">combined.peaks</span>,</span>
+<span>                              cells <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">md.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">count.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">ct</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Generate a list that contains the signac objects.</span></span>
+<span><span class="va">sample.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate an annotation object to include to the Signac object. </span></span>
+<span><span class="fu">GenomeInfoDb</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqlevelsStyle.html">seqlevelsStyle</a></span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"UCSC"</span></span>
+<span><span class="va">annotation</span> <span class="op">&lt;-</span> <span class="fu">GetGRangesFromEnsDb</span><span class="op">(</span><span class="va">EnsDb.Hsapiens.v86</span><span class="op">)</span></span>
+<span><span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/GenomeInfoDb/man/seqinfo.html">genome</a></span><span class="op">(</span><span class="va">annotation</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"hg38"</span></span>
+<span></span>
+<span><span class="kw">for</span><span class="op">(</span><span class="va">s.name</span> <span class="kw">in</span> <span class="va">samples.use</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">s.assay</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/CreateChromatinAssay.html">CreateChromatinAssay</a></span><span class="op">(</span><span class="va">count.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                                          fragments <span class="op">=</span> <span class="va">fragment.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                                          genome <span class="op">=</span> <span class="st">"hg38"</span>,</span>
+<span>                                          annotation <span class="op">=</span> <span class="va">annotation</span><span class="op">)</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/CreateSeuratObject.html">CreateSeuratObject</a></span><span class="op">(</span><span class="va">s.assay</span>,</span>
+<span>                                  assay <span class="op">=</span> <span class="st">"ATAC"</span>,</span>
+<span>                                  meta.data <span class="op">=</span> <span class="va">md.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                                  project <span class="op">=</span> <span class="va">s.name</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">sample.list</span><span class="op">[[</span><span class="va">s.name</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">s</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Generate a merged sample.</span></span>
+<span><span class="co"># To merge, you need to select a "reference" object upon which you merge the others. </span></span>
+<span><span class="va">ref_id</span> <span class="op">&lt;-</span> <span class="st">"sample_a"</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">sample.list</span><span class="op">[[</span><span class="va">ref_id</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                y <span class="op">=</span> <span class="va">sample.list</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">sample.list</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">ref_id</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>                add.cell.ids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">ref_id</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">sample.list</span><span class="op">)</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">sample.list</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">ref_id</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Reassign the annotation just in case. </span></span>
+<span><span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/Annotation.html">Annotation</a></span><span class="op">(</span><span class="va">sample</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">annotation</span></span>
+<span></span>
+<span><span class="co"># Define QC cutoffs.</span></span>
+<span><span class="va">reference_organism</span> <span class="op">&lt;-</span> <span class="st">"h.sapiens"</span></span>
+<span><span class="co"># QC cutoff: lower peak region fragments.</span></span>
+<span><span class="va">lower_peak_region_fragments_cutoff</span> <span class="op">=</span> <span class="fl">3000</span></span>
+<span><span class="co"># QC cutoff: higher peak region fragments.</span></span>
+<span><span class="va">higher_peak_region_fragments_cutoff</span> <span class="op">=</span> <span class="fl">20000</span></span>
+<span><span class="co"># QC cutoff: percentage of reads in peaks (higher than).</span></span>
+<span><span class="va">percentage_reads_in_peaks_cutoff</span> <span class="op">=</span> <span class="fl">15</span></span>
+<span><span class="co"># QC cutoff: blacklist ratio (lower than).</span></span>
+<span><span class="va">blacklist_ratio_cutoff</span> <span class="op">=</span> <span class="fl">0.05</span></span>
+<span><span class="co"># QC cutoff: nucleosome signal cutoff (lower than).</span></span>
+<span><span class="va">nucleosome_signal_cutoff</span> <span class="op">=</span> <span class="fl">10</span></span>
+<span><span class="co"># QC cutoff: TSS enrichment score cutoff (higher than).</span></span>
+<span><span class="va">TSS_enrichment_score_cutoff</span> <span class="op">=</span> <span class="fl">2</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Calculate the chromosome binding pattern. Stored as "nucleosome_signal" column. # Computes it for chr1.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/NucleosomeSignal.html">NucleosomeSignal</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute TSS enrichment.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/TSSEnrichment.html">TSSEnrichment</a></span><span class="op">(</span><span class="va">sample</span>, fast <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute the percentage of reads in peaks.</span></span>
+<span><span class="va">sample</span><span class="op">$</span><span class="va">percentage_reads_in_peaks</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">peak_region_fragments</span> <span class="op">/</span> <span class="va">sample</span><span class="op">$</span><span class="va">passed_filters</span> <span class="op">*</span> <span class="fl">100</span></span>
+<span></span>
+<span><span class="co"># Compute ratio of reads in blacklist sites.</span></span>
+<span><span class="va">sample</span><span class="op">$</span><span class="va">blacklist_ratio</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">blacklist_region_fragments</span> <span class="op">/</span> <span class="va">sample</span><span class="op">$</span><span class="va">peak_region_fragments</span></span>
+<span></span>
+<span><span class="co"># Classify in different nucleosome groups.</span></span>
+<span><span class="va">sample</span><span class="op">$</span><span class="va">nucleosome_group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">sample</span><span class="op">$</span><span class="va">nucleosome_signal</span> <span class="op">&gt;</span> <span class="fl">4</span>, <span class="st">'NS &gt; 4'</span>, <span class="st">'NS &lt; 4'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Assign cells to high or low TSS enrichment.</span></span>
+<span><span class="va">sample</span><span class="op">$</span><span class="va">high_tss</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">sample</span><span class="op">$</span><span class="va">TSS.enrichment</span> <span class="op">&gt;</span> <span class="fl">2</span>, <span class="st">"High"</span>, <span class="st">"Low"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Compute the QC logical vectors.</span></span>
+<span><span class="va">peak_lower_cutoff</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">peak_region_fragments</span> <span class="op">&gt;</span> <span class="va">lower_peak_region_fragments_cutoff</span></span>
+<span><span class="va">peak_higher_cutoff</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">peak_region_fragments</span> <span class="op">&lt;</span> <span class="va">higher_peak_region_fragments_cutoff</span></span>
+<span><span class="va">percentage_reads_in_peaks_cutoff</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">percentage_reads_in_peaks</span> <span class="op">&gt;</span> <span class="va">percentage_reads_in_peaks_cutoff</span></span>
+<span><span class="va">blacklist_ratio_cutoff</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">blacklist_ratio</span> <span class="op">&lt;</span> <span class="va">blacklist_ratio_cutoff</span></span>
+<span><span class="va">nucleosome_signal_cutoff</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">nucleosome_signal</span> <span class="op">&lt;</span> <span class="va">nucleosome_signal_cutoff</span></span>
+<span><span class="va">tss_cutoff</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">TSS.enrichment</span> <span class="op">&gt;</span> <span class="va">TSS_enrichment_score_cutoff</span></span>
+<span></span>
+<span><span class="co"># Combine them.</span></span>
+<span><span class="va">mask</span> <span class="op">&lt;-</span> <span class="va">peak_lower_cutoff</span> <span class="op">&amp;</span> <span class="va">peak_higher_cutoff</span> <span class="op">&amp;</span> <span class="va">percentage_reads_in_peaks_cutoff</span> <span class="op">&amp;</span> <span class="va">blacklist_ratio_cutoff</span> <span class="op">&amp;</span> <span class="va">nucleosome_signal_cutoff</span> <span class="op">&amp;</span> <span class="va">tss_cutoff</span></span>
+<span></span>
+<span><span class="co"># Subset the sample. </span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">mask</span><span class="op">)</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># Normalize.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/RunTFIDF.html">RunTFIDF</a></span><span class="op">(</span><span class="va">sample</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Find top peaks (in our case, we use q0 to select all of them).</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/FindTopFeatures.html">FindTopFeatures</a></span><span class="op">(</span><span class="va">sample</span>, min.cutoff <span class="op">=</span> <span class="st">"q0"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run SVD.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/RunSVD.html">RunSVD</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span>,</span>
+<span>                         assay <span class="op">=</span> <span class="st">"ATAC"</span>,</span>
+<span>                         reduction.key <span class="op">=</span> <span class="st">"LSI_"</span>,</span>
+<span>                         reduction.name <span class="op">=</span> <span class="st">"lsi"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Check the LSI components.</span></span>
+<span><span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/DepthCor.html">DepthCor</a></span><span class="op">(</span><span class="va">sample</span><span class="op">)</span> <span class="co"># If the component 1 is at -1, exclude it.</span></span>
+<span><span class="va">first_comp</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="co"># Set to 1 if component 1 is not at -1.</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Compute UMAP.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html">RunUMAP</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span>,</span>
+<span>                          reduction <span class="op">=</span> <span class="st">"lsi"</span>,</span>
+<span>                          dims <span class="op">=</span> <span class="va">first_comp</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Find neighbors.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/FindNeighbors.html">FindNeighbors</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span>,</span>
+<span>                                reduction <span class="op">=</span> <span class="st">"lsi"</span>,</span>
+<span>                                dims <span class="op">=</span> <span class="va">first_comp</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Find clusters.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/FindClusters.html">FindClusters</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span>,</span>
+<span>                               verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                               algorithm <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute activity matrix.</span></span>
+<span><span class="va">gene.activities</span> <span class="op">&lt;-</span> <span class="fu">Signac</span><span class="fu">::</span><span class="fu"><a href="https://stuartlab.org/signac/reference/GeneActivity.html">GeneActivity</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Add the activity matrix to the Seurat object as a new assay, and normalize it.</span></span>
+<span><span class="va">sample</span><span class="op">[[</span><span class="st">"RNA"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/CreateAssayObject.html">CreateAssayObject</a></span><span class="op">(</span>counts <span class="op">=</span> <span class="va">gene.activities</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Normalize new assay data - treating the Activity assay as if it was a scRNAseq experiment.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/SCTransform.html">SCTransform</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span>,</span>
+<span>                              assay <span class="op">=</span> <span class="st">"RNA"</span>,</span>
+<span>                              new.assay.name <span class="op">=</span> <span class="st">"SCT"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Transfer labels from true scRNAseq object to the activity assay from scATACseq object. </span></span>
+<span><span class="co"># This assumes you have a corresponding scRNAseq experiment.</span></span>
+<span></span>
+<span><span class="co"># Load snRNAseq dataset.</span></span>
+<span><span class="va">sample.rna</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"full_path_to_scRNAseq_object"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Rename gene activity assay to ACTIVITY.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">SeuratObject</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/RenameAssays.html">RenameAssays</a></span><span class="op">(</span><span class="va">sample</span>, SCT <span class="op">=</span> <span class="st">"ACTIVITY"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Find anchors between datasets.</span></span>
+<span><span class="va">transfer.anchors</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/FindTransferAnchors.html">FindTransferAnchors</a></span><span class="op">(</span>reference <span class="op">=</span> <span class="va">sample.rna</span>, <span class="co"># Seurat object to use as reference.</span></span>
+<span>                                                query <span class="op">=</span> <span class="va">sample</span>,    <span class="co"># Seurat object to use as querey.</span></span>
+<span>                                                features <span class="op">=</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/VariableFeatures.html">VariableFeatures</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample.rna</span><span class="op">)</span>, <span class="co"># Features to use for Dimensional Reduction.</span></span>
+<span>                                                reference.assay <span class="op">=</span> <span class="st">"SCT"</span>, <span class="co"># Assay to use as reference.</span></span>
+<span>                                                query.assay <span class="op">=</span> <span class="st">"ACTIVITY"</span>, <span class="co"># Assay to use as query.</span></span>
+<span>                                                reduction <span class="op">=</span> <span class="st">"cca"</span><span class="op">)</span> <span class="co"># Dimensional reduction to use when finding anchors.</span></span>
+<span></span>
+<span><span class="co"># Transfer cluster labels from snRNAseq dataset.</span></span>
+<span><span class="va">celltype.predictions</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/TransferData.html">TransferData</a></span><span class="op">(</span>anchorset <span class="op">=</span> <span class="va">transfer.anchors</span>,</span>
+<span>                                             refdata <span class="op">=</span> <span class="va">sample.rna</span><span class="op">$</span><span class="va">cluster_names</span>, <span class="co"># Data to transfer (cluster names).</span></span>
+<span>                                             weight.reduction <span class="op">=</span> <span class="va">sample</span><span class="op">[[</span><span class="st">"lsi"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                                             dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">15</span><span class="op">)</span> <span class="co"># Dimensional reduction to use.</span></span>
+<span></span>
+<span><span class="co"># Add the predictions as metadata.</span></span>
+<span><span class="va">sample</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/AddMetaData.html">AddMetaData</a></span><span class="op">(</span><span class="va">sample</span>, metadata <span class="op">=</span> <span class="va">celltype.predictions</span><span class="op">)</span> <span class="co"># Predictions stored in "predicted.id" metadata column.</span></span>
+<span></span>
+<span><span class="co"># Generate an integrated object removing sample-specific effects..</span></span>
+<span><span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/DefaultAssay.html">DefaultAssay</a></span><span class="op">(</span><span class="va">sample</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"ATAC"</span></span>
+<span><span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">sample</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">sample</span><span class="op">$</span><span class="va">predicted.id</span> <span class="co"># Set the new identities.</span></span>
+<span></span>
+<span><span class="co"># Run Harmony. </span></span>
+<span><span class="va">sample.integrated</span> <span class="op">&lt;-</span> <span class="fu">harmony</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/harmony/man/RunHarmony.html">RunHarmony</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">sample</span>,</span>
+<span>                                         group.by.vars <span class="op">=</span> <span class="st">'orig.ident'</span>,</span>
+<span>                                         reduction <span class="op">=</span> <span class="st">'lsi'</span>,</span>
+<span>                                         assay.use <span class="op">=</span> <span class="st">'ATAC'</span>,</span>
+<span>                                         project.dim <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co"># Recompute UMAP.</span></span>
+<span><span class="va">sample.integrated</span> <span class="op">&lt;-</span> <span class="fu">Seurat</span><span class="fu">::</span><span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html">RunUMAP</a></span><span class="op">(</span><span class="va">sample.integrated</span>, reduction <span class="op">=</span> <span class="st">"harmony"</span>, dims <span class="op">=</span> <span class="va">first_comp</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span><span class="co">##Output:</span></span>
+<span></span>
+<span><span class="co">#OE0145-IDH_integrated_astrocytoma_peaks_activity_chromvar</span></span>
+<span><span class="co">#OE0145-IDH_integrated_oligodendroglioma_peaks_activity_chromvar</span></span>
+<span><span class="co">#QC analysis - supplementary figures</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+
+
+
+</main><!-- /main --><script>
+window.onload = function() {
+	// Intensify all images on the page.
+    var element = document.querySelectorAll( "img");
+	  Intense( element );
+}
+</script><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../analysis/analysis_ligand_receptor.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">LR analysis</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../analysis/analysis_014_ATAC.html" class="pagination-link">
+        <span class="nav-page-text">Downstream analyses</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">Written by <strong><a href="https://github.com/enblacar">Enrique Blanco Carmona</a></strong></div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">Figures generated with <strong><a href="https://github.com/enblacar/SCpubr">SCpubr</a></strong> | Book built with <strong><a href="https://quarto.org/">Quarto</a></strong></div>
+  </div>
+</footer>
+
+
+</body></html>

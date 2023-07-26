@@ -1,0 +1,66 @@
+# Figure 2B {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+
+# Read in sample.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_LGGs.rds")
+
+# Subset for the tumor cells.
+sample <- sample[, sample$relabelling %in% c("Astro-like", "RA", "OPC-like", "Gradient", "Cycling")]
+sample$relabelling[sample$relabelling == "RA"] <- "RE"
+sample$subtype = factor(sample$subtype, levels = c("Oligodendroglioma", "Astrocytoma"))
+# Read in pathway activities.
+progeny_activities <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_progeny.rds")
+
+```
+
+```{r}
+#| eval: false
+p <- SCpubr::do_PathwayActivityPlot(sample = sample,
+                                    activities = progeny_activities,
+                                    slot = "scale.data",
+                                    split.by = "subtype",
+                                    group.by = c("relabelling"),
+                                    min.cutoff = -1,
+                                    max.cutoff = 1,
+                                    flip = TRUE,
+                                    font.size = 12,
+                                    axis.text.face = "plain") + 
+     ggplot2::ylab("Pathway") +
+     ggplot2::xlab("Cell type")
+
+p$guides$fill$title <- "Pathway score"
+p <- p + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(plot = p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2B",
+                  file_name = "Figure_2B",
+                  dpi = 300,
+                  width = 6.33,
+                  height = 6.33,
+                  output_format = "publication")
+```
+
+<img src="../figs/Figure_2B/Figure_2B.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

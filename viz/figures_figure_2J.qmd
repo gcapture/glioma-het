@@ -1,0 +1,126 @@
+# Figure 2J {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+sample.atac <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_OD.rds")
+sample.rna <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_OD.rds")
+
+sample.atac <- sample.atac[, sample.atac$relabelling %in% c("OPC-like", "Astro-like", "RA", "Cycling")]
+sample.rna <- sample.rna[, sample.rna$relabelling %in% c("OPC-like", "Astro-like", "RA", "Cycling")]
+
+
+sample.atac$Annotation <- as.character(sample.atac$relabelling)
+sample.atac$Annotation <- factor(sample.atac$Annotation, levels = c("Astro-like", "Cycling", "OPC-like", "RA"))
+
+sample.rna$Annotation <- as.character(sample.rna$relabelling)
+sample.rna$Annotation <- factor(sample.rna$Annotation, levels = c("Astro-like", "Cycling", "OPC-like", "RA"))
+
+Seurat::Idents(sample.atac) <- sample.atac$Annotation
+Seurat::Idents(sample.rna) <- sample.rna$Annotation
+
+
+
+# Cluster colors.
+cluster_cols <- c("RA" = "#ECA809",
+                  "OPC-like" = "#043362",                    
+                  "Astro-like" = "#9A031E",
+                  "Cycling" = "#5F0F40")
+
+
+# Manually picked features from the NMF metaprograms.
+features <- c("NRG3", "ADGRV1", "SLC4A4", "SPARCL1", "ADCY2",
+              "MKI67", "CENPK", "EZH2", "POLQ", "EGFR",
+              "OPCML", "DSCAM", "FGF12", "SOX6", "DLGAP1",
+              "EEF2", "EEF1A1", "OLIG1", "ETV1", "RPL13")
+
+Seurat::DefaultAssay(sample.atac) <- "ACTIVITY"
+Seurat::DefaultAssay(sample.rna) <- "SCT"
+
+sample.atac <- Seurat::ScaleData(sample.atac, features = features)
+sample.rna <- Seurat::ScaleData(sample.rna, features = features)
+```
+
+
+```{r}
+#| eval: false
+p1 <- SCpubr::do_SCExpressionHeatmap(sample.atac,
+                                   features = features, 
+                                   assay = "ACTIVITY", 
+                                   cluster = TRUE, 
+                                   slot = "scale.data", 
+                                   group.by = "Annotation",
+                                   enforce_symmetry = TRUE, 
+                                   min.cutoff = -2, 
+                                   max.cutoff = 2, 
+                                   font.size = 10,
+                                   features.order = rev(features),
+                                   legend.title = "Gene Activity | Scale and Centered",
+                                   metadata = "Annotation",
+                                   metadata.colors = list("Annotation" = cluster_cols),
+                                   main.heatmap.size = 0.975) 
+p1 <- p1[[1]]
+p1 <- p1 + 
+      ggplot2::ylab("") + 
+      ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),
+                     axis.ticks.x.bottom = ggplot2::element_blank(),
+                     plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
+
+p2 <- SCpubr::do_SCExpressionHeatmap(sample.rna,
+                                   group.by = "Annotation",
+                                   features = features, 
+                                   assay = "SCT", 
+                                   cluster = FALSE, 
+                                   slot = "scale.data", 
+                                   enforce_symmetry = TRUE, 
+                                   min.cutoff = -1.5, 
+                                   max.cutoff = 1.5, 
+                                   font.size = 10,
+                                   features.order = rev(features),
+                                   legend.title = "Expression | Scale and Centered",
+                                   metadata = "Annotation",
+                                   metadata.colors = list("Annotation" = cluster_cols),
+                                   main.heatmap.size = 0.975) 
+p2 <- p2[[1]]
+p2 <- p2 +
+      ggplot2::xlab("") +
+      ggplot2::ylab("") + 
+      ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
+
+p <- patchwork::wrap_plots(list(p1, p2),
+                           guides = "collect",
+                           ncol = 1) + 
+     patchwork::plot_annotation(theme = ggplot2::theme(legend.position = "bottom"))
+```
+
+```{r}
+#| eval: false
+#| echo: false
+#| warning: false
+#| message: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_2J",
+                  file_name = "Figure_2J",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 20,
+                  height = 12)
+```
+
+
+<img src="../figs/Figure_2J/Figure_2J.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+

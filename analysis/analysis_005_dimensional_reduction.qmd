@@ -1,0 +1,32 @@
+#  Dimensional reduction {.unnumbered}
+
+
+```{r}
+#| eval: false
+#| 
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+# DKFZ-KiTZ | Germany
+
+#--------------------------------------------------------------------
+# 5 - DIMENSIONAL REDUCTION
+#--------------------------------------------------------------------
+
+sample <- Seurat::RunPCA(sample, assay = "SCT")
+elbow <- Seurat::ElbowPlot(sample) # Visualize the number of PCs and select an appropriate number.
+npcs <- 15 # Selected number of PCs.
+
+# Normalize using Harmony. The effect to remove is the orig.ident metadata column (from where each sample comes from).
+sample <- harmony::RunHarmony(sample, dims = 1:npcs, group.by.vars = "orig.ident", assay.use = "SCT")
+
+# Dimensional reduction: UMAP over harmony reduction.
+sample <- Seurat::RunUMAP(sample, dims = 1:npcs, reduction = "harmony")
+
+sample <- Seurat::FindNeighbors(sample, dims = 1:npcs, reduction = "harmony")
+
+sample <- Seurat::FindClusters(sample,
+							   random.seed = 42)
+```
+
