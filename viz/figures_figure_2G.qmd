@@ -49,8 +49,8 @@ p1 <- SCpubr::do_CorrelationPlot(sample.oligo,
                                  assay = "ATAC",
                                  max.cutoff = 0.5,
                                  min.cutoff = -0.5,
-                                 font.size = 12,
-                                 legend.length = 12,
+                                 font.size = 20,
+                                 legend.length = 15,
                                  legend.width = 0.5,
                                  legend.framecolor = "grey50",
                                  legend.tickcolor = "white",
@@ -58,22 +58,22 @@ p1 <- SCpubr::do_CorrelationPlot(sample.oligo,
                                  legend.tickwidth = 0.2,
                                  axis.text.face = "plain",
                                  legend.position = "none") + 
-      ggplot2::xlab("Oligodendroglioma")
+      ggplot2::xlab("OD")
 
 p2 <- SCpubr::do_CorrelationPlot(sample.astro,
                                  mode = "hvg",
                                  assay = "ATAC",
                                  max.cutoff = 0.5,
                                  min.cutoff = -0.5,
-                                 font.size = 12,
-                                 legend.length = 12,
+                                 font.size = 20,
+                                 legend.length = 15,
                                  legend.width = 0.5,
                                  legend.framecolor = "grey50",
                                  legend.tickcolor = "white",
                                  legend.framewidth = 0.2,
                                  legend.tickwidth = 0.2,
                                  axis.text.face = "plain")  + 
-       ggplot2::xlab("Astrocytoma")
+       ggplot2::xlab("AS")
 
 p <- patchwork::wrap_plots(A = p1, B = p2, C = patchwork::guide_area(),design = "AB
                                                                                  CC", guides = "collect")
@@ -90,7 +90,7 @@ SCpubr::save_Plot(p,
                   dpi = 300,
                   output_format = "publication",
                   width = 6.33,
-                  height = 6.33)
+                  height = 6.75)
 ```
 
 

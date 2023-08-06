@@ -54,7 +54,7 @@ sample$Annotation[names(sample$Annotation) %in% names(sample$OD_RA[sample$OD_RA 
 
 p1 <- SCpubr::do_DimPlot(sample, 
                          group.by = "Annotation", 
-                         font.size = 12,
+                         font.size = 20,
                          label = TRUE,
                          repel = TRUE,
                          legend.position = "none",
@@ -68,10 +68,10 @@ p1 <- SCpubr::do_DimPlot(sample,
 p2 <- ggplot2::ggplot(dist.test, mapping = ggplot2::aes(x = .data$OD_RA)) +
       ggplot2::geom_histogram(bins = 100, color = "black", fill = "steelblue") +
       ggplot2::geom_vline(xintercept = value.use, color = "black") +
-      ggpubr::theme_pubr(base_size = 12) +
+      ggpubr::theme_pubr(base_size = 20) +
       ggplot2::xlab("Enrichment scores for RE metaprogram") +
       ggplot2::ylab("Number of cells") + 
-      ggplot2::labs(title = "Suva OD | Shapiro test | OD_RE ",
+      ggplot2::labs(title = "Suva AS | Shapiro test | OD_RE ",
                     subtitle = paste0("p value = ",  
                                       format(stats::shapiro.test(dist.test$OD_RA)$p.value, scientific = FALSE),
                                       " | Value so that P(X > Value) = 0.05: ",
@@ -86,7 +86,7 @@ out <- SCpubr::do_AffinityAnalysisPlot(sample = sample,
                                        subsample = NA,
                                        group.by = "Annotation",
                                        return_object = TRUE, 
-                                       font.size = 12,
+                                       font.size = 20,
                                        axis.text.face = "plain",
                                        legend.length = 8,
                                        legend.width = 0.5,
@@ -99,7 +99,7 @@ p3 <- out$Heatmap
 
 p4 <- SCpubr::do_FeaturePlot(sample = sample, 
                              features = "OD_RA",
-                             font.size = 12,
+                             font.size = 20,
                              raster = TRUE,
                              raster.dpi = 2048,
                              pt.size = 4,
@@ -164,7 +164,7 @@ out <- SCpubr::do_AffinityAnalysisPlot(sample = sample,
                                        subsample = NA,
                                        group.by = "Annotation",
                                        return_object = TRUE, 
-                                       font.size = 12,
+                                       font.size = 16,
                                        verbose = TRUE,
                                        axis.text.face = "plain",
                                        legend.length = 8,
@@ -177,10 +177,6 @@ out <- SCpubr::do_AffinityAnalysisPlot(sample = sample,
 
 p5 <- out$Heatmap + ggplot2::labs(x = "Gene set") + ggplot2::theme(axis.title.y.left = ggplot2::element_text(hjust = 0.5))
 
-layout <- "ABC
-           DEE"
-
-p.1 <- p1 | p4 | p2
 ```
 
 
@@ -189,12 +185,28 @@ p.1 <- p1 | p4 | p2
 #| echo: false
 #| warning: false
 #| message: false
-SCpubr::save_Plot(p.1,
+SCpubr::save_Plot(p1,
                   figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S4B",
-                  file_name = "Figure_S4B-1",
+                  file_name = "Figure_S4B-1-1",
                   dpi = 300,
                   output_format = "publication",
-                  width = 19,
+                  width = 6.33,
+                  height = 4.5)
+
+SCpubr::save_Plot(p4,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S4B",
+                  file_name = "Figure_S4B-1-2",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.33,
+                  height = 4.5)
+
+SCpubr::save_Plot(p2,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S4B",
+                  file_name = "Figure_S4B-1-3",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.33,
                   height = 4.5)
 
 SCpubr::save_Plot(p3,
@@ -214,7 +226,8 @@ SCpubr::save_Plot(p5,
                   height = 4.5)
 ```
 
-<img src="../figs/Figure_S4B/Figure_S4B-1.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S4B/Figure_S4B-1-1.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S4B/Figure_S4B-1-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S4B/Figure_S4B-1-3.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
 <img src="../figs/Figure_S4B/Figure_S4B-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
 <img src="../figs/Figure_S4B/Figure_S4B-3.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
-

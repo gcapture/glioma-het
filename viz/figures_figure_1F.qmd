@@ -1,4 +1,4 @@
-# Figure 1H  {.unnumbered}
+# Figure 1F  {.unnumbered}
 ```{r}
 #| eval: false
 #| results: "asis"
@@ -20,9 +20,16 @@ suppressMessages(library("magrittr"))
 sample.oligo <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_OD.rds")
 sample.astro <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
 
+sample.oligo$relabelling[sample.oligo$relabelling == "RA"] <- "RE"
+sample.astro$relabelling[sample.astro$relabelling == "RA"] <- "RE"
+
+Seurat::Idents(sample.oligo) <- sample.oligo$relabelling
+Seurat::Idents(sample.astro) <- sample.astro$relabelling
+
+
 # Subset tumor entities.
-sample.oligo <- sample.oligo[, sample.oligo$relabelling %in% c("OPC-like", "Astro-like", "Gradient", "RA", "Cycling")]
-sample.astro <- sample.astro[, sample.astro$relabelling %in% c("OPC-like", "Astro-like", "Gradient", "RA", "Cycling")]
+sample.oligo <- sample.oligo[, sample.oligo$relabelling %in% c("OPC-like", "Astro-like", "Gradient", "RE", "Cycling")]
+sample.astro <- sample.astro[, sample.astro$relabelling %in% c("OPC-like", "Astro-like", "Gradient", "RE", "Cycling")]
 ```
 
 ```{r}
@@ -31,26 +38,26 @@ sample.astro <- sample.astro[, sample.astro$relabelling %in% c("OPC-like", "Astr
 features <- list("Astro-like" = c("NRG3", "ADGRV1", "SLC4A4", "SPARCL1", "ADCY2"),
                  "Cycling" = c("MKI67", "CENPK", "EZH2", "POLQ", "EGFR"),
                  "OPC-like" = c("OPCML", "DSCAM", "FGF12", "SOX6", "DLGAP1"),
-                 "RA" = c("EEF2", "EEF1A1", "OLIG1", "ETV1", "RPL13"))
+                 "RE" = c("EEF2", "EEF1A1", "OLIG1", "ETV1", "RPL13"))
 
 sample.oligo$relabelling <- factor(sample.oligo$relabelling,
                                    levels = rev(c("Astro-like",
                                                   "Cycling",
                                                   "Gradient",
                                                   "OPC-like",
-                                                  "RA")))
+                                                  "RE")))
 
 sample.astro$relabelling <- factor(sample.astro$relabelling,
                                    levels = rev(c("Astro-like",
                                                   "Cycling",
                                                   "Gradient",
                                                   "OPC-like",
-                                                  "RA")))
+                                                  "RE")))
 p1 <- SCpubr::do_DotPlot(sample.oligo,
                          features = features,
                          group.by = "relabelling",
                          assay = "SCT",
-                         legend.title = "OD | Avg. Expression",
+                         legend.title = "OD | Avg. Exp.",
                          legend.length = 8,
                          legend.width = 0.5,
                          legend.framecolor = "grey50",
@@ -58,9 +65,9 @@ p1 <- SCpubr::do_DotPlot(sample.oligo,
                          legend.framewidth = 0.2,
                          legend.tickwidth = 0.2,
                          dot.scale = 10,
-                         font.size = 12,
+                         font.size = 20,
                          axis.text.face = "plain") + 
-      ggplot2::ylab("Oligodendroglioma") + 
+      ggplot2::ylab("OD") + 
       ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),
                      axis.ticks.x.bottom = ggplot2::element_blank(),
                      axis.line.x.bottom = ggplot2::element_blank(),
@@ -72,7 +79,7 @@ p2 <- SCpubr::do_DotPlot(sample.astro,
                          group.by = "relabelling",
                          assay = "SCT",
                          sequential.palette = "YlOrRd",
-                         legend.title = "AS | Avg. Expression",
+                         legend.title = "AS | Avg. Exp.",
                          legend.length = 8,
                          legend.width = 0.5,
                          legend.framecolor = "grey50",
@@ -80,15 +87,15 @@ p2 <- SCpubr::do_DotPlot(sample.astro,
                          legend.framewidth = 0.2,
                          legend.tickwidth = 0.2,
                          dot.scale = 10,
-                         font.size = 12,
+                         font.size = 20,
                          axis.text.face = "plain") + 
-      ggplot2::ylab("Astrocytoma") + 
+      ggplot2::ylab("AS") + 
       ggplot2::theme(strip.background = ggplot2::element_blank(),
                      strip.text.x.top = ggplot2::element_blank(),
                      plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
 
-p1$guides$size$title <- "OD | Pct. Expressed"
-p2$guides$size$title <- "AS | Pct. Expressed"
+p1$guides$size$title <- "OD | Pct. Exp."
+p2$guides$size$title <- "AS | Pct. Exp."
 
 p <- patchwork::wrap_plots(A = p1,
                            B = p2,
@@ -107,14 +114,14 @@ p <- patchwork::wrap_plots(A = p1,
 #| message: false
 #| eval: false
 SCpubr::save_Plot(p,
-                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1H",
-                  file_name = "Figure_1H",
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1F",
+                  file_name = "Figure_1F",
                   dpi = 300,
                   output_format = "publication",
                   width = 12.25,
-                  height = 6.25)
+                  height = 6.75)
 ```
 
 
-<img src="../figs/Figure_1H/Figure_1H.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_1F/Figure_1F.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
 

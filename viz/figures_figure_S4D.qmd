@@ -36,7 +36,7 @@ p <- SCpubr::do_BoxPlot(sample = sample.astro[, sample.astro$relabelling == "RA"
                         order = TRUE,
                         group.by = "orig.ident",
                         colors.use = scale.ident,
-                        font.size = 12,
+                        font.size = 20,
                         axis.text.face = "plain") +
      ggplot2::ylab("Stemness enrichment score") +
      ggplot2::xlab("Patient")

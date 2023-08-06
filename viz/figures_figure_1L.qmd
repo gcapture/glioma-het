@@ -45,7 +45,7 @@ p1 <- data[data$Marker == "EEF1A1", ] %>%
       ggplot2::labs(y = "", 
                     x = "", 
                     title = "EEF1A1") + 
-      ggplot2::theme_minimal(base_size = 10) +
+      ggplot2::theme_minimal(base_size = 18) +
       ggplot2::scale_x_continuous(limits = c(0, 5)) + 
       ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
                                                         hjust = 0.5,
@@ -103,7 +103,7 @@ p2 <- data[data$Marker == "EEF2", ] %>%
                             size = 0.5, 
                             textsize = 8) + 
       ggplot2::labs(y = "", x = "", title = "EEF2") + 
-      ggplot2::theme_minimal(base_size = 10) +
+      ggplot2::theme_minimal(base_size = 18) +
       ggplot2::scale_x_continuous(limits = c(0, 5)) + 
       ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
                                                         hjust = 0.5,

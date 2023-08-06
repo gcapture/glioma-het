@@ -25,6 +25,7 @@ cluster_cols <- c("RE" = "#ECA809",
 
 markers <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/IDH_gliomas_TB_annotation_kit_with_Suva_programs_and_metaprogram_iterations.rds")
 markers <- markers[c("OD_RA", "N_RA", "N2_RA")]
+names(markers) <- c("OD_RE", "N_RE", "N2_RE")
 
 sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
 sample <- sample[, sample$relabelling %in% c("OPC-like", "Astro-like", "Gradient", "RA", "Cycling")]
@@ -40,9 +41,8 @@ list.selected <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figur
 ```{r}
 #| eval: false
 p2 <- SCpubr::do_FeaturePlot(sample = sample, 
-                             features = "OD_RA", 
-                             min.cutoff = 0, 
-                             font.size = 12,
+                             features = "OD_RE", 
+                             font.size = 16,
                              raster = TRUE,
                              raster.dpi = 2048,
                              pt.size = 4,
@@ -55,9 +55,8 @@ p2 <- SCpubr::do_FeaturePlot(sample = sample,
                              order = TRUE) + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
 
 p3 <- SCpubr::do_FeaturePlot(sample = sample, 
-                             features = "N_RA", 
-                             min.cutoff = 0, 
-                             font.size = 12,
+                             features = "N_RE", 
+                             font.size = 16,
                              raster = TRUE,
                              raster.dpi = 2048,
                              pt.size = 4,
@@ -70,9 +69,8 @@ p3 <- SCpubr::do_FeaturePlot(sample = sample,
                              order = TRUE) + ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
 
 p4 <- SCpubr::do_FeaturePlot(sample = sample, 
-                             features = "N2_RA", 
-                             min.cutoff = 0, 
-                             font.size = 12,
+                             features = "N2_RE", 
+                             font.size = 16,
                              raster = TRUE,
                              raster.dpi = 2048,
                              pt.size = 4,
@@ -86,34 +84,34 @@ p4 <- SCpubr::do_FeaturePlot(sample = sample,
 
 p5 <- SCpubr::do_DimPlot(sample = sample, 
                          cells.highlight = list.selected$O_RA, 
-                         font.size = 12,
+                         font.size = 16,
                          raster = TRUE,
                          raster.dpi = 2048,
                          pt.size = 4,
-                         plot.title = "OD_RA") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                         plot.title = "OD_RE") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                                                                 plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
 
 p6 <- SCpubr::do_DimPlot(sample = sample, 
                          cells.highlight = list.selected$N_RA, 
-                         font.size = 12,
+                         font.size = 16,
                          raster = TRUE,
                          raster.dpi = 2048,
                          pt.size = 4,
-                         plot.title = "N_RA") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                         plot.title = "N_RE") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                                                                plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
 
 p7 <- SCpubr::do_DimPlot(sample = sample, 
                          cells.highlight = list.selected$N2_RA, 
-                         font.size = 12,
+                         font.size = 16,
                          raster = TRUE,
                          raster.dpi = 2048,
                          pt.size = 4,
-                         plot.title = "N2_RA") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                         plot.title = "N2_RE") + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
                                                                 plot.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 0))
 
 p8 <- SCpubr::do_CorrelationPlot(input_gene_list = list.selected, 
                                  mode = "jaccard", 
-                                 font.size = 12,
+                                 font.size = 16,
                                  axis.text.face = "plain",
                                  legend.length = 8,
                                  legend.width = 0.5,

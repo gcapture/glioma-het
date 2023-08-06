@@ -24,7 +24,9 @@ sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Scie
 # Subset for the tumor cells.
 sample <- sample[, sample$relabelling %in% c("Astro-like", "RA", "OPC-like", "Gradient", "Cycling")]
 sample$relabelling[sample$relabelling == "RA"] <- "RE"
-sample$subtype = factor(sample$subtype, levels = c("Oligodendroglioma", "Astrocytoma"))
+sample$subtype[sample$subtype == "Oligodendroglioma"] <- "OD"
+sample$subtype[sample$subtype == "Astrocytoma"] <- "AS"
+sample$subtype = factor(sample$subtype, levels = c("OD", "AS"))
 # Read in pathway activities.
 progeny_activities <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_progeny.rds")
 
@@ -40,8 +42,14 @@ p <- SCpubr::do_PathwayActivityPlot(sample = sample,
                                     min.cutoff = -1,
                                     max.cutoff = 1,
                                     flip = TRUE,
-                                    font.size = 12,
-                                    axis.text.face = "plain") + 
+                                    font.size = 17,
+                                    axis.text.face = "plain",
+                                    legend.length = 12,
+                                    legend.width = 0.5,
+                                    legend.framecolor = "grey50",
+                                    legend.tickcolor = "white",
+                                    legend.framewidth = 0.2,
+                                    legend.tickwidth = 0.2) + 
      ggplot2::ylab("Pathway") +
      ggplot2::xlab("Cell type")
 

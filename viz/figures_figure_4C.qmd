@@ -39,7 +39,7 @@ sample <- sample[, sample$relabelling %in% idents.keep]
 p1 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH557", "IDH_NCH758A")],
                          group.by = "relabelling",
                          split.by = "orig.ident",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -49,7 +49,7 @@ p1 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH557"
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::xlab("Pair 1") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
@@ -60,7 +60,7 @@ p1 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH557"
 p2 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH511B", "IDH_NCH678K")],
                          group.by = "relabelling",
                          split.by = "orig.ident",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -70,7 +70,7 @@ p2 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH511B
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::xlab("Pair 2") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
@@ -81,7 +81,7 @@ p2 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH511B
 p3 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH302", "IDH_NCH645")],
                          group.by = "relabelling",
                          split.by = "orig.ident",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -91,7 +91,7 @@ p3 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH302"
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::xlab("Pair 3") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
@@ -102,7 +102,7 @@ p3 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH302"
 p4 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH988", "IDH_NCH2375")],
                          group.by = "relabelling",
                          split.by = "orig.ident",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -112,7 +112,7 @@ p4 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH988"
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::xlab("Pair 4") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
@@ -123,7 +123,7 @@ p4 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH988"
 p5 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH740W", "IDH_NCH2367")],
                          group.by = "relabelling",
                          split.by = "orig.ident",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -133,7 +133,7 @@ p5 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH740W
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::xlab("Pair 5") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
@@ -144,7 +144,7 @@ p5 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH740W
 p6 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH673D", "IDH_NCH2260")],
                          group.by = "relabelling",
                          split.by = "orig.ident",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -154,7 +154,7 @@ p6 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH673D
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::xlab("Pair 6") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
@@ -165,7 +165,7 @@ p6 <- SCpubr::do_BarPlot(sample = sample[, sample$orig.ident %in% c("IDH_NCH673D
 p7 <- SCpubr::do_BarPlot(sample = sample,
                          group.by = "relabelling",
                          split.by = "time",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -175,8 +175,8 @@ p7 <- SCpubr::do_BarPlot(sample = sample,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
-      ggplot2::xlab("Relapse status") +
+                         add.n.size = 5) +
+      ggplot2::xlab("Status") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
@@ -186,7 +186,7 @@ p7 <- SCpubr::do_BarPlot(sample = sample,
 p8 <- SCpubr::do_BarPlot(sample = sample,
                          group.by = "relabelling",
                          split.by = "grade",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          legend.title = "",
@@ -196,7 +196,7 @@ p8 <- SCpubr::do_BarPlot(sample = sample,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4,
+                         add.n.size = 5,
                          legend.ncol = 3) +
       ggplot2::xlab("Grade") +
       ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
@@ -228,6 +228,14 @@ SCpubr::save_Plot(p,
                   width = 6.33,
                   height = 9,
                   output_format = "publication")
+
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_4C",
+                  file_name = "Figure_4C-2",
+                  dpi = 300,
+                  width = 10,
+                  height = 15,
+                  output_format = "publication")
 ```
-<img src="../figs/Figure_4C/Figure_4C.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_4C/Figure_4C-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
   

@@ -47,9 +47,13 @@ p1 <- SCpubr::do_BoxPlot(sample = sample,
                          order = TRUE, 
                          colors.use = cluster_cols,
                          boxplot.linewidth = 0.5,
-                         font.size = 10) + 
-       ggplot2::labs(x = "Cell Identities",
-                     y = "Number of UMIs/cell")
+                         font.size = 16,
+                         flip = TRUE) + 
+       ggplot2::theme(axis.text.y = ggplot2::element_blank(),
+                      axis.ticks.y = ggplot2::element_blank(),
+                      axis.title.y = ggplot2::element_blank()) +
+       ggplot2::labs(x = "",
+                     y = "UMIs")
 
 p2 <- SCpubr::do_BoxPlot(sample = sample, 
                          feature = "nFeature_RNA", 
@@ -57,9 +61,15 @@ p2 <- SCpubr::do_BoxPlot(sample = sample,
                          order = TRUE, 
                          colors.use = cluster_cols,
                          boxplot.linewidth = 0.5,
-                         font.size = 10) + 
-       ggplot2::labs(x = "Cell Identities",
-                     y = "Number of genes/cell")
+                         font.size = 16,
+                         flip = TRUE,
+                         legend.position = "bottom",
+                         legend.title = "") + 
+       ggplot2::theme(axis.text.y = ggplot2::element_blank(),
+                      axis.ticks.y = ggplot2::element_blank(),
+                      axis.title.y = ggplot2::element_blank()) +
+       ggplot2::labs(x = "",
+                     y = "Genes")
 
 p3 <- SCpubr::do_BoxPlot(sample = sample, 
                          feature = "percent.mt", 
@@ -67,11 +77,18 @@ p3 <- SCpubr::do_BoxPlot(sample = sample,
                          order = TRUE, 
                          colors.use = cluster_cols,
                          boxplot.linewidth = 0.5,
-                         font.size = 10) + 
-       ggplot2::labs(x = "Cell Identities",
-                     y = "Pct. Mitochondrial RNA/cell")
+                         font.size = 16,
+                         flip = TRUE)+ 
+       ggplot2::theme(axis.text.y = ggplot2::element_blank(),
+                      axis.ticks.y = ggplot2::element_blank(),
+                      axis.title.y = ggplot2::element_blank()) +
+       ggplot2::labs(x = "",
+                     y = "Pct. Mito.")
 
-p <- p1 / p2 / p3
+layout <- "ABC
+           DDD"
+
+p <- patchwork::wrap_plots(A = p1, B = p2, C = p3, D = patchwork::guide_area(), design = layout, guides = "collect")
 ```
 
 ```{r}

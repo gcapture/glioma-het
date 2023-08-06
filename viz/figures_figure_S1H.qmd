@@ -27,17 +27,30 @@ sample$Clusters <- sample$seurat_clusters
 #| eval: false
 p1 <- SCpubr::do_DimPlot(sample = sample,
                          group.by = "seurat_clusters",
-                         pt.size = 4,
+                         font.size = 20,
                          raster = TRUE,
                          raster.dpi = 2048,
-                         legend.ncol = 8)
+                         pt.size = 4,
+                         legend.icon.size = 8,
+                         legend.ncol = 2,
+                         label = TRUE,
+                         repel = TRUE,
+                         legend.position = "none")
 
 p2 <- SCpubr::do_EnrichmentHeatmap(sample = sample,
+                                   font.size = 16,
                                    input_gene_list = markers,
                                    group.by = "seurat_clusters",
-                                   min.cutoff = 0)
+                                   flip = TRUE,
+                                   axis.text.face = "plain",
+                                   legend.length = 12,
+                                   legend.width = 0.5,
+                                   legend.framecolor = "grey50",
+                                   legend.tickcolor = "white",
+                                   legend.framewidth = 0.2,
+                                   legend.tickwidth = 0.2) + 
+      ggplot2::labs(x = "Clusters", y = "Gene set")
 
-p <- p1 | p2
 ```
 
 
@@ -46,13 +59,22 @@ p <- p1 | p2
 #| echo: false
 #| warning: false
 #| message: false
-SCpubr::save_Plot(p,
+SCpubr::save_Plot(p1,
                   figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S1H",
-                  file_name = "Figure_S1H",
+                  file_name = "Figure_S1H-1",
                   dpi = 300,
                   output_format = "publication",
-                  width = 20,
-                  height = 11)
+                  width = 6.33,
+                  height = 4.5)
+
+SCpubr::save_Plot(p2,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S1H",
+                  file_name = "Figure_S1H-2",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.33,
+                  height = 4.5)
 ```
 
-<img src="../figs/Figure_S1H/Figure_S1H.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S1H/Figure_S1H-1.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S1H/Figure_S1H-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

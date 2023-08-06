@@ -17,13 +17,14 @@ suppressMessages(library("magrittr"))
 # DKFZ-KiTZ | Germany
 
 markers <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/IDH_gliomas_TB_annotation_kit_with_Suva_programs_and_metaprogram_iterations.rds")
+names(markers) <- stringr::str_replace_all(names(markers), "RA", "RE")
 ```
 
 ```{r}
 #| eval: false
 p <- SCpubr::do_CorrelationPlot(input_gene_list = markers, 
                                 mode = "jaccard", 
-                                font.size = 12,
+                                font.size = 20,
                                 axis.text.face = "plain") + 
      ggplot2::labs(x = "Gene sets", y = "Gene sets") + 
      ggplot2::theme(axis.title.y.left = ggplot2::element_text(face = "bold", hjust = 0.5))

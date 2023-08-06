@@ -63,8 +63,14 @@ p <- SCpubr::do_ExpressionHeatmap(sample.atac,
                                   legend.title = "Motif Score",
                                   max.cutoff = 0.8,
                                   min.cutoff = -0.4,
-                                  axis.text.face = "plain",
-                                  font.size = 12) +
+                                  font.size = 20,
+                                  legend.length = 15,
+                                  legend.width = 0.5,
+                                  legend.framecolor = "grey50",
+                                  legend.tickcolor = "white",
+                                  legend.framewidth = 0.2,
+                                  legend.tickwidth = 0.2,
+                                  axis.text.face = "plain") +
       ggplot2::labs(x = "Motif",
                     y = "Cell type") + 
       ggplot2::theme(axis.title.y.left = ggplot2::element_text(hjust = 0.5))
@@ -83,7 +89,7 @@ SCpubr::save_Plot(p,
                   dpi = 300,
                   output_format = "publication",
                   width = 19,
-                  height = 3.375)
+                  height = 4)
 ```
 
 

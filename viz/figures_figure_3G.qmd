@@ -160,7 +160,7 @@ p1 <- liana_OD %>%
       ggplot2::geom_point(shape = 21, na.rm = TRUE, stroke = 0.25) +
       ggplot2::guides(y.sec = SCpubr:::guide_axis_label_trans(~paste0(levels(.data$interaction)))) +
       ggplot2::scale_size_continuous(name = "Interaction Specificity",
-                                     range = c(0.25, 5),
+                                     range = c(0.25, 7),
                                      breaks = scale.specificity$breaks,
                                      labels = scale.specificity$labels,
                                      limits = scale.specificity$limits) +
@@ -180,7 +180,7 @@ p1 <- liana_OD %>%
       ggplot2::guides(size = ggplot2::guide_legend(title.position = "top",
                                                    title.hjust = 0.5,
                                                    override.aes = ggplot2::aes(fill = "black"))) +
-      ggplot2::theme_minimal(base_size = 11) +
+      ggplot2::theme_minimal(base_size = 16) +
       ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
                                                         hjust = 0.5,
                                                         vjust = 0,
@@ -239,7 +239,7 @@ p2 <- liana_AS %>%
       ggplot2::geom_point(shape = 21, na.rm = TRUE, stroke = 0.25) +
       ggplot2::guides(y.sec = SCpubr:::guide_axis_label_trans(~paste0(levels(.data$interaction)))) +
       ggplot2::scale_size_continuous(name = "Interaction Specificity",
-                                     range = c(0.25, 5),
+                                     range = c(0.25, 7),
                                      breaks = scale.specificity$breaks,
                                      labels = scale.specificity$labels,
                                      limits = scale.specificity$limits) +
@@ -259,7 +259,7 @@ p2 <- liana_AS %>%
       ggplot2::guides(size = ggplot2::guide_legend(title.position = "top",
                                                    title.hjust = 0.5,
                                                    override.aes = ggplot2::aes(fill = "black"))) +
-      ggplot2::theme_minimal(base_size = 11) +
+      ggplot2::theme_minimal(base_size = 16) +
       ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
                                                         hjust = 0.5,
                                                         vjust = 0,
@@ -338,8 +338,8 @@ SCpubr::save_Plot(p,
                   file_name = "Figure_3G",
                   dpi = 300,
                   output_format = "publication",
-                  width = 10.5,
-                  height = 14.5)
+                  width = 14,
+                  height = 22.5)
 ```
 
 <img src="../figs/Figure_3G/Figure_3G.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

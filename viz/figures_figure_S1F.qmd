@@ -18,12 +18,17 @@ suppressMessages(library("magrittr"))
 # DKFZ-KiTZ | Germany
 
 sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_AS.rds")
+sample$relabelling <- as.character(sample$relabelling)
+sample$relabelling[sample$relabelling == "RA"] <- "RE"
+Seurat::Idents(sample) <- sample$relabelling
 ```
 
 ```{r}
 #| eval: false
 p <- SCpubr::do_CorrelationPlot(sample,
                                 group.by = "relabelling",
+                                font.size = 20,
+                                legend.title = "P. Corr.",
                                 legend.length = 12,
                                 legend.width = 0.5,
                                 legend.framecolor = "grey50",

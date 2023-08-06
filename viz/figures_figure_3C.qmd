@@ -22,6 +22,7 @@ sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Scie
 scale.subtype.short <- c("AS" = "#b38b14",
                          "OD" = "#3c5b8b")
 
+
 ```
 
 ```{r}
@@ -31,6 +32,7 @@ data <- sample@meta.data %>%
         tibble::as_tibble() %>%
         dplyr::filter(!.data$orig.ident %in% c("IDH_NCH2164", "IDH_NCH6702")) %>% 
         dplyr::mutate("subtype" = ifelse(.data$subtype == "Oligodendroglioma", "OD", "AS")) %>% 
+        dplyr::mutate("subtype" = factor(.data$subtype, levels = c("OD", "AS"))) %>% 
         dplyr::group_by(.data$subtype, .data$orig.ident, .data$final_annotation) %>% 
         dplyr::summarise("n" = dplyr::n(),
                         "subtype" := unique(.data$subtype),
@@ -63,7 +65,7 @@ p <- data %>%
                                 comparisons = list(c("OD", "AS")),
                                 paired = FALSE,
                                 position = "jitter") +
-     ggplot2::theme_minimal(base_size = 10) +
+     ggplot2::theme_minimal(base_size = 20) +
      ggplot2::labs(x = "Subtype", y = "Proportion") +
      ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_line(color = "black"),
                     axis.ticks.x.top = ggplot2::element_blank(),
@@ -91,7 +93,7 @@ p <- data %>%
                     legend.text = ggplot2::element_text(face = "bold"),
                     legend.title = ggplot2::element_text(face = "bold"),
                     legend.justification = "center",
-                    plot.margin = ggplot2::margin(t = 4, r = 10, b = 0, l = 10),
+                    plot.margin = ggplot2::margin(t = 40, r = 10, b = 0, l = 10),
                     panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 1),
                     panel.grid.major = ggplot2::element_blank(),
                     legend.position = "none",
@@ -115,7 +117,15 @@ SCpubr::save_Plot(p,
                   output_format = "publication",
                   width = 12.66,
                   height = 6.33)
+
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_3C",
+                  file_name = "Figure_3C-2",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 15,
+                  height = 7.5)
 ```
 
 
-<img src="../figs/Figure_3C/Figure_3C.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_3C/Figure_3C-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

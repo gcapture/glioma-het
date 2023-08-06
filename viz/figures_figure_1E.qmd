@@ -118,7 +118,7 @@ p.main <- SCpubr:::modify_continuous_legend(p = p.main,
                                             legend.aes = "fill",
                                             legend.type = "colorbar",
                                             legend.position = "bottom",
-                                            legend.length = 4,
+                                            legend.length = 6,
                                             legend.width = 0.25,
                                             legend.framecolor = "grey50",
                                             legend.tickcolor = "white",
@@ -127,7 +127,7 @@ p.main <- SCpubr:::modify_continuous_legend(p = p.main,
 
         
 p.main <- p.main +
-          ggplot2::theme_minimal(base_size = 8) +
+          ggplot2::theme_minimal(base_size = 12) +
           ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_blank(),
                          axis.ticks.x.top = ggplot2::element_blank(),
                          axis.ticks.y.left = ggplot2::element_blank(),
@@ -150,8 +150,8 @@ p.main <- p.main +
                          text = ggplot2::element_text(family = "sans"),
                          plot.caption.position = "plot",
                          legend.key.size = ggplot2::unit(0.2, 'cm'),
-                         legend.title = ggplot2::element_text(face = "bold", size = 8),
-                         legend.text = ggplot2::element_text(size = 8),
+                         legend.title = ggplot2::element_text(face = "bold", size = 12),
+                         legend.text = ggplot2::element_text(size = 12),
                          legend.justification = "center",
                          plot.margin = ggplot2::margin(t = 1, r = 10, b = 0, l = 10),
                          panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 0.5),
@@ -174,7 +174,7 @@ p.orig <- data.patient %>%
           ggplot2::coord_equal() +
           ggplot2::scale_fill_manual(values = scale.ident) +
           ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", title.hjust = 0.5, ncol = 2)) +
-          ggplot2::theme_minimal(base_size = 8) +
+          ggplot2::theme_minimal(base_size = 12) +
           ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_blank(),
                          axis.ticks.x.top = ggplot2::element_blank(),
                          axis.ticks.y.left = ggplot2::element_blank(),
@@ -198,8 +198,8 @@ p.orig <- data.patient %>%
                          plot.caption.position = "plot",
                          legend.justification = "center",
                          legend.key.size = ggplot2::unit(0.2, 'cm'),
-                         legend.title = ggplot2::element_text(face = "bold", size = 8),
-                         legend.text = ggplot2::element_text(size = 8),
+                         legend.title = ggplot2::element_text(face = "bold", size = 12),
+                         legend.text = ggplot2::element_text(size = 12),
                          plot.margin = ggplot2::margin(t = 0, r = 10, b = 0.75, l = 10),
                          panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 0.5),
                          panel.grid.major = ggplot2::element_blank(),
@@ -221,7 +221,7 @@ p.grade <- data.grade %>%
            ggplot2::coord_equal() +
            ggplot2::scale_fill_manual(values = scale.grade) +
            ggplot2::guides(fill = ggplot2::guide_legend(title.position = "top", title.hjust = 0.5, ncol = 1)) +
-           ggplot2::theme_minimal(base_size = 8) +
+           ggplot2::theme_minimal(base_size = 12) +
            ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_blank(),
                           axis.ticks.x.top = ggplot2::element_blank(),
                           axis.ticks.y.left = ggplot2::element_blank(),
@@ -245,8 +245,8 @@ p.grade <- data.grade %>%
                           plot.caption.position = "plot",
                           legend.justification = "center",
                           legend.key.size = ggplot2::unit(0.2, 'cm'),
-                          legend.title = ggplot2::element_text(face = "bold", size = 8),
-                          legend.text = ggplot2::element_text(size = 8),
+                          legend.title = ggplot2::element_text(face = "bold", size = 12),
+                          legend.text = ggplot2::element_text(size = 12),
                           plot.margin = ggplot2::margin(t = 0, r = 10, b = 0.75, l = 10),
                           panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 0.5),
                           panel.grid.major = ggplot2::element_blank(),
@@ -274,11 +274,19 @@ p <- patchwork::wrap_plots(A = p.grade,
 #| message: false
 SCpubr::save_Plot(p,
                   figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1E",
-                  file_name = "Figure_1E",
+                  file_name = "Figure_1E-1",
                   dpi = 300,
                   output_format = "publication",
                   width = 4.75,
                   height = 6.75)
+
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1E",
+                  file_name = "Figure_1E-2",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 10,
+                  height = 10)
 ```
-<img src="../figs/Figure_1E/Figure_1E.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_1E/Figure_1E-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
 

@@ -104,12 +104,14 @@ p <- SCpubr::do_MetadataPlot(from_df = TRUE,
                              legend.ncol = 1,
                              colors.use = colors.use,
                              axis.text.face = "plain", 
-                             font.size = 16, 
-                             legend.font.size = 12, 
-                             legend.symbol.size = 4,
+                             font.size = 20, 
+                             legend.font.size = 20, 
+                             legend.symbol.size = 8,
                              cluster = FALSE,
                              legend.position = "right") &
      ggplot2::ylab("")
+p <- p + patchwork::plot_annotation(theme = ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 40, l = 0, b = 0)))
+     
 ```
 
 ```{r}

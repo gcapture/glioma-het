@@ -37,7 +37,7 @@ metadata <- metadata %>%
                           "MGMT methylated" = factor(.data$`MGMT methylated`, levels = c("Yes", "No")),
                           "TERT status" = factor(.data$`TERT status`, levels = c("WT", "C228T", "C250T")),
                           "ATRX status" = factor(.data$`ATRX status`, levels = c("WT", "Loss")),
-                          "Diagnosis" = factor(.data$Diagnosis, levels = c("Astrocytoma", "Oligodendroglioma")),
+                          "Diagnosis" = factor(.data$Diagnosis, levels = c("Oligodendroglioma", "Astrocytoma")),
                           "Grade" = factor(.data$Grade, levels = c("Grade 2", "Grade 3")),
                           "Sex" = factor(.data$Sex, levels = c("Female", "Male"))) %>% 
             tibble::column_to_rownames(var = "ID") %>% 
@@ -57,16 +57,27 @@ colors.use <- list("snRNAseq" = yes_no_colors,
                    "Sex" = c("Male" = "#723d46", "Female" = "#af9d6a"))
 
 # Plot.
-p <- SCpubr::do_MetadataPlot(from_df = TRUE,
-                             df = metadata,
-                             legend.position = "right",
-                             legend.ncol = 1,
-                             colors.use = colors.use,
-                             axis.text.face = "plain", 
-                             font.size = 8, 
-                             legend.font.size = 6, 
-                             legend.symbol.size = 2) &
-     ggplot2::ylab("")
+p1 <- SCpubr::do_MetadataPlot(from_df = TRUE,
+                              df = metadata,
+                              legend.position = "null",
+                              legend.ncol = 1,
+                              colors.use = colors.use,
+                              axis.text.face = "plain", 
+                              font.size = 12, 
+                              legend.font.size = 12, 
+                              legend.symbol.size = 4) &
+       ggplot2::ylab("")
+
+p2 <- SCpubr::do_MetadataPlot(from_df = TRUE,
+                              df = metadata,
+                              legend.position = "right",
+                              legend.ncol = 1,
+                              colors.use = colors.use,
+                              axis.text.face = "plain", 
+                              font.size = 12, 
+                              legend.font.size = 12, 
+                              legend.symbol.size = 4) &
+       ggplot2::ylab("")
 ```
 
 ```{r}
@@ -75,13 +86,21 @@ p <- SCpubr::do_MetadataPlot(from_df = TRUE,
 #| message: false
 #| eval: false
 # Save the plot.
-SCpubr::save_Plot(p,
+SCpubr::save_Plot(p1,
                   figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1A",
-                  file_name = "Figure_1A",
+                  file_name = "Figure_1A-1",
                   dpi = 300,
                   width = 6.75,
                   height = 4.75,
                   output_format = "publication")
+
+SCpubr::save_Plot(p2,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_1A",
+                  file_name = "Figure_1A-2",
+                  dpi = 300,
+                  width = 10,
+                  height = 12,
+                  output_format = "publication")
 ```
-<img src="../figs/Figure_1A/Figure_1A.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_1A/Figure_1A-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
   

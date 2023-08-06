@@ -1,0 +1,96 @@
+# Figure S8B {.unnumbered}
+
+```{r}
+#| eval: false
+#| results: "asis"
+#| echo: false
+source("../_common.R")
+suppressMessages(suppressPackageStartupMessages(library("Seurat")))
+suppressMessages(library("magrittr"))
+```
+
+```{r}
+#| eval: false
+# Enrique Blanco Carmona
+# e.blancocarmona@kitz-heidelberg.de
+# PhD Student – Clinical Bioinformatics
+# Division of Pediatric Neurooncology (B062)
+
+# Read in sample.
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/microglia_primary.rds")
+
+# Define colors.
+cluster_cols <- c("Mg Homeostatic"= "#ECA809",                          
+                  "Mg Inflammatory TAMs" = "#043362",                  
+                  "Mg Activated"= "#9A031E",                 
+                  "Mg Resident−like TAMs"= "#009FF5",                    
+                  "BMD Anti−inflammatory TAMs"= "#BC5210",            
+                  "Mg Phagocytic"= "#279185",                 
+                  "Mg IFNg TAMs"= "#7EB356",                   
+                  "Mg Stressed TAMs"= "#AC70FF",                  
+                  "Mg Inflammatory ICAM1+"= "#63412C",                  
+                  "BAMs" = "#5F0F40")
+
+scale.subtype.short <- c("Astrocytoma" = "#b38b14",
+                         "Oligodendroglioma" = "#3c5b8b")
+
+
+markers <- readr::read_tsv("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/TAM_markers.tsv")
+markers <- lapply(as.list(markers), function(x){x[!is.na(x)]})
+markers <- markers[c("Pro-Inflammatory", "Anti-Inflammatory")]
+names(markers) <- c("Pro_Inflammatory", "Anti_Inflammatory")
+
+sample <- SCpubr:::compute_enrichment_scores(sample = sample,
+                                             input_gene_list = markers,
+                                             flavor = "UCell",
+                                             assay = "RNA")
+
+```
+
+
+
+```{r}
+#| eval: false
+
+out <- SCpubr:::compute_umap_layer(sample,
+                                   labels = colnames(sample@reductions[["umap"]][[]])[1:2],
+                                   border.color = "black",
+                                   pt.size = 1,
+                                   border.size = 2)
+
+p1 <- SCpubr::do_NebulosaPlot(sample[, sample$subtype == "Astrocytoma"], 
+                              features = "Anti_Inflammatory",
+                              font.size = 20,
+                              use_viridis = FALSE,
+                              plot.title = "Anti Inflammatory TAMs | AS",
+                              sequential.direction = 1) + ggplot2::theme(plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))
+p1$layers <- append(out$na_layer, p1$layers)
+p1$layers <- append(out$base_layer, p1$layers)
+
+p2 <- SCpubr::do_NebulosaPlot(sample[, sample$subtype == "Oligodendroglioma"], 
+                              features = "Anti_Inflammatory",
+                              font.size = 20,
+                              use_viridis = FALSE,
+                              plot.title = "Anti Inflammatory TAMs | OD",
+                              sequential.direction = 1) + ggplot2::theme(plot.title = ggplot2::element_text(face = "bold", hjust = 0.5))
+p2$layers <- append(out$na_layer, p2$layers)
+p2$layers <- append(out$base_layer, p2$layers)
+
+p <- p2 | p1
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| eval: false
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S8B",
+                  file_name = "Figure_S8B",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 9.5,
+                  height = 6.75)
+```
+
+<img src="../figs/Figure_S8B/Figure_S8B.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

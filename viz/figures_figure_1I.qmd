@@ -20,13 +20,16 @@ suppressMessages(library("magrittr"))
 # Load samples.
 sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_LGGs.rds")
 
-cluster_cols <- c("RA" = "#ECA809",
+sample$relabelling[sample$relabelling == "RA"] <- "RE"
+Seurat::Idents(sample) <- sample$relabelling
+
+cluster_cols <- c("RE" = "#ECA809",
                   "OPC-like" = "#043362",                    
                   "Gradient" = "#D6D6D6",                    
                   "Astro-like" = "#9A031E",                  
                   "Cycling" = "#5F0F40")
 
-idents.keep <- c("OPC-like", "Astro-like", "RA", "Gradient", "Cycling")
+idents.keep <- c("OPC-like", "Astro-like", "RE", "Gradient", "Cycling")
 sample <- sample[, sample$relabelling %in% idents.keep]
 ```
 
@@ -36,19 +39,19 @@ p0 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Oligodendroglioma"
                          group.by = "relabelling",
                          split.by = "orig.ident",
                          facet.by = "subtype",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
                          legend.position = "none",
                          order = TRUE,
-                         order.by = "RA",
+                         order.by = "RE",
                          plot.grid = FALSE,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
-      ggplot2::xlab("Oligodendroglioma") +
+                         add.n.size = 5) +
+      ggplot2::xlab("OD") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
@@ -59,19 +62,19 @@ p1 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Astrocytoma"],
                          group.by = "relabelling",
                          split.by = "orig.ident",
                          facet.by = "subtype",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
                          legend.position = "none",
                          order = TRUE,
-                         order.by = "RA",
+                         order.by = "RE",
                          plot.grid = FALSE,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
-      ggplot2::xlab("Astrocytoma") +
+                         add.n.size = 5) +
+      ggplot2::xlab("AS") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
@@ -81,7 +84,7 @@ p1 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Astrocytoma"],
 p2 <- SCpubr::do_BarPlot(sample = sample,
                          group.by = "relabelling",
                          split.by = "grade",
-                         font.size = 12,
+                         font.size = 18,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -91,10 +94,10 @@ p2 <- SCpubr::do_BarPlot(sample = sample,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4,
-                         legend.ncol = 3) +
+                         add.n.size = 5,
+                         legend.ncol = 5) +
       ggplot2::xlab("Grade") +
-      ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 10))
+      ggplot2::theme(plot.margin = ggplot2::margin(t = 0, r = 30, b = 0, l = 10))
 
 layout <- paste(c(rep("A", 8), rep("B", 6), rep("C", 2), "D"), collapse = "\n")
 

@@ -38,7 +38,7 @@ p <- data %>%
      ggplot2::labs(y = "", 
                    x = "Histopatology score", 
                    title = "p-STAT1+ IBA1+") + 
-     ggplot2::theme_minimal(base_size = 10) +
+     ggplot2::theme_minimal(base_size = 20) +
      ggplot2::scale_x_continuous(limits = c(0, 4)) + 
      ggplot2::theme(plot.title = ggplot2::element_text(face = "bold",
                                                        hjust = 0.5,

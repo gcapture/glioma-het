@@ -57,7 +57,7 @@ p <- data %>%
 
 p <- p +
      ggplot2::labs(title = "EEF1A1") + 
-     ggplot2::theme_minimal(base_size = 8) +
+     ggplot2::theme_minimal(base_size = 20) +
      ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_line(color = "black"),
                     axis.ticks.x.top = ggplot2::element_blank(),
                     axis.ticks.y.left = ggplot2::element_blank(),
@@ -78,8 +78,8 @@ p <- p +
                     panel.grid.minor.y = ggplot2::element_line(color = "white", linewidth = 0.1),
                     text = ggplot2::element_text(family = "sans"),
                     plot.caption.position = "plot",
-                    legend.title = ggplot2::element_text(face = "bold", size = 6),
-                    legend.text = ggplot2::element_text(size = 10),
+                    legend.title = ggplot2::element_text(face = "bold", size = 20),
+                    legend.text = ggplot2::element_text(size = 20),
                     legend.justification = "center",
                     legend.key.size = ggplot2::unit(0.3, 'cm'),
                     plot.margin = ggplot2::margin(t = 1, r = 10, b = 0, l = 10),
@@ -102,11 +102,19 @@ SCpubr::save_Plot(p,
                   file_name = "Figure_4E",
                   dpi = 300,
                   output_format = "publication",
-                  width = 2,
-                  height = 3)
+                  width = 4,
+                  height = 6)
+
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_4E",
+                  file_name = "Figure_4E-2",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 8,
+                  height = 10)
 ```
 
 
-<img src="../figs/Figure_4E/Figure_4E.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_4E/Figure_4E-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
   
   

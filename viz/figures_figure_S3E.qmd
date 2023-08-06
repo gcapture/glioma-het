@@ -61,7 +61,7 @@ p0 <- proportions %>%
                                              fill = .data$cell_type)) + 
       ggplot2::geom_col(color = "black", position = "fill", linewidth = 0.25) + 
       ggplot2::scale_fill_manual(values = cluster_cols, name = "") + 
-      ggplot2::theme_minimal(base_size = 12) +
+      ggplot2::theme_minimal(base_size = 20) +
       ggplot2::labs(x = "TCGA Oligodendroglioma Datasets",
                     y = "Proportion") +
       ggplot2::theme(axis.title = ggplot2::element_text(color = "black",
@@ -97,7 +97,7 @@ p1 <- proportions %>%
                                              fill = .data$cell_type)) + 
       ggplot2::geom_col(color = "black", position = "stack", linewidth = 0.25) + 
       ggplot2::scale_fill_manual(values = cluster_cols, name = "") + 
-      ggplot2::theme_minimal(base_size = 12) +
+      ggplot2::theme_minimal(base_size = 20) +
       ggplot2::labs(x = "",
                     y = "Proportion") +
       ggplot2::theme(axis.title.y = ggplot2::element_text(color = "black",
@@ -142,8 +142,16 @@ SCpubr::save_Plot(p,
                   output_format = "publication",
                   width = 9.5,
                   height = 6.75)
+
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_S3E",
+                  file_name = "Figure_S3E-2",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 9.5,
+                  height = 9.5)
 ```
 
 
-<img src="../figs/Figure_S3E/Figure_S3E.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_S3E/Figure_S3E-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
 

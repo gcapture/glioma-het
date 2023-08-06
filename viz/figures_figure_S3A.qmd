@@ -51,7 +51,7 @@ p <- proportions %>%
                                             fill = .data$cell_type)) + 
      ggplot2::geom_col(color = "black", position = "fill") + 
      ggplot2::scale_fill_manual(values = cluster_cols, name = "") + 
-     ggplot2::theme_minimal(base_size = 12) +
+     ggplot2::theme_minimal(base_size = 20) +
      ggplot2::labs(x = "Patient",
                    y = "Proportion",
                    title = "Oligodendroglioma") +

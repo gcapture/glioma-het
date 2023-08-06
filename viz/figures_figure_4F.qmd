@@ -37,13 +37,13 @@ cluster_cols <- c("Mg Homeostatic"= "#ECA809",
 #| eval: false
 p <- SCpubr::do_DimPlot(sample = sample,
                         group.by = "final_annotation",
-                        font.size = 11,
+                        font.size = 20,
                         raster = TRUE,
                         raster.dpi = 2048,
                         pt.size = 4,
                         colors.use = cluster_cols,
                         legend.icon.size = 8,
-                        legend.ncol = 3,
+                        legend.ncol = 2,
                         na.value = "grey90")
 ```
 
@@ -60,6 +60,14 @@ SCpubr::save_Plot(p,
                   width = 6.33,
                   height = 9,
                   output_format = "publication")
+
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_4F",
+                  file_name = "Figure_4F-2",
+                  dpi = 300,
+                  width = 8,
+                  height = 10,
+                  output_format = "publication")
 ```
-<img src="../figs/Figure_4F/Figure_4F.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_4F/Figure_4F-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
   

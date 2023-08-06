@@ -37,7 +37,7 @@ cluster_cols <- c("Mg Homeostatic"= "#ECA809",
 p0 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Oligodendroglioma"],
                          group.by = "final_annotation",
                          split.by = "orig.ident",
-                         font.size = 11,
+                         font.size = 16,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -46,9 +46,9 @@ p0 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Oligodendroglioma"
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::ylab("") +
-      ggplot2::xlab("Oligodendroglioma") + 
+      ggplot2::xlab("OD") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
                      strip.text = ggplot2::element_blank(),
@@ -57,7 +57,7 @@ p0 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Oligodendroglioma"
 p1 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Astrocytoma"],
                          group.by = "final_annotation",
                          split.by = "orig.ident",
-                         font.size = 11,
+                         font.size = 16,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -66,9 +66,9 @@ p1 <- SCpubr::do_BarPlot(sample = sample[, sample$subtype == "Astrocytoma"],
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
+                         add.n.size = 5) +
       ggplot2::ylab("") +
-      ggplot2::xlab("Astrocytoma") + 
+      ggplot2::xlab("AS") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
                      strip.text = ggplot2::element_blank(),
@@ -79,15 +79,15 @@ p2 <- SCpubr::do_BarPlot(sample = sample,
                          split.by = "subtype",
                          flip = TRUE,
                          position = "fill",
-                         font.size = 11,
+                         font.size = 16,
                          colors.use = cluster_cols,
                          legend.position = "none",
                          plot.grid = FALSE,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
-      ggplot2::xlab("Subtype") +
+                         add.n.size = 5) +
+      ggplot2::xlab("") +
       ggplot2::ylab("") +
       ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),
                      axis.ticks.x.bottom = ggplot2::element_blank(),
@@ -100,16 +100,16 @@ p3 <- SCpubr::do_BarPlot(sample = sample,
                          split.by = "grade",
                          flip = TRUE,
                          position = "fill",
-                         font.size = 11,
+                         font.size = 16,
                          colors.use = cluster_cols,
                          plot.grid = FALSE,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4,
+                         add.n.size = 5,
                          legend.ncol = 2,
                          legend.title = "") +
-      ggplot2::xlab("Grade") +
+      ggplot2::xlab("") +
       ggplot2::ylab("") +
       ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),
                      axis.ticks.x.bottom = ggplot2::element_blank(),
@@ -138,6 +138,14 @@ SCpubr::save_Plot(p,
                   dpi = 300,
                   output_format = "publication",
                   width = 6.33,
-                  height = 6.33)
+                  height = 6.75)
+
+SCpubr::save_Plot(p,
+                  figure_path = "/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/figs/Figure_3B",
+                  file_name = "Figure_3B-2",
+                  dpi = 300,
+                  output_format = "publication",
+                  width = 6.33,
+                  height = 6.75)
 ```
-<img src="../figs/Figure_3B/Figure_3B.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
+<img src="../figs/Figure_3B/Figure_3B-2.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

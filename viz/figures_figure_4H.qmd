@@ -20,9 +20,10 @@ suppressMessages(library("magrittr"))
 sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/microglia_paired.rds")
 
 # Define colors.
+sample$time <- ifelse(sample$time == "Primary", "P", "R")
 
-scale.status <- c("Primary" = "#ee9b00",
-                  "Relapse" = "#9b2226")
+scale.status <- c("P" = "#ee9b00",
+                  "R" = "#9b2226")
 
 ```
 
@@ -52,8 +53,8 @@ data <-  sample@meta.data %>%
                             values_from = "freq")
 
 p <- data %>% 
-     ggpubr::ggpaired(cond1 = "Primary",
-                      cond2 = "Relapse",
+     ggpubr::ggpaired(cond1 = "P",
+                      cond2 = "R",
                       facet.by = "final_annotation",
                       color = "black",
                       fill = "condition",
@@ -68,20 +69,20 @@ p <- data %>%
                                 paired = TRUE, 
                                 method = "wilcox.test") +
      ggplot2::scale_fill_manual(values = scale.status) +
-     ggplot2::theme_minimal(base_size = 12) +
+     ggplot2::theme_minimal(base_size = 20) +
      ggplot2::theme(axis.ticks.x.bottom = ggplot2::element_line(color = "black"),
                     axis.ticks.x.top = ggplot2::element_blank(),
                     axis.ticks.y.left = ggplot2::element_line(color = "black"),
                     axis.ticks.y.right = ggplot2::element_blank(),
-                    axis.text.y.left = ggplot2::element_text(color = "black", face = "bold"),
+                    axis.text.y.left = ggplot2::element_text(color = "black", face = "plain"),
                     axis.text.y.right = ggplot2::element_blank(),
                     axis.text.x.top = ggplot2::element_blank(),
-                    axis.text.x.bottom = ggplot2::element_text(color = "black", face = "bold"),
+                    axis.text.x.bottom = ggplot2::element_text(color = "black", face = "plain"),
                     axis.title.x.bottom = ggplot2::element_blank(),
                     axis.title.x.top = ggplot2::element_blank(),
                     axis.title.y.right = ggplot2::element_blank(),
                     axis.title.y.left = ggplot2::element_blank(),
-                    strip.text = ggplot2::element_text(face = "bold", color = "black"),
+                    strip.text = ggplot2::element_text(face = "plain", color = "black"),
                     axis.line = ggplot2::element_blank(),
                     plot.title = ggplot2::element_text(face = "bold", hjust = 0),
                     plot.subtitle = ggplot2::element_text(hjust = 0),
@@ -94,7 +95,7 @@ p <- data %>%
                     legend.text = ggplot2::element_text(face = "bold"),
                     legend.title = ggplot2::element_text(face = "bold"),
                     legend.justification = "center",
-                    plot.margin = ggplot2::margin(t = 4, r = 10, b = 0, l = 10),
+                    plot.margin = ggplot2::margin(t = 40, r = 10, b = 0, l = 10),
                     panel.border = ggplot2::element_rect(fill = NA, color = "black", linewidth = 1),
                     panel.grid.major = ggplot2::element_blank(),
                     legend.position = "none",
@@ -116,8 +117,8 @@ SCpubr::save_Plot(p,
                   file_name = "Figure_4H",
                   dpi = 300,
                   output_format = "publication",
-                  width = 20,
-                  height = 8)
+                  width = 12.65,
+                  height = 9)
 ```
 
 

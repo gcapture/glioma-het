@@ -54,7 +54,7 @@ p0 <- SCpubr::do_BarPlot(sample = sample.oligo,
                          group.by = "relabelling",
                          split.by = "orig.ident",
                          facet.by = "subtype",
-                         font.size = 12,
+                         font.size = 20,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
@@ -65,8 +65,8 @@ p0 <- SCpubr::do_BarPlot(sample = sample.oligo,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
-      ggplot2::xlab("Oligodendroglioma") +
+                         add.n.size = 5) +
+      ggplot2::xlab("OD") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
@@ -77,19 +77,21 @@ p1 <- SCpubr::do_BarPlot(sample = sample.astro,
                          group.by = "relabelling",
                          split.by = "orig.ident",
                          facet.by = "subtype",
-                         font.size = 12,
+                         font.size = 20,
                          flip = TRUE,
                          colors.use = cluster_cols,
                          position = "fill",
-                         legend.position = "none",
+                         legend.position = "bottom",
                          order = TRUE,
                          order.by = "RE",
                          plot.grid = FALSE,
                          add.n = TRUE,
                          add.n.expand = c(0, 1.15),
                          axis.text.face = "plain",
-                         add.n.size = 4) +
-      ggplot2::xlab("Astrocytoma") +
+                         add.n.size = 5,
+                         legend.ncol = 2,
+                         legend.title = "") +
+      ggplot2::xlab("AS") +
       ggplot2::ylab("") + 
       ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                      axis.ticks.x = ggplot2::element_blank(),
@@ -115,7 +117,7 @@ SCpubr::save_Plot(p,
                   dpi = 300,
                   output_format = "publication",
                   width = 6.33,
-                  height = 6.33)
+                  height = 6.75)
 ```
 
 <img src="../figs/Figure_2F/Figure_2F.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>

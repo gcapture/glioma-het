@@ -17,83 +17,119 @@ suppressMessages(library("magrittr"))
 # Division of Pediatric Neurooncology (B062)
 # DKFZ-KiTZ | Germany
 
-sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/primary_ATAC_OD.rds")
+library(fetusref.SeuratData)
+fetusref <- readRDS("/home/e420a/R/x86_64-pc-linux-gnu-library/4.2/fetusref.SeuratData/azimuth/ref.Rds")
+Seurat::Idents(fetusref) <- fetusref$annotation.l1
+fetusref@reductions$refDR <- NULL
 
-scale.ident <- c("IDH_ACB_AD_809" = "#F2CC8F",
-                 "IDH_ACB_AD_883" = "#DAA82B",
-                 "IDH_NCH2111" = "#81B29A",
-                 "IDH_NCH6341" = "#5CADC1")
+sample <- readRDS("/omics/odcf/analysis/OE0145_projects/idh_gliomas/Figures_Science/revision/IDH_gliomas_book/datasets/integrated_primary_OD.rds")
+sample <- sample[, sample$relabelling %in% c("OPC-like", "Astro-like", "RA", "Gradient", "Cycling")]
+sample$relabelling <- factor(sample$relabelling, levels = c("Astro-like", "Cycling", "Gradient", "OPC-like", "RA"))
+Seurat::Idents(sample) <- sample$relabelling
 
-sample$orig.ident <- stringr::str_replace_all(sample$orig.ident, "OE0145-", "")
+cluster_cols <- c("RA" = "#ECA809",
+                  "OPC-like" = "#043362",
+                  "T Cell" = "#009FF5",
+                  "Oligodendrocytes" = "#BC5210",
+                  "Astrocytes" = "#279185",
+                  "Microglia" = "#7EB356",
+                  "Pericytes" = "#AC70FF",
+                  "Mixed" = "#8d5d3f",
+                  "Gradient" = "#D6D6D6",
+                  "Neurons" = "#544B81",
+                  "Endothelial" = "#da627d",
+                  "Astro-like" = "#9A031E",
+                  "Excluded" = "#4D6880",
+                  "Cycling" = "#5F0F40")
+
+sample <- Azimuth::RunAzimuth(sample, 
+                              reference = "fetusref",
+                              annotation.levels = c("annotation.l1"))
+
+# Prepare sample metadata and apply desired cutoffs.
+sample@meta.data <- sample@meta.data %>%
+                    tibble::rownames_to_column(var = "cell") %>%
+                    dplyr::left_join(by = "cell",
+                                     y = {sample@meta.data %>%
+                                          tibble::rownames_to_column(var = "cell") %>%
+                                          dplyr::select(dplyr::all_of(c("cell", "predicted.annotation.l1", "predicted.annotation.l1.score", "mapping.score"))) %>%
+                                          dplyr::rowwise() %>%
+                                          dplyr::mutate("inferred_annotation" = if (.data[["predicted.annotation.l1.score"]] >= 0.75 &
+                                                                                    .data[["mapping.score"]] >= 0){.data[["predicted.annotation.l1"]]} else {NA}) %>%
+                                          dplyr::select(c("cell", "inferred_annotation"))}) %>%
+                    tibble::column_to_rownames(var = "cell")
+  
 ```
 
 ```{r}
 #| eval: false
-p1 <- SCpubr::do_ViolinPlot(sample = sample,
-                            group.by = "orig.ident",
-                            features = "percentage_reads_in_peaks",
-                            colors.use = scale.ident,
-                            boxplot_width = 0.05,
-                            font.size = 12,
-                            axis.text.face = "plain") + 
-      ggplot2::labs(y = "Pct. Reads in Peaks",
-                    x = "") +
-      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
-                     axis.ticks.x = ggplot2::element_blank(),
-                     axis.title.x = ggplot2::element_blank())
+p1 <- SCpubr::do_DimPlot(sample = sample,
+                         reduction = "umap",
+                         colors.use = cluster_cols,
+                         raster = TRUE,
+                         raster.dpi = 2048,
+                         pt.size = 4,
+                         legend.icon.size = 8,
+                         legend.ncol = 2,
+                         font.size = 20)
 
-p2 <- SCpubr::do_ViolinPlot(sample = sample,
-                            group.by = "orig.ident",
-                            features = "peak_region_fragments",
-                            colors.use = scale.ident,
-                            boxplot_width = 0.05,
-                            font.size = 12,
-                            axis.text.face = "plain") + 
-      ggplot2::labs(y = "Peak region fragments",
-                    x = "") +
-      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
-                     axis.ticks.x = ggplot2::element_blank(),
-                     axis.title.x = ggplot2::element_blank())
+p2 <- SCpubr::do_DimPlot(sample = sample,
+                         reduction = "ref.umap",
+                         colors.use = cluster_cols,
+                         raster = TRUE,
+                         raster.dpi = 2048,
+                         pt.size = 4,
+                         legend.icon.size = 8,
+                         legend.ncol = 2,
+                         font.size = 20)
 
-p3 <- SCpubr::do_ViolinPlot(sample = sample,
-                            group.by = "orig.ident",
-                            features = "blacklist_ratio",
-                            colors.use = scale.ident,
-                            boxplot_width = 0.05,
-                            font.size = 12,
-                            axis.text.face = "plain") + 
-      ggplot2::labs(y = "Blacklist ratio",
-                    x = "") +
-      ggplot2::scale_y_continuous(limits = c(0, 0.0075)) +
-      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
-                     axis.ticks.x = ggplot2::element_blank(),
-                     axis.title.x = ggplot2::element_blank())
+# Add reference coordinates.
+data <- as.data.frame(fetusref@reductions$refUMAP@cell.embeddings)
+colnames(data) <- c("x", "y")
 
-p4 <- SCpubr::do_ViolinPlot(sample = sample,
-                            group.by = "orig.ident",
-                            features = "TSS.enrichment",
-                            colors.use = scale.ident,
-                            boxplot_width = 0.05,
-                            font.size = 12,
-                            axis.text.face = "plain") + 
-      ggplot2::labs(y = "TSS enrichment",
-                    x = "") +
-      ggplot2::theme(axis.text.x = ggplot2::element_blank(),
-                     axis.ticks.x = ggplot2::element_blank(),
-                     axis.title.x = ggplot2::element_blank())
+base_layer <- scattermore::geom_scattermore(data = data,
+                                            mapping = ggplot2::aes(x = .data$x,
+                                                                   y = .data$y),
+                                            color = "grey75",
+                                            size = 4,
+                                            stroke = 4 / 2,
+                                            show.legend = FALSE,
+                                            pointsize = 4,
+                                            pixels = c(2048, 2048))
+p2$layers <- append(base_layer, p2$layers)
 
-p5 <- SCpubr::do_ViolinPlot(sample = sample,
-                            group.by = "orig.ident",
-                            features = "nucleosome_signal",
-                            colors.use = scale.ident,
-                            boxplot_width = 0.05,
-                            font.size = 12,
-                            axis.text.face = "plain") + 
-      ggplot2::labs(y = "Nucleosome signal",
-                    x = "Patient") +
-      ggplot2::scale_y_continuous(limits = c(0, 0.75))
+base_layer <- scattermore::geom_scattermore(data = data,
+                                            mapping = ggplot2::aes(x = .data$x,
+                                                                   y = .data$y),
+                                            color = "black",
+                                            size = 4 * 2,
+                                            stroke = 4 / 2,
+                                            show.legend = FALSE,
+                                            pointsize = 4 * 2,
+                                            pixels = c(2048, 2048))
+p2$layers <- append(base_layer, p2$layers)
 
-p <- p1 / p2 / p3 / p4 / p5
+p3 <- SCpubr::do_DimPlot(sample = sample,
+                         reduction = "umap",
+                         group.by = "inferred_annotation",
+                         raster = TRUE,
+                         raster.dpi = 2048,
+                         pt.size = 4,
+                         legend.icon.size = 8,
+                         legend.ncol = 2,
+                         font.size = 20)
+
+p4 <- SCpubr::do_BarPlot(sample = sample,
+                         group.by = "inferred_annotation",
+                         split.by = "relabelling",
+                         position = "fill",
+                         legend.title = "Predicted cell types",
+                         font.size = 20,
+                         axis.text.face = "plain",
+                         legend.ncol = 2) + 
+      ggplot2::xlab("Tumor identities")
+
+p <- (p1 | p2) / (p3 | p4)
 ```
 
 ```{r}
@@ -107,7 +143,7 @@ SCpubr::save_Plot(p,
                   dpi = 300,
                   output_format = "publication",
                   width = 9.5,
-                  height = 27)
+                  height = 13.5)
 ```
 
 <img src="../figs/Figure_S6A/Figure_S6A.png" class="mx-auto d-block" style="box-shadow: none; width: 100%"/>
